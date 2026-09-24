@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">Lịch Tuần</string>
+    <string name="tab_weekly">Bảng Lịch Tuần</string>
+    <string name="tab_studio">Màn Hình Khóa</string>
+    <string name="tab_ocr">Quét TKB</string>
+    <string name="widget_title">Lịch Tuần OPPO</string>
+    <string name="widget_description">Tiện ích xem lịch trình 7 ngày và sự kiện hôm nay trên màn hình chính.</string>
+</resources>
