@@ -1002,27 +1002,73 @@
                             <div class="date">Thứ Tư, 24 Tháng 9</div>
                         </div>
 
-                        <!-- Card Lịch Tuần Căn Đúng Safe Zone -->
+                        <!-- Khung Vị Trí Lịch Tuần Trên Màn Hình Khóa (Safe Zone Căn Chuẩn Find X9) -->
                         <div class="canvas-safe-card" id="canvas-safe-card">
-                            <div class="hdr">
-                                <span>📅 BẢNG LỊCH TUẦN NÀY</span>
-                                <span style="background: rgba(46,148,255,0.3); padding: 1px 4px; border-radius: 3px; color: #fff;">FIND X9</span>
+                            <!-- BỐ CỤC 1: 7 CỘT TỐI GIẢN (Columns) -->
+                            <div id="layout-columns-container">
+                                <div class="hdr">
+                                    <span>📅 BẢNG LỊCH TUẦN NÀY</span>
+                                    <span style="background: rgba(46,148,255,0.3); padding: 1px 4px; border-radius: 3px; color: #fff;">FIND X9</span>
+                                </div>
+                                <div class="canvas-mini-grid">
+                                    <div class="canvas-col-box"><div class="d">T2</div><div class="bar" style="background: var(--cat-work);"></div></div>
+                                    <div class="canvas-col-box"><div class="d">T3</div><div class="bar" style="background: var(--cat-health);"></div></div>
+                                    <div class="canvas-col-box active"><div class="d" style="color: var(--studio-accent);">T4</div><div class="bar" style="background: #FFA726;"></div></div>
+                                    <div class="canvas-col-box"><div class="d">T5</div><div class="bar" style="background: var(--cat-study);"></div></div>
+                                    <div class="canvas-col-box"><div class="d">T6</div><div class="bar" style="background: var(--cat-work);"></div></div>
+                                    <div class="canvas-col-box"><div class="d">T7</div><div class="bar" style="background: rgba(255,255,255,0.2);"></div></div>
+                                    <div class="canvas-col-box"><div class="d">CN</div><div class="bar" style="background: var(--cat-health);"></div></div>
+                                </div>
+                                <div style="background: rgba(255,255,255,0.08); border-radius: 6px; padding: 4px 6px; margin-top: 5px; display: flex; justify-content: space-between; align-items: center; border-left: 2px solid #FFA726;">
+                                    <div style="font-size: 8px; font-weight: bold;">13:00 Lập Trình Android</div>
+                                    <div style="font-size: 6px; background: #FF3B30; color: #fff; padding: 1px 3px; border-radius: 2px; font-weight: bold;">LIVE</div>
+                                </div>
                             </div>
 
-                            <div class="canvas-mini-grid" id="canvas-grid-body">
-                                <div class="canvas-col-box"><div class="d">T2</div><div class="bar" style="background: var(--cat-work);"></div></div>
-                                <div class="canvas-col-box"><div class="d">T3</div><div class="bar" style="background: var(--cat-health);"></div></div>
-                                <div class="canvas-col-box active"><div class="d" style="color: var(--studio-accent);">T4</div><div class="bar" style="background: #FFA726;"></div></div>
-                                <div class="canvas-col-box"><div class="d">T5</div><div class="bar" style="background: var(--cat-study);"></div></div>
-                                <div class="canvas-col-box"><div class="d">T6</div><div class="bar" style="background: var(--cat-work);"></div></div>
-                                <div class="canvas-col-box"><div class="d">T7</div><div class="bar" style="background: rgba(255,255,255,0.2);"></div></div>
-                                <div class="canvas-col-box"><div class="d">CN</div><div class="bar" style="background: var(--cat-health);"></div></div>
+                            <!-- BỐ CỤC 2: 7 DÒNG CHI TIẾT (Rows) -->
+                            <div id="layout-rows-container" style="display: none; flex-direction: column; gap: 3px;">
+                                <div style="font-size: 8.5px; font-weight: 800; color: #fff; margin-bottom: 2px;">Weekly Schedule</div>
+                                <div class="row-strip" style="display: flex; align-items: center; gap: 4px; background: rgba(0,0,0,0.3); padding: 2px 4px; border-radius: 4px;">
+                                    <span style="font-size: 7px; font-weight: bold; color: var(--studio-accent); width: 28px;">T2 22</span>
+                                    <span style="font-size: 7px; background: var(--cat-work); color: #fff; padding: 1px 4px; border-radius: 3px;">07:30 Toán</span>
+                                </div>
+                                <div class="row-strip" style="display: flex; align-items: center; gap: 4px; background: rgba(0,0,0,0.3); padding: 2px 4px; border-radius: 4px;">
+                                    <span style="font-size: 7px; font-weight: bold; color: var(--studio-accent); width: 28px;">T3 23</span>
+                                    <span style="font-size: 7px; background: var(--cat-health); color: #fff; padding: 1px 4px; border-radius: 3px;">06:00 Chạy Bộ</span>
+                                </div>
+                                <div class="row-strip" style="display: flex; align-items: center; gap: 4px; background: rgba(46,148,255,0.2); border-left: 2px solid var(--studio-accent); padding: 2px 4px; border-radius: 4px;">
+                                    <span style="font-size: 7px; font-weight: bold; color: #FFA726; width: 28px;">T4 24</span>
+                                    <span style="font-size: 7px; background: #FFA726; color: #000; padding: 1px 4px; border-radius: 3px; font-weight: bold;">13:00 Android</span>
+                                </div>
+                                <div class="row-strip" style="display: flex; align-items: center; gap: 4px; background: rgba(0,0,0,0.3); padding: 2px 4px; border-radius: 4px;">
+                                    <span style="font-size: 7px; font-weight: bold; color: var(--studio-accent); width: 28px;">T5 25</span>
+                                    <span style="font-size: 7px; background: var(--cat-study); color: #fff; padding: 1px 4px; border-radius: 3px;">08:00 Kỹ Thuật</span>
+                                </div>
+                                <div class="row-strip" style="display: flex; align-items: center; gap: 4px; background: rgba(0,0,0,0.3); padding: 2px 4px; border-radius: 4px;">
+                                    <span style="font-size: 7px; font-weight: bold; color: var(--studio-accent); width: 28px;">T6 26</span>
+                                    <span style="font-size: 7px; background: var(--cat-work); color: #fff; padding: 1px 4px; border-radius: 3px;">13:30 Báo Cáo</span>
+                                </div>
                             </div>
 
-                            <!-- Tiết học hôm nay -->
-                            <div id="canvas-today-row" style="background: rgba(255,255,255,0.08); border-radius: 6px; padding: 4px 6px; margin-top: 5px; display: flex; justify-content: space-between; align-items: center; border-left: 2px solid #FFA726;">
-                                <div style="font-size: 8px; font-weight: bold;">13:00 Lập Trình Android</div>
-                                <div style="font-size: 6px; background: #FF3B30; color: #fff; padding: 1px 3px; border-radius: 2px; font-weight: bold;">LIVE</div>
+                            <!-- BỐ CỤC 3: KÍNH MỜ (Frosted Glass Card) -->
+                            <div id="layout-frosted-container" style="display: none;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                                    <span style="font-size: 7.5px; font-weight: bold; color: var(--studio-accent);">AGENDA & WEEK</span>
+                                    <span style="font-size: 6.5px; color: rgba(255,255,255,0.7);">Hôm nay: Thứ Tư</span>
+                                </div>
+                                <div class="canvas-mini-grid" style="margin-bottom: 5px;">
+                                    <div class="canvas-col-box"><div class="d">T2</div><div class="bar" style="background: var(--cat-work);"></div></div>
+                                    <div class="canvas-col-box"><div class="d">T3</div><div class="bar" style="background: var(--cat-health);"></div></div>
+                                    <div class="canvas-col-box active"><div class="d" style="color: var(--studio-accent);">T4</div><div class="bar" style="background: #FFA726;"></div></div>
+                                    <div class="canvas-col-box"><div class="d">T5</div><div class="bar" style="background: var(--cat-study);"></div></div>
+                                    <div class="canvas-col-box"><div class="d">T6</div><div class="bar" style="background: var(--cat-work);"></div></div>
+                                    <div class="canvas-col-box"><div class="d">T7</div><div class="bar" style="background: rgba(255,255,255,0.2);"></div></div>
+                                    <div class="canvas-col-box"><div class="d">CN</div><div class="bar" style="background: var(--cat-health);"></div></div>
+                                </div>
+                                <div style="background: rgba(255,255,255,0.06); border-radius: 6px; padding: 4px; font-size: 7.5px;">
+                                    <div style="color: var(--studio-accent); font-weight: bold;">🎯 Lịch trình tiếp theo:</div>
+                                    <div style="color: #fff; margin-top: 1px;">19:00 Họp Nhóm Đồ Án</div>
+                                </div>
                             </div>
                         </div>
 
@@ -1069,17 +1115,17 @@
                         <!-- 2. Nội dung Tab Kiểu Lịch (Layout) -->
                         <div id="sub-layout" class="sub-tab-panel">
                             <div class="layout-options-row">
-                                <div class="layout-btn active" onclick="setLayoutType('grid', this)">
-                                    <span style="font-size: 15px;">📊</span>
-                                    <span>Ma Trận 7 Cột</span>
+                                <div class="layout-btn active" onclick="setLayoutType('columns', this)">
+                                    <span style="font-size: 14px;">📊</span>
+                                    <span>7 Cột Tối Giản</span>
                                 </div>
-                                <div class="layout-btn" onclick="setLayoutType('list', this)">
-                                    <span style="font-size: 15px;">📑</span>
-                                    <span>Danh Sách</span>
+                                <div class="layout-btn" onclick="setLayoutType('rows', this)">
+                                    <span style="font-size: 14px;">📑</span>
+                                    <span>7 Dòng Chi Tiết</span>
                                 </div>
-                                <div class="layout-btn" onclick="setLayoutType('today', this)">
-                                    <span style="font-size: 15px;">🎯</span>
-                                    <span>Chỉ Hôm Nay</span>
+                                <div class="layout-btn" onclick="setLayoutType('frosted', this)">
+                                    <span style="font-size: 14px;">💎</span>
+                                    <span>Kính Mờ</span>
                                 </div>
                             </div>
                         </div>
@@ -1088,14 +1134,15 @@
                         <div id="sub-pos" class="sub-tab-panel">
                             <div class="pos-options-row">
                                 <div class="pos-buttons">
-                                    <div class="pos-btn active" onclick="setCardPosition('center', this)">Giữa (Safe Zone)</div>
                                     <div class="pos-btn" onclick="setCardPosition('top', this)">Dưới Đồng Hồ</div>
-                                    <div class="pos-btn" onclick="setCardPosition('bottom', this)">Dưới Cùng</div>
+                                    <div class="pos-btn active" onclick="setCardPosition('center', this)">Chính Giữa</div>
+                                    <div class="pos-btn" onclick="setCardPosition('bottom', this)">Dưới Đáy</div>
+                                    <div class="pos-btn" style="background: rgba(46,148,255,0.25); color: #55B5FF; font-weight: bold;" onclick="autoCalibratePosition()">✨ Tự Căn</div>
                                 </div>
                                 <div class="pos-slider-row">
-                                    <span>Dịch Y:</span>
-                                    <input type="range" min="-40" max="40" value="0" id="y-slider" oninput="adjustY(this.value)">
-                                    <span id="y-val" style="width: 32px; font-weight: bold;">0px</span>
+                                    <span>Dịch chuyển Y:</span>
+                                    <input type="range" min="-70" max="70" value="0" id="y-slider" oninput="adjustY(this.value)">
+                                    <span id="y-val" style="width: 36px; font-weight: bold; text-align: right;">0px</span>
                                 </div>
                             </div>
                         </div>
@@ -1236,22 +1283,37 @@
             alert('Mở thư viện ảnh điện thoại để chọn hình nền cá nhân của bạn!');
         }
 
+        let currentBaseOffset = 0;
+
         function setLayoutType(type, el) {
             document.querySelectorAll('.layout-btn').forEach(b => b.classList.remove('active'));
             el.classList.add('active');
 
-            const grid = document.getElementById('canvas-grid-body');
-            const todayRow = document.getElementById('canvas-today-row');
+            const colView = document.getElementById('layout-columns-container');
+            const rowView = document.getElementById('layout-rows-container');
+            const frostView = document.getElementById('layout-frosted-container');
+            const card = document.getElementById('canvas-safe-card');
 
-            if (type === 'today') {
-                grid.style.display = 'none';
-                todayRow.style.display = 'flex';
-            } else if (type === 'list') {
-                grid.style.display = 'none';
-                todayRow.style.display = 'flex';
+            if (type === 'rows') {
+                colView.style.display = 'none';
+                rowView.style.display = 'flex';
+                frostView.style.display = 'none';
+                card.style.background = 'rgba(22, 27, 34, 0.85)';
+                card.style.border = '1px solid rgba(255, 255, 255, 0.15)';
+            } else if (type === 'frosted') {
+                colView.style.display = 'none';
+                rowView.style.display = 'none';
+                frostView.style.display = 'block';
+                card.style.background = 'rgba(30, 35, 48, 0.72)';
+                card.style.backdropFilter = 'blur(28px)';
+                card.style.border = '1.5px solid rgba(255, 255, 255, 0.3)';
+                card.style.boxShadow = '0 12px 30px rgba(0,0,0,0.6)';
             } else {
-                grid.style.display = 'grid';
-                todayRow.style.display = 'flex';
+                colView.style.display = 'block';
+                rowView.style.display = 'none';
+                frostView.style.display = 'none';
+                card.style.background = 'rgba(22, 27, 34, 0.82)';
+                card.style.border = '1px solid rgba(255, 255, 255, 0.2)';
             }
         }
 
@@ -1259,21 +1321,37 @@
             document.querySelectorAll('.pos-btn').forEach(b => b.classList.remove('active'));
             el.classList.add('active');
 
-            const card = document.getElementById('canvas-safe-card');
             if (pos === 'top') {
-                card.style.transform = 'translateY(-25px)';
+                currentBaseOffset = -34; // Căn sát dưới đồng hồ ColorOS
             } else if (pos === 'bottom') {
-                card.style.transform = 'translateY(25px)';
+                currentBaseOffset = 36; // Căn sát trên cảm biến vân tay
             } else {
-                card.style.transform = 'translateY(0px)';
+                currentBaseOffset = 0; // Chính giữa Safe Zone cân đối
             }
             document.getElementById('y-slider').value = 0;
             document.getElementById('y-val').textContent = '0px';
+            applyTotalTransform();
+        }
+
+        function autoCalibratePosition() {
+            // Tự căn chuẩn theo tỷ lệ màn hình 19.8:9 của OPPO Find X9
+            currentBaseOffset = 0;
+            document.getElementById('y-slider').value = 0;
+            document.getElementById('y-val').textContent = '0px';
+            applyTotalTransform();
+            document.querySelectorAll('.pos-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.pos-btn')[1].classList.add('active'); // chọn nút Chính Giữa
         }
 
         function adjustY(val) {
             document.getElementById('y-val').textContent = val + 'px';
-            document.getElementById('canvas-safe-card').style.transform = 'translateY(' + val + 'px)';
+            applyTotalTransform();
+        }
+
+        function applyTotalTransform() {
+            const sliderVal = parseInt(document.getElementById('y-slider').value) || 0;
+            const total = currentBaseOffset + sliderVal;
+            document.getElementById('canvas-safe-card').style.transform = 'translateY(' + total + 'px)';
         }
 
         function setStudioColor(hex, el) {
