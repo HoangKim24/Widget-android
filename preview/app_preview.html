@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lịch Tuần - Demo Giao Diện OPPO Find X9</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #0B0E14;
+            --phone-body: #161B22;
+            --phone-border: #2D3748;
+            --screen-bg: #12151B;
+            --card-bg: #1E222B;
+            --card-stroke: rgba(255, 255, 255, 0.08);
+            --primary: #1E88E5;
+            --accent-gold: #FFA726;
+            --accent-badge: #42A5F5;
+            --live-red: #FF3B30;
+            --text-main: #F4F7FB;
+            --text-sub: #8E9AA8;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: radial-gradient(circle at top, #1A2234 0%, #080A0F 100%);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+        }
+
+        .controls {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 24px;
+            background: rgba(30, 34, 43, 0.7);
+            padding: 6px;
+            border-radius: 999px;
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--card-stroke);
+        }
+
+        .tab-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-sub);
+            padding: 10px 22px;
+            border-radius: 999px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.25s ease;
+        }
+
+        .tab-btn.active {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 4px 16px rgba(30, 136, 229, 0.4);
+        }
+
+        /* OPPO Find X9 Phone Frame (Ratio 19.8:9) */
+        .device-wrapper {
+            position: relative;
+            width: 380px;
+            height: 790px;
+            background: #000;
+            border-radius: 52px;
+            padding: 10px;
+            box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.8),
+                        0 0 0 2px #333d4b,
+                        0 0 40px rgba(30, 136, 229, 0.15);
+        }
+
+        .screen {
+            width: 100%;
+            height: 100%;
+            background: var(--screen-bg);
+            border-radius: 42px;
+            overflow: hidden;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Punch hole camera */
+        .punch-hole {
+            position: absolute;
+            top: 14px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 14px;
+            height: 14px;
+            background: #050505;
+            border-radius: 50%;
+            z-index: 100;
+            box-shadow: inset 0 0 2px #222;
+        }
+
+        /* Status bar */
+        .status-bar {
+            height: 38px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 24px;
+            font-size: 13px;
+            font-weight: 600;
+            color: #ccc;
+            z-index: 50;
+        }
+
+        .view-container {
+            flex: 1;
+            overflow-y: auto;
+            display: none;
+            flex-direction: column;
+            padding: 14px 20px 80px 20px;
+        }
+
+        .view-container.active {
+            display: flex;
+        }
+
+        /* View 1: Main App */
+        .app-header {
+            margin-bottom: 20px;
+        }
+        .app-title {
+            font-size: 26px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+        }
+        .app-sub {
+            font-size: 13px;
+            color: var(--text-sub);
+            margin-top: 2px;
+        }
+
+        /* Day selector pills */
+        .days-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 6px;
+            margin-bottom: 20px;
+        }
+        .day-pill {
+            flex: 1;
+            padding: 10px 0;
+            border-radius: 12px;
+            background: var(--card-bg);
+            border: 1px solid var(--card-stroke);
+            text-align: center;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-sub);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .day-pill.active {
+            background: var(--primary);
+            color: #fff;
+            box-shadow: 0 4px 14px rgba(30, 136, 229, 0.4);
+            border-color: transparent;
+        }
+
+        /* Events list */
+        .event-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-stroke);
+            border-radius: 18px;
+            padding: 16px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            position: relative;
+            transition: transform 0.2s;
+        }
+        .event-card.live-card {
+            border: 2px solid var(--live-red);
+            box-shadow: 0 0 20px rgba(255, 59, 48, 0.25);
+            animation: pulse-border 2s infinite ease-in-out;
+        }
+        @keyframes pulse-border {
+            0%, 100% { box-shadow: 0 0 15px rgba(255, 59, 48, 0.2); }
+            50% { box-shadow: 0 0 25px rgba(255, 59, 48, 0.45); }
+        }
+
+        .event-time-col {
+            width: 76px;
+        }
+        .event-day-tag {
+            font-size: 13px;
+            font-weight: 800;
+            color: var(--accent-gold);
+        }
+        .event-time {
+            font-size: 11px;
+            color: var(--text-sub);
+            margin-top: 2px;
+        }
+
+        .event-bar {
+            width: 4px;
+            height: 38px;
+            border-radius: 4px;
+            margin-right: 14px;
+        }
+
+        .event-info {
+            flex: 1;
+        }
+        .event-name {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+        .event-loc {
+            font-size: 12px;
+            color: var(--text-sub);
+            margin-top: 3px;
+        }
+
+        .live-tag {
+            background: var(--live-red);
+            color: #fff;
+            font-size: 10px;
+            font-weight: 800;
+            padding: 4px 8px;
+            border-radius: 6px;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .live-dot {
+            width: 6px;
+            height: 6px;
+            background: #fff;
+            border-radius: 50%;
+            animation: blink 1s infinite alternate;
+        }
+        @keyframes blink { from { opacity: 0.3; } to { opacity: 1; } }
+
+        .fab-btn {
+            position: absolute;
+            bottom: 24px;
+            right: 24px;
+            width: 56px;
+            height: 56px;
+            background: var(--primary);
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            color: #fff;
+            box-shadow: 0 8px 24px rgba(30, 136, 229, 0.45);
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .fab-btn:hover {
+            transform: scale(1.05);
+        }
+
+        /* View 2: Widget */
+        .widget-screen {
+            background: url('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1000&auto=format&fit=crop') center/cover;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        .coloros-widget {
+            background: rgba(30, 34, 43, 0.85);
+            backdrop-filter: blur(25px);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 28px;
+            padding: 18px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+        }
+        .widget-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 14px;
+        }
+        .widget-title {
+            font-size: 14px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            color: #fff;
+        }
+
+        /* View 3: Lock Screen with Safe Zone */
+        .lock-screen {
+            background: linear-gradient(180deg, #1b2838 0%, #0d121b 100%);
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+        }
+        .lock-clock-area {
+            margin-top: 40px;
+            text-align: center;
+        }
+        .lock-time {
+            font-size: 68px;
+            font-weight: 300;
+            line-height: 1;
+            letter-spacing: -2px;
+        }
+        .lock-date {
+            font-size: 14px;
+            color: var(--text-sub);
+            margin-top: 6px;
+        }
+
+        .lock-safe-card {
+            margin: 30px 20px 0 20px;
+            background: rgba(22, 27, 34, 0.75);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            padding: 16px;
+            width: calc(100% - 40px);
+        }
+
+        .fingerprint-area {
+            position: absolute;
+            bottom: 40px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 11px;
+        }
+        .fp-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            border: 1px dashed rgba(255, 255, 255, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 6px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="controls">
+        <button class="tab-btn active" onclick="switchView('app-view', this)">📱 App Lịch Tuần</button>
+        <button class="tab-btn" onclick="switchView('widget-view', this)">🧩 Widget ColorOS</button>
+        <button class="tab-btn" onclick="switchView('lock-view', this)">🔒 Màn Hình Khóa Find X9</button>
+    </div>
+
+    <div class="device-wrapper">
+        <div class="punch-hole"></div>
+
+        <div class="screen">
+            <!-- Status Bar -->
+            <div class="status-bar">
+                <span>14:02</span>
+                <span>5G &nbsp; 98%</span>
+            </div>
+
+            <!-- VIEW 1: Main App View -->
+            <div id="app-view" class="view-container active">
+                <div class="app-header">
+                    <h1 class="app-title">Lịch Tuần Này</h1>
+                    <p class="app-sub">Thứ Tư, 24 Tháng 9 • OPPO Find X9</p>
+                </div>
+
+                <div class="days-row">
+                    <div class="day-pill">T2</div>
+                    <div class="day-pill">T3</div>
+                    <div class="day-pill active">T4</div>
+                    <div class="day-pill">T5</div>
+                    <div class="day-pill">T6</div>
+                    <div class="day-pill">T7</div>
+                    <div class="day-pill">CN</div>
+                </div>
+
+                <!-- Event 1 -->
+                <div class="event-card">
+                    <div class="event-time-col">
+                        <div class="event-day-tag">T4</div>
+                        <div class="event-time">07:30 - 09:30</div>
+                    </div>
+                    <div class="event-bar" style="background: #1E88E5;"></div>
+                    <div class="event-info">
+                        <div class="event-name">Toán Cao Cấp</div>
+                        <div class="event-loc">📍 Phòng A.201</div>
+                    </div>
+                </div>
+
+                <!-- Event 2: LIVE NOW -->
+                <div class="event-card live-card">
+                    <div class="event-time-col">
+                        <div class="event-day-tag">T4</div>
+                        <div class="event-time">13:00 - 16:00</div>
+                    </div>
+                    <div class="event-bar" style="background: #FFA726;"></div>
+                    <div class="event-info">
+                        <div class="event-name">Lập Trình Android</div>
+                        <div class="event-loc">📍 Phòng Lab 3</div>
+                    </div>
+                    <div class="live-tag">
+                        <div class="live-dot"></div> LIVE
+                    </div>
+                </div>
+
+                <!-- Event 3 -->
+                <div class="event-card">
+                    <div class="event-time-col">
+                        <div class="event-day-tag">T4</div>
+                        <div class="event-time">19:00 - 20:30</div>
+                    </div>
+                    <div class="event-bar" style="background: #42A5F5;"></div>
+                    <div class="event-info">
+                        <div class="event-name">Họp Nhóm Đồ Án</div>
+                        <div class="event-loc">🌐 Online Meet</div>
+                    </div>
+                    <span style="font-size: 16px; opacity: 0.6;">🔔</span>
+                </div>
+
+                <div class="fab-btn">+</div>
+            </div>
+
+            <!-- VIEW 2: ColorOS Widget View -->
+            <div id="widget-view" class="view-container widget-screen">
+                <div class="coloros-widget">
+                    <div class="widget-head">
+                        <span class="widget-title">📅 LỊCH TUẦN NÀY (COLOROS)</span>
+                        <span style="font-size: 11px; background: rgba(30,136,229,0.3); color: #42A5F5; padding: 2px 8px; border-radius: 6px; font-weight: bold;">HÔM NAY</span>
+                    </div>
+
+                    <div style="background: rgba(255,255,255,0.05); padding: 12px; border-radius: 16px; margin-bottom: 8px; border-left: 4px solid #FFA726; display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <div style="font-weight: 700; font-size: 14px;">Lập Trình Android</div>
+                            <div style="font-size: 11px; color: #8E9AA8;">13:00 - 16:00 • Phòng Lab 3</div>
+                        </div>
+                        <div class="live-tag" style="font-size: 9px; padding: 2px 6px;">LIVE</div>
+                    </div>
+
+                    <div style="background: rgba(255,255,255,0.03); padding: 12px; border-radius: 16px; border-left: 4px solid #42A5F5;">
+                        <div style="font-weight: 700; font-size: 14px;">Họp Nhóm Đồ Án</div>
+                        <div style="font-size: 11px; color: #8E9AA8;">19:00 - 20:30 • Online Meet</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- VIEW 3: Lock Screen View with Safe Zone -->
+            <div id="lock-view" class="view-container lock-screen">
+                <div class="lock-clock-area">
+                    <div class="lock-time">14:02</div>
+                    <div class="lock-date">Thứ Tư, 24 Tháng 9</div>
+                </div>
+
+                <div class="lock-safe-card">
+                    <div style="font-size: 11px; font-weight: 800; color: #FFA726; margin-bottom: 8px; letter-spacing: 0.5px;">
+                        🎯 TIẾT HỌC HIỆN TẠI
+                    </div>
+                    <div style="font-size: 16px; font-weight: bold;">Lập Trình Android</div>
+                    <div style="font-size: 12px; color: #8E9AA8; margin-top: 2px;">13:00 - 16:00 • Phòng Lab 3 (Còn 1h58m)</div>
+                </div>
+
+                <div class="fingerprint-area">
+                    <div class="fp-icon">👆</div>
+                    <span>Cảm biến vân tay quang học</span>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        function switchView(viewId, btn) {
+            document.querySelectorAll('.view-container').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+            document.getElementById(viewId).classList.add('active');
+            btn.classList.add('active');
+        }
+    </script>
+</body>
+</html>
