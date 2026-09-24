@@ -21,7 +21,7 @@
             --text-sub: rgba(255, 255, 255, 0.65);
             --text-dim: rgba(255, 255, 255, 0.4);
 
-            /* Danh mục màu chuẩn app */
+            /* 6 Danh mục màu chuẩn app */
             --cat-work: #2B82F6;     /* Công việc: Xanh biển */
             --cat-personal: #F59E0B; /* Cá nhân: Vàng cam */
             --cat-health: #10B981;   /* Sức khỏe: Xanh ngọc */
@@ -54,8 +54,8 @@
             display: flex;
             gap: 10px;
             margin-bottom: 20px;
-            background: rgba(30, 33, 43, 0.8);
-            padding: 5px;
+            background: rgba(30, 33, 43, 0.85);
+            padding: 6px;
             border-radius: 999px;
             backdrop-filter: blur(16px);
             border: 1px solid var(--card-border);
@@ -67,7 +67,7 @@
             background: transparent;
             border: none;
             color: var(--text-sub);
-            padding: 10px 20px;
+            padding: 10px 22px;
             border-radius: 999px;
             font-size: 13.5px;
             font-weight: 700;
@@ -133,19 +133,21 @@
             font-weight: 700;
             color: rgba(255,255,255,0.85);
             z-index: 150;
+            flex-shrink: 0;
         }
 
-        /* View Scroll Container */
+        /* View Content Management (KHÔNG BỊ ĐÈ NHAU) */
         .view-content {
+            display: none !important;
             flex: 1;
+            width: 100%;
+            height: calc(100% - 38px);
             overflow-y: auto;
             overflow-x: hidden;
-            display: none;
             flex-direction: column;
-            padding-bottom: 30px;
         }
         .view-content.active {
-            display: flex;
+            display: flex !important;
         }
 
         /* Custom scrollbar */
@@ -161,7 +163,6 @@
         /* MÀN HÌNH 1: BẢNG LỊCH TUẦN GỐC (CHUẨN 100% CODE SWIFT) */
         /* ==================================================== */
 
-        /* App Bar Trên Cùng */
         .app-bar {
             height: 44px;
             display: flex;
@@ -169,6 +170,7 @@
             justify-content: space-between;
             padding: 0 16px;
             position: relative;
+            flex-shrink: 0;
         }
         .app-bar-title {
             font-size: 17px;
@@ -619,7 +621,6 @@
             color: rgba(255,255,255,0.9);
         }
 
-        /* Nút Switch */
         .switch {
             position: relative;
             display: inline-block;
@@ -639,7 +640,6 @@
         input:checked + .slider { background-color: #10B981; }
         input:checked + .slider:before { transform: translateX(16px); }
 
-        /* Nút thêm to */
         .add-schedule-btn {
             background: var(--primary);
             color: #fff;
@@ -658,7 +658,6 @@
         }
         .add-schedule-btn:hover { opacity: 0.9; }
 
-        /* Nút Gradient To Đáy App: XEM & XUẤT HÌNH NỀN MÀN HÌNH KHÓA */
         .gradient-studio-btn {
             background: linear-gradient(135deg, #1E88E5 0%, #6C5CE7 100%);
             color: #fff;
@@ -684,11 +683,8 @@
         /* ==================================================== */
         .lockscreen-studio-view {
             position: relative;
-            background: url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=1000&auto=format&fit=crop') center/cover;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
+            background: url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=1000&auto=format&fit=crop') center/cover !important;
+            height: 100% !important;
         }
         .lockscreen-overlay {
             position: absolute;
@@ -703,12 +699,11 @@
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            padding: 10px 14px 30px 14px;
+            padding: 10px 14px 20px 14px;
         }
 
-        /* Đồng hồ ColorOS */
         .coloros-clock-section {
-            margin-top: 36px;
+            margin-top: 28px;
             text-align: center;
         }
         .coloros-time {
@@ -726,13 +721,12 @@
             text-shadow: 0 1px 4px rgba(0,0,0,0.5);
         }
 
-        /* Safe Zone Calendar Card */
         .lock-calendar-card {
-            background: rgba(22, 27, 34, 0.78);
+            background: rgba(22, 27, 34, 0.82);
             backdrop-filter: blur(24px);
-            border: 1px solid rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.16);
             border-radius: 22px;
-            padding: 12px;
+            padding: 14px;
             box-shadow: 0 16px 36px rgba(0,0,0,0.5);
         }
         .lock-card-header {
@@ -752,7 +746,7 @@
             gap: 4px;
             color: rgba(255,255,255,0.45);
             font-size: 10px;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
         }
         .fp-ring {
             width: 44px;
@@ -769,20 +763,50 @@
         /* MÀN HÌNH 3: WIDGET MÀN HÌNH CHÍNH COLOROS            */
         /* ==================================================== */
         .widget-preview-view {
-            background: url('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1000&auto=format&fit=crop') center/cover;
-            height: 100%;
-            padding: 16px;
+            background: url('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1000&auto=format&fit=crop') center/cover !important;
+            height: 100% !important;
+            padding: 18px;
             display: flex;
             flex-direction: column;
             justify-content: center;
         }
         .coloros-home-widget {
-            background: rgba(24, 28, 38, 0.88);
+            background: rgba(24, 28, 38, 0.9);
             backdrop-filter: blur(30px);
-            border: 1px solid rgba(255, 255, 255, 0.14);
+            border: 1px solid rgba(255, 255, 255, 0.16);
             border-radius: 26px;
-            padding: 16px;
+            padding: 18px;
             box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+        }
+
+        /* Thanh Điều Hướng Đáy Màn Hình (Bottom Bar trong App) */
+        .bottom-nav-bar {
+            height: 58px;
+            background: rgba(20, 23, 31, 0.95);
+            backdrop-filter: blur(20px);
+            border-top: 1px solid var(--card-border);
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+            flex-shrink: 0;
+            z-index: 100;
+        }
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 3px;
+            color: var(--text-sub);
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        .nav-item.active {
+            color: var(--primary);
+        }
+        .nav-item .icon {
+            font-size: 18px;
         }
     </style>
 </head>
@@ -791,13 +815,13 @@
     <!-- BỘ CHUYỂN CHẾ ĐỘ XEM TRÊN CÙNG -->
     <div class="mode-switcher">
         <button class="mode-btn active" onclick="setMode('tab-app', this)">
-            📅 Bảng Lịch Tuần (App Chuẩn)
+            📅 1. Bảng Lịch Tuần (App)
         </button>
         <button class="mode-btn" onclick="setMode('tab-lock', this)">
-            🔒 Màn Hình Khóa Find X9
+            🔒 2. Màn Hình Khóa Find X9
         </button>
         <button class="mode-btn" onclick="setMode('tab-widget', this)">
-            🧩 Widget ColorOS
+            🧩 3. Widget ColorOS
         </button>
     </div>
 
@@ -816,7 +840,6 @@
             <!-- 1. MÀN HÌNH CHÍNH APP: BẢNG LỊCH TUẦN ĐẦY ĐỦ   -->
             <!-- ============================================== -->
             <div id="tab-app" class="view-content active">
-                <!-- Navigation App Bar -->
                 <div class="app-bar">
                     <div style="width: 34px;"></div>
                     <div class="app-bar-title">Bảng Lịch Tuần</div>
@@ -913,7 +936,7 @@
                                 <div class="col-blocks-container">
                                     <div class="mini-event-block" style="background: var(--cat-study);">
                                         <span class="time">08:00</span>
-                                        <span class="title">Kỹ Thuật L.Trình</span>
+                                        <span class="title">Kỹ Thuật LT</span>
                                     </div>
                                 </div>
                             </div>
@@ -927,7 +950,7 @@
                                 <div class="col-blocks-container">
                                     <div class="mini-event-block" style="background: var(--cat-work);">
                                         <span class="time">13:30</span>
-                                        <span class="title">Báo Cáo Tuần</span>
+                                        <span class="title">Báo Cáo</span>
                                     </div>
                                 </div>
                             </div>
@@ -1175,9 +1198,23 @@
                     </div>
 
                     <div style="background: rgba(255,255,255,0.04); padding: 10px 12px; border-radius: 14px; border-left: 4px solid var(--cat-family);">
-                        <div style="font-weight: 700; font-size: 13px;">Họp Nhóm Đồ Án</div>
-                        <div style="font-size: 11px; color: var(--text-sub);">19:00 - 20:30 • Google Meet</div>
+                        <div>
+                            <div style="font-weight: 700; font-size: 13px;">Họp Nhóm Đồ Án</div>
+                            <div style="font-size: 11px; color: var(--text-sub);">19:00 - 20:30 • Google Meet</div>
+                        </div>
                     </div>
+                </div>
+            </div>
+
+            <!-- THANH ĐIỀU HƯỚNG ĐÁY MÀN HÌNH (BOTTOM BAR TRONG APP) -->
+            <div class="bottom-nav-bar">
+                <div class="nav-item active" onclick="setMode('tab-app', document.querySelectorAll('.mode-btn')[0])">
+                    <span class="icon">📅</span>
+                    <span>Lịch Tuần</span>
+                </div>
+                <div class="nav-item" onclick="setMode('tab-lock', document.querySelectorAll('.mode-btn')[1])">
+                    <span class="icon">✨</span>
+                    <span>Màn Hình Khóa</span>
                 </div>
             </div>
 
@@ -1191,10 +1228,35 @@
         let selectedCategoryColor = 'var(--cat-work)';
 
         function setMode(tabId, btn) {
-            document.querySelectorAll('.view-content').forEach(el => el.classList.remove('active'));
+            // Ẩn tất cả view
+            document.querySelectorAll('.view-content').forEach(el => {
+                el.classList.remove('active');
+            });
+            // Gỡ active trên nút trên cùng
             document.querySelectorAll('.mode-btn').forEach(el => el.classList.remove('active'));
-            document.getElementById(tabId).classList.add('active');
-            btn.classList.add('active');
+
+            // Kích hoạt view được chọn duy nhất
+            const targetView = document.getElementById(tabId);
+            if (targetView) {
+                targetView.classList.add('active');
+            }
+            if (btn && btn.classList.contains('mode-btn')) {
+                btn.classList.add('active');
+            }
+
+            // Đồng bộ thanh đáy
+            const bottomNavItems = document.querySelectorAll('.bottom-nav-bar .nav-item');
+            if (tabId === 'tab-app') {
+                bottomNavItems[0]?.classList.add('active');
+                bottomNavItems[1]?.classList.remove('active');
+                document.querySelector('.bottom-nav-bar').style.display = 'flex';
+            } else if (tabId === 'tab-lock') {
+                bottomNavItems[0]?.classList.remove('active');
+                bottomNavItems[1]?.classList.add('active');
+                document.querySelector('.bottom-nav-bar').style.display = 'none'; // màn hình khóa ko có navbar trong app
+            } else {
+                document.querySelector('.bottom-nav-bar').style.display = 'none'; // widget màn hình chính ko có navbar
+            }
         }
 
         function selectDay(index, el) {
