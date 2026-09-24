@@ -34,7 +34,7 @@ object FindX9WallpaperRenderer {
         val canvas = Canvas(output)
 
         // 1. VẼ HÌNH NỀN
-        if (baseImage != null && config.preset == WallpaperPreset.CUSTOM) {
+        if (baseImage != null) {
             val srcRect = android.graphics.Rect(0, 0, baseImage.width, baseImage.height)
             val dstRect = android.graphics.Rect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT)
             canvas.drawBitmap(baseImage, srcRect, dstRect, null)

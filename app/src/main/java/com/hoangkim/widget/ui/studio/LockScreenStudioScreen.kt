@@ -367,7 +367,7 @@ fun LockScreenStudioScreen(
                                     horizontalArrangement = Arrangement.spacedBy(12.dp),
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
-                                    WallpaperPreset.entries.forEach { preset ->
+                                    WallpaperPreset.entries.filter { it != WallpaperPreset.CUSTOM }.forEach { preset ->
                                         val isSelected = config.preset == preset
                                         Column(
                                             horizontalAlignment = Alignment.CenterHorizontally,

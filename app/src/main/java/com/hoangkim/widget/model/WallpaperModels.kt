@@ -33,6 +33,11 @@ enum class WallpaperPreset(
         id = "candy",
         title = "Kẹo Ngọt Pastel",
         colors = listOf(Color(0xFFF2B3D9), Color(0xFFBFCCFA), Color(0xFFFAE0CC))
+    ),
+    CUSTOM(
+        id = "custom",
+        title = "Ảnh Của Bạn",
+        colors = listOf(Color(0xFF08080A), Color(0xFF1A1C24))
     );
 
     val brush: Brush
