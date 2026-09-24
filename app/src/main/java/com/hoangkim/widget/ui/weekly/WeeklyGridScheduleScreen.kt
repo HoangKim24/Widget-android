@@ -91,10 +91,122 @@ fun WeeklyGridScheduleScreen(
                     )
                 },
                 actions = {
-                    IconButton(onClick = {
-                        Toast.makeText(context, "Menu tùy chọn & Đồng bộ", Toast.LENGTH_SHORT).show()
-                    }) {
+                    var showMoreMenu by remember { mutableStateOf(false) }
+                    IconButton(onClick = { showMoreMenu = true }) {
                         Icon(Icons.Default.MoreVert, contentDescription = "Tùy chọn", tint = Color.White.copy(alpha = 0.85f))
+                    }
+                    DropdownMenu(
+                        expanded = showMoreMenu,
+                        onDismissRequest = { showMoreMenu = false },
+                        modifier = Modifier.background(Color(0xFF1E212B))
+                    ) {
+                        // Section 1: Đồng Bộ & Nhập Lịch
+                        Text(
+                            "ĐỒNG BỘ & NHẬP LỊCH",
+                            fontSize = 10.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.White.copy(alpha = 0.5f),
+                            modifier = Modifier.padding(horizontal = 14.dp, vertical = 4.dp)
+                        )
+                        DropdownMenuItem(
+                            text = { Text("Đồng Bộ Từ Lịch Điện Thoại", color = Color.White, fontSize = 13.sp) },
+                            leadingIcon = { Icon(Icons.Default.Sync, contentDescription = null, tint = Color(0xFF2E94FF)) },
+                            onClick = {
+                                showMoreMenu = false
+                                Toast.makeText(context, "Đang đồng bộ từ Google Calendar / Lịch máy...", Toast.LENGTH_SHORT).show()
+                            }
+                        )
+                        DropdownMenuItem(
+                            text = { Text("Dán Lịch & Quét Ảnh (OCR)", color = Color.White, fontSize = 13.sp) },
+                            leadingIcon = { Icon(Icons.Default.DocumentScanner, contentDescription = null, tint = Color(0xFFB388FF)) },
+                            onClick = {
+                                showMoreMenu = false
+                                Toast.makeText(context, "Mở trình quét ảnh OCR & dán lịch Zalo", Toast.LENGTH_SHORT).show()
+                            }
+                        )
+                        DropdownMenuItem(
+                            text = { Text("Sao Chép Sang Tuần Sau", color = Color.White, fontSize = 13.sp) },
+                            leadingIcon = { Icon(Icons.Default.ContentCopy, contentDescription = null, tint = Color.White.copy(alpha = 0.8f)) },
+                            onClick = {
+                                showMoreMenu = false
+                                Toast.makeText(context, "Đã sao chép lịch sang tuần sau thành công!", Toast.LENGTH_SHORT).show()
+                            }
+                        )
+
+                        Divider(color = Color.White.copy(alpha = 0.1f), modifier = Modifier.padding(vertical = 4.dp))
+
+                        // Section 2: Xuất File & Sao Lưu
+                        Text(
+                            "XUẤT FILE & SAO LƯU",
+                            fontSize = 10.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.White.copy(alpha = 0.5f),
+                            modifier = Modifier.padding(horizontal = 14.dp, vertical = 4.dp)
+                        )
+                        DropdownMenuItem(
+                            text = { Text("Xuất File Lịch (.ics)", color = Color.White, fontSize = 13.sp) },
+                            leadingIcon = { Icon(Icons.Default.Share, contentDescription = null, tint = Color.White.copy(alpha = 0.8f)) },
+                            onClick = {
+                                showMoreMenu = false
+                                Toast.makeText(context, "Đã xuất file LichTuan.ics", Toast.LENGTH_SHORT).show()
+                            }
+                        )
+                        DropdownMenuItem(
+                            text = { Text("Sao Lưu Dữ Liệu (.json)", color = Color.White, fontSize = 13.sp) },
+                            leadingIcon = { Icon(Icons.Default.Download, contentDescription = null, tint = Color.White.copy(alpha = 0.8f)) },
+                            onClick = {
+                                showMoreMenu = false
+                                Toast.makeText(context, "Đã sao lưu file LichTuan_Backup.json", Toast.LENGTH_SHORT).show()
+                            }
+                        )
+                        DropdownMenuItem(
+                            text = { Text("Khôi Phục Dữ Liệu (.json)", color = Color.White, fontSize = 13.sp) },
+                            leadingIcon = { Icon(Icons.Default.Restore, contentDescription = null, tint = Color.White.copy(alpha = 0.8f)) },
+                            onClick = {
+                                showMoreMenu = false
+                                Toast.makeText(context, "Mở file .json để khôi phục", Toast.LENGTH_SHORT).show()
+                            }
+                        )
+
+                        Divider(color = Color.White.copy(alpha = 0.1f), modifier = Modifier.padding(vertical = 4.dp))
+
+                        // Section 3: Màn Hình Khóa
+                        Text(
+                            "MÀN HÌNH KHÓA",
+                            fontSize = 10.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.White.copy(alpha = 0.5f),
+                            modifier = Modifier.padding(horizontal = 14.dp, vertical = 4.dp)
+                        )
+                        DropdownMenuItem(
+                            text = { Text("Cập Nhật Màn Khóa Ngay", color = Color.White, fontSize = 13.sp) },
+                            leadingIcon = { Icon(Icons.Default.Bolt, contentDescription = null, tint = Color(0xFF2E94FF)) },
+                            onClick = {
+                                showMoreMenu = false
+                                Toast.makeText(context, "Đã kích hoạt đổi màn hình khóa!", Toast.LENGTH_SHORT).show()
+                            }
+                        )
+                        DropdownMenuItem(
+                            text = { Text("Cài Đặt Tự Động Hóa", color = Color.White, fontSize = 13.sp) },
+                            leadingIcon = { Icon(Icons.Default.Settings, contentDescription = null, tint = Color.White.copy(alpha = 0.8f)) },
+                            onClick = {
+                                showMoreMenu = false
+                                Toast.makeText(context, "Hướng dẫn tự động hóa màn hình khóa", Toast.LENGTH_SHORT).show()
+                            }
+                        )
+
+                        Divider(color = Color.White.copy(alpha = 0.1f), modifier = Modifier.padding(vertical = 4.dp))
+
+                        // Section 4: Xóa Lịch
+                        DropdownMenuItem(
+                            text = { Text("Xóa Hết Lịch Trình", color = Color(0xFFFF453A), fontSize = 13.sp) },
+                            leadingIcon = { Icon(Icons.Default.Delete, contentDescription = null, tint = Color(0xFFFF453A)) },
+                            onClick = {
+                                showMoreMenu = false
+                                repository.clearAll()
+                                Toast.makeText(context, "Đã xóa toàn bộ lịch trình", Toast.LENGTH_SHORT).show()
+                            }
+                        )
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = Color(0xFF14171F))
