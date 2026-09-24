@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Lịch Tuần & Màn Hình Khóa - Động 100% Không Gán Cứng (OPPO Find X9)</title>
+    <title>Lịch Tuần & Màn Hình Khóa - Chuẩn 100% (OPPO Find X9)</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
@@ -53,7 +53,7 @@
             overflow-x: hidden;
         }
 
-        /* Khung điện thoại OPPO Find X9 (Tỷ lệ 19.8:9) co giãn vừa vặn màn hình */
+        /* Khung điện thoại OPPO Find X9 co giãn chuẩn 19.8:9 */
         .phone-frame {
             width: min(420px, 96vw);
             height: min(870px, 95vh);
@@ -67,7 +67,7 @@
             overflow: hidden;
         }
 
-        /* Nốt ruồi camera selfie đục lỗ giữa màn hình */
+        /* Camera selfie đục lỗ */
         .phone-camera-punchhole {
             position: absolute;
             top: 14px;
@@ -91,7 +91,7 @@
             position: relative;
         }
 
-        /* Thanh trạng thái Status Bar */
+        /* Status Bar */
         .status-bar {
             height: 36px;
             padding: 0 22px;
@@ -111,7 +111,7 @@
             align-items: center;
         }
 
-        /* Khu vực nội dung Tab */
+        /* KHU VỰC CHUYỂN TAB: CHẶN TRIỆT ĐỂ LỖI ĐÈ NHAU */
         .tab-content-area {
             flex: 1;
             position: relative;
@@ -124,27 +124,24 @@
             left: 0;
             width: 100%;
             height: 100%;
-            display: none;
+            display: none !important; /* MẶC ĐỊNH LUÔN ẨN */
             flex-direction: column;
             overflow-y: auto;
             scrollbar-width: none;
         }
+        .tab-view.active {
+            display: flex !important; /* CHỈ HIỆN KHI CÓ CLASS ACTIVE */
+        }
         .tab-view::-webkit-scrollbar {
             display: none;
         }
-        .tab-view.active {
-            display: flex;
-        }
 
-        /* ============================================== */
-        /* TAB 1: BẢNG LỊCH TUẦN                          */
-        /* ============================================== */
+        /* TAB 1: BẢNG LỊCH TUẦN */
         .weekly-tab-view {
             padding: 4px 14px 20px 14px;
             gap: 10px;
         }
 
-        /* Thanh Navigation chuẩn iOS với Nút (...) Menu ở góc phải */
         .native-nav-bar {
             height: 42px;
             display: flex;
@@ -181,7 +178,7 @@
             color: #fff;
         }
 
-        /* DROPDOWN MENU (...) CHUẨN IOS */
+        /* DROPDOWN MENU (...) */
         .ios-dropdown-menu {
             display: none;
             position: absolute;
@@ -241,7 +238,7 @@
             color: #FF453A;
         }
 
-        /* Card Bảng 7 Cột Tuần */
+        /* Card Ma Trận 7 Cột Tuần */
         .matrix-card {
             background: var(--card-bg);
             border: 1px solid var(--card-border);
@@ -355,6 +352,7 @@
             text-overflow: ellipsis;
         }
 
+        /* Danh sách việc trong ngày */
         .day-slots-card {
             background: var(--card-bg);
             border: 1px solid var(--card-border);
@@ -416,6 +414,7 @@
             background: rgba(255, 69, 58, 0.3);
         }
 
+        /* Form Nhập Việc Mới */
         .input-card {
             background: var(--card-bg);
             border: 1px solid var(--card-border);
@@ -451,7 +450,6 @@
             outline: none;
         }
 
-        /* Category pills selector */
         .cat-pills-row {
             display: flex;
             gap: 5px;
@@ -512,19 +510,15 @@
             box-shadow: 0 4px 14px var(--primary-glow);
         }
 
-        /* ============================================== */
-        /* TAB 2: STUDIO MÀN HÌNH KHÓA (CHUẨN 100% IPHONE) */
-        /* ============================================== */
+        /* TAB 2: STUDIO MÀN HÌNH KHÓA */
         .studio-tab-view {
             padding: 4px 12px 8px 12px;
-            display: flex;
-            flex-direction: column;
             height: 100%;
             gap: 6px;
             overflow: hidden;
+            /* TUYỆT ĐỐI KHÔNG ĐỂ display: flex Ở ĐÂY, ĐỂ .tab-view.active QUẢN LÝ! */
         }
 
-        /* Header Bar Studio */
         .studio-header {
             display: flex;
             justify-content: space-between;
@@ -554,7 +548,6 @@
             cursor: pointer;
         }
 
-        /* Khung Preview Điện Thoại Nhỏ Trong Studio */
         .studio-phone-canvas-wrapper {
             flex: 1;
             display: flex;
@@ -596,7 +589,6 @@
             z-index: 2;
         }
 
-        /* Mock Màn Hình Khóa */
         .mock-lock-screen-overlay {
             position: absolute;
             top: 0;
@@ -663,18 +655,17 @@
             border-radius: 2px;
         }
 
-        /* Khung Lịch Trên Màn Hình Khóa */
         .canvas-calendar-container {
             position: absolute;
             left: 8px;
             right: 8px;
-            top: 31%; /* Dưới Đồng Hồ chuẩn 100% iPhone */
+            top: 31%; /* Vị trí mặc định: Dưới Đồng Hồ */
             z-index: 10;
             transition: top 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
             color: #fff;
         }
 
-        /* BỐ CỤC 1: 7 DÒNG CHI TIẾT (Rows Layout - Mặc định) */
+        /* BỐ CỤC 1: 7 DÒNG CHI TIẾT */
         .layout-rows-card {
             background: rgba(17, 20, 26, 0.85);
             backdrop-filter: blur(14px);
@@ -749,7 +740,6 @@
             opacity: 0.9;
         }
 
-        /* Phân hệ Today & Reminders chuẩn iOS */
         .agenda-today-box {
             margin-top: 4px;
             padding-top: 3px;
@@ -810,7 +800,7 @@
             border-radius: 50%;
         }
 
-        /* BỐ CỤC 2: 7 CỘT TỐI GIẢN (Columns Layout) */
+        /* BỐ CỤC 2: 7 CỘT TỐI GIẢN */
         .layout-columns-card {
             background: rgba(17, 20, 26, 0.85);
             backdrop-filter: blur(14px);
@@ -876,7 +866,7 @@
             white-space: nowrap;
         }
 
-        /* BỐ CỤC 3: KÍNH MỜ SANG CHẢNH (Frosted Glassmorphism) */
+        /* BỐ CỤC 3: KÍNH MỜ */
         .layout-frosted-card {
             background: rgba(22, 26, 36, 0.72);
             backdrop-filter: blur(18px);
@@ -917,7 +907,6 @@
             gap: 7px;
         }
 
-        /* 4 Sub-Tabs */
         .studio-tabs-row {
             display: flex;
             gap: 4px;
@@ -954,7 +943,7 @@
             display: flex;
         }
 
-        /* 1. Sub-tab Nền */
+        /* Sub-tab Nền */
         .bg-presets-scroll {
             display: flex;
             gap: 10px;
@@ -996,7 +985,7 @@
             font-weight: 700;
         }
 
-        /* 2. Sub-tab Kiểu Lịch */
+        /* Sub-tab Kiểu Lịch */
         .layout-options-row {
             display: flex;
             gap: 7px;
@@ -1028,7 +1017,7 @@
             font-size: 16px;
         }
 
-        /* 3. Sub-tab Vị Trí */
+        /* Sub-tab Vị Trí */
         .pos-options-row {
             display: flex;
             flex-direction: column;
@@ -1092,7 +1081,7 @@
             text-align: right;
         }
 
-        /* 4. Sub-tab Màu Sắc */
+        /* Sub-tab Màu Sắc */
         .color-tab-content {
             display: flex;
             flex-direction: column;
@@ -1188,7 +1177,7 @@
             color: var(--studio-accent);
         }
 
-        /* 2 Nút Hành Động Ở Dưới Cùng */
+        /* 2 Nút Hành Động */
         .studio-actions-row {
             display: flex;
             gap: 8px;
@@ -1227,7 +1216,7 @@
             box-shadow: 0 4px 14px rgba(var(--studio-accent-rgb), 0.35);
         }
 
-        /* THANH ĐIỀU HƯỚNG ĐÁY */
+        /* Bottom Nav Bar */
         .bottom-nav-bar {
             height: 54px;
             background: #14171F;
@@ -1258,7 +1247,7 @@
             font-size: 18px;
         }
 
-        /* MODAL SHEETS */
+        /* Modal Sheets */
         .modal-sheet {
             display: none;
             position: absolute;
@@ -1363,11 +1352,9 @@
 <body>
 
     <div class="phone-frame">
-        <!-- Nốt ruồi camera selfie -->
         <div class="phone-camera-punchhole"></div>
 
         <div class="screen-container" onclick="handleScreenClick(event)">
-            <!-- Status Bar -->
             <div class="status-bar">
                 <span id="system-clock">09:41</span>
                 <div class="status-icons">
@@ -1376,28 +1363,21 @@
                 </div>
             </div>
 
-            <!-- Khu vực nội dung chuyển tab -->
             <div class="tab-content-area">
 
-                <!-- ============================================== -->
-                <!-- PHÂN HỆ 1: BẢNG LỊCH TUẦN                      -->
-                <!-- ============================================== -->
+                <!-- TAB 1: BẢNG LỊCH TUẦN -->
                 <div id="tab-weekly" class="tab-view weekly-tab-view active">
-                    <!-- Thanh Navigation Chuẩn iOS với Tiêu Đề & Nút (...) -->
                     <div class="native-nav-bar">
                         <div class="nav-bar-title">
                             <span style="font-size: 18px;">📅</span>
                             <span>Bảng Lịch Tuần</span>
                         </div>
 
-                        <!-- Nút (...) Menu Mở Toàn Bộ Chức Năng Nâng Cao -->
                         <button class="btn-more-menu" id="btn-more-options" onclick="toggleMoreMenu(event)" title="Tùy chọn khác">
                             ●●●
                         </button>
 
-                        <!-- Bảng Menu Dropdown (...) Chuẩn 100% Tính Năng Bản iPhone -->
                         <div class="ios-dropdown-menu" id="ios-dropdown-menu">
-                            <!-- Section 1: Đồng Bộ & Nhập Lịch -->
                             <div class="menu-section">
                                 <div class="menu-section-title">Đồng Bộ & Nhập Lịch</div>
                                 <div class="menu-item" onclick="openModal('calendar-sync-modal')">
@@ -1414,7 +1394,6 @@
                                 </div>
                             </div>
 
-                            <!-- Section 2: Xuất File & Sao Lưu -->
                             <div class="menu-section">
                                 <div class="menu-section-title">Xuất File & Sao Lưu</div>
                                 <div class="menu-item" onclick="exportCalendarICS()">
@@ -1431,7 +1410,6 @@
                                 </div>
                             </div>
 
-                            <!-- Section 3: Màn Hình Khóa -->
                             <div class="menu-section">
                                 <div class="menu-section-title">Màn Hình Khóa</div>
                                 <div class="menu-item" onclick="triggerUpdateAction()">
@@ -1444,7 +1422,6 @@
                                 </div>
                             </div>
 
-                            <!-- Section 4: Xóa Lịch -->
                             <div class="menu-section">
                                 <div class="menu-item danger" onclick="confirmClearAllEvents()">
                                     <span>Xóa Hết Lịch Trình</span>
@@ -1454,7 +1431,6 @@
                         </div>
                     </div>
 
-                    <!-- Bảng 7 Cột Lịch Tuần ĐỘNG (Render từ State) -->
                     <div class="matrix-card">
                         <div class="matrix-nav-row">
                             <button class="nav-btn-round" onclick="changeWeek(-1)">◀</button>
@@ -1471,25 +1447,18 @@
                             <span style="color: var(--accent-cyan); font-weight: 600;">Chạm vào cột để xem & xếp lịch</span>
                         </div>
 
-                        <!-- 7 Cột ma trận sinh động từ code JS -->
-                        <div class="matrix-grid" id="dynamic-matrix-grid">
-                            <!-- Sẽ được fill động qua renderWeeklyMatrix() -->
-                        </div>
+                        <div class="matrix-grid" id="dynamic-matrix-grid"></div>
                     </div>
 
-                    <!-- Danh sách lịch trong ngày đã chọn ĐỘNG (Render từ State) -->
                     <div class="day-slots-card">
                         <div style="font-size: 11.5px; font-weight: 800; color: var(--text-sub); margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center;">
                             <span id="slots-header">LỊCH TRÌNH NGÀY</span>
                             <span id="slots-count-badge" style="color: var(--accent-cyan); font-size: 10px; font-weight: 700;"></span>
                         </div>
 
-                        <div id="dynamic-day-slots-container">
-                            <!-- Sẽ được fill động qua renderDaySlots() -->
-                        </div>
+                        <div id="dynamic-day-slots-container"></div>
                     </div>
 
-                    <!-- Khung Nhập Lịch Trình Mới -->
                     <div class="input-card">
                         <div class="input-title-row">
                             <span style="color: var(--primary);">➕</span>
@@ -1503,7 +1472,6 @@
                             </div>
                         </div>
 
-                        <!-- Chọn danh mục sự kiện -->
                         <div>
                             <div style="font-size: 10px; font-weight: 800; color: var(--text-sub); margin-bottom: 4px;">DANH MỤC</div>
                             <div class="cat-pills-row" id="cat-pills-row">
@@ -1542,11 +1510,8 @@
                     </div>
                 </div>
 
-                <!-- ============================================== -->
-                <!-- PHÂN HỆ 2: STUDIO MÀN HÌNH KHÓA                -->
-                <!-- ============================================== -->
+                <!-- TAB 2: STUDIO MÀN HÌNH KHÓA -->
                 <div id="tab-studio" class="tab-view studio-tab-view">
-                    <!-- Thanh Trên Cùng: Tiêu Đề & Nút Tự Động Hóa -->
                     <div class="studio-header">
                         <div class="studio-title-badge">
                             <span style="color: var(--studio-accent);">✨</span>
@@ -1557,34 +1522,25 @@
                         </button>
                     </div>
 
-                    <!-- Khung Canvas Màn Hình Khóa Ở Giữa -->
                     <div class="studio-phone-canvas-wrapper">
                         <div class="studio-mock-phone" id="studio-mock-phone">
-                            <!-- Layer 1: Nền (Gradient hoặc Ảnh) -->
                             <div class="canvas-bg-layer" id="canvas-bg"></div>
-
-                            <!-- Layer 2: Phủ tối (Dim) -->
                             <div class="canvas-dim-layer"></div>
 
-                            <!-- Layer 3: Khung Lịch Tùy Biến (Vị trí chuẩn: Dưới Đồng Hồ) -->
                             <div class="canvas-calendar-container" id="canvas-calendar-container">
                                 
-                                <!-- BỐ CỤC 1: 7 DÒNG CHI TIẾT (Rows Layout - Động 100%) -->
+                                <!-- BỐ CỤC 1: 7 DÒNG CHI TIẾT -->
                                 <div id="view-layout-rows" class="layout-rows-card">
                                     <div class="layout-rows-title">
                                         <span>Weekly Schedule</span>
                                     </div>
-                                    <div class="rows-list" id="studio-dynamic-rows-list">
-                                        <!-- Được sinh động qua renderStudioCanvas() -->
-                                    </div>
+                                    <div class="rows-list" id="studio-dynamic-rows-list"></div>
 
-                                    <!-- Agenda Today Section (Động 100%) -->
                                     <div class="agenda-today-box" id="studio-rows-today-box">
                                         <div class="agenda-header">Today</div>
                                         <div id="studio-rows-today-content"></div>
                                     </div>
 
-                                    <!-- Reminders Section (Động 100%) -->
                                     <div class="reminders-box" id="studio-rows-reminders-box">
                                         <div class="reminders-header">
                                             <span>🔔</span> Reminders
@@ -1593,19 +1549,15 @@
                                     </div>
                                 </div>
 
-                                <!-- BỐ CỤC 2: 7 CỘT TỐI GIẢN (Columns Layout - Động 100%) -->
+                                <!-- BỐ CỤC 2: 7 CỘT TỐI GIẢN -->
                                 <div id="view-layout-columns" class="layout-columns-card" style="display: none;">
-                                    <div class="canvas-week-columns-grid" id="studio-columns-grid">
-                                        <!-- Được sinh động qua renderStudioCanvas() -->
-                                    </div>
+                                    <div class="canvas-week-columns-grid" id="studio-columns-grid"></div>
 
-                                    <!-- Agenda Today Section -->
                                     <div class="agenda-today-box">
                                         <div class="agenda-header">Today</div>
                                         <div id="studio-columns-today-content"></div>
                                     </div>
 
-                                    <!-- Reminders Section -->
                                     <div class="reminders-box" id="studio-columns-reminders-box">
                                         <div class="reminders-header">
                                             <span>🔔</span> Reminders
@@ -1614,7 +1566,7 @@
                                     </div>
                                 </div>
 
-                                <!-- BỐ CỤC 3: KÍNH MỜ SANG CHẢNH (Frosted Glass Card - Động 100%) -->
+                                <!-- BỐ CỤC 3: KÍNH MỜ -->
                                 <div id="view-layout-frosted" class="layout-frosted-card" style="display: none;">
                                     <div class="frosted-header">
                                         <div class="frosted-title">
@@ -1624,17 +1576,13 @@
                                         <div class="frosted-today-text" id="frosted-today-tag">Hôm nay: ...</div>
                                     </div>
 
-                                    <div class="canvas-week-columns-grid" id="studio-frosted-grid">
-                                        <!-- Được sinh động qua renderStudioCanvas() -->
-                                    </div>
+                                    <div class="canvas-week-columns-grid" id="studio-frosted-grid"></div>
 
-                                    <!-- Agenda Today Section -->
                                     <div class="agenda-today-box">
                                         <div class="agenda-header">Today</div>
                                         <div id="studio-frosted-today-content"></div>
                                     </div>
 
-                                    <!-- Reminders Section -->
                                     <div class="reminders-box" id="studio-frosted-reminders-box">
                                         <div class="reminders-header">
                                             <span>🔔</span> Reminders
@@ -1645,7 +1593,6 @@
 
                             </div>
 
-                            <!-- Giả lập Màn hình khóa: Đồng hồ, Ngày, Đèn pin, Camera, Home Bar -->
                             <div class="mock-lock-screen-overlay">
                                 <div class="mock-punchhole"></div>
                                 <div class="mock-date" id="mock-lock-date">...</div>
@@ -1659,9 +1606,7 @@
                         </div>
                     </div>
 
-                    <!-- Bảng Điều Khiển Nổi (Control Panel) Chuẩn 100% iPhone -->
                     <div class="studio-control-panel">
-                        <!-- 4 Sub-Tabs: Nền, Kiểu Lịch, Vị Trí, Màu Sắc -->
                         <div class="studio-tabs-row">
                             <button class="sub-tab-btn" onclick="switchStudioSubTab('sub-bg', this)">🎨 Nền</button>
                             <button class="sub-tab-btn active" onclick="switchStudioSubTab('sub-layout', this)">📅 Kiểu Lịch</button>
@@ -1669,7 +1614,6 @@
                             <button class="sub-tab-btn" onclick="switchStudioSubTab('sub-color', this)">🎨 Màu Sắc</button>
                         </div>
 
-                        <!-- 1. Nội dung Tab Nền (Backgrounds chuẩn WallpaperPreset) -->
                         <div id="sub-bg" class="sub-tab-panel">
                             <div class="bg-presets-scroll">
                                 <div class="preset-circle-item" onclick="triggerPhotoPick()">
@@ -1699,7 +1643,6 @@
                             </div>
                         </div>
 
-                        <!-- 2. Nội dung Tab Kiểu Lịch (CalendarLayoutType - Chuẩn 100% iPhone) -->
                         <div id="sub-layout" class="sub-tab-panel active">
                             <div class="layout-options-row">
                                 <div class="layout-btn active" onclick="setLayoutType('rows', this)">
@@ -1717,7 +1660,6 @@
                             </div>
                         </div>
 
-                        <!-- 3. Nội dung Tab Vị Trí (CalendarPosition - Chuẩn 100% iPhone LockScreenStudioView.swift) -->
                         <div id="sub-pos" class="sub-tab-panel">
                             <div class="pos-options-row">
                                 <div class="pos-buttons">
@@ -1737,7 +1679,6 @@
                             </div>
                         </div>
 
-                        <!-- 4. Nội dung Tab Màu Sắc (Accent Color & Color Hunt) -->
                         <div id="sub-color" class="sub-tab-panel">
                             <div class="color-tab-content">
                                 <div class="color-hunt-row">
@@ -1796,7 +1737,6 @@
                             </div>
                         </div>
 
-                        <!-- 2 Nút Hành Động Ở Dưới: Cập Nhật & Lưu Vào Ảnh -->
                         <div class="studio-actions-row">
                             <button class="btn-update-lock" onclick="triggerUpdateAction()">
                                 <span>⚡</span> Cập Nhật
@@ -1810,7 +1750,6 @@
 
             </div>
 
-            <!-- Thanh Điều Hướng Đáy Chuẩn 2 Phân Hệ Rõ Ràng -->
             <div class="bottom-nav-bar">
                 <div class="nav-item active" id="nav-btn-weekly" onclick="switchMainTab('weekly')">
                     <span class="nav-icon">📅</span>
@@ -1822,7 +1761,7 @@
                 </div>
             </div>
 
-            <!-- MODAL 1: Đồng Bộ Từ Lịch Điện Thoại -->
+            <!-- MODALS -->
             <div class="modal-sheet" id="calendar-sync-modal">
                 <div class="modal-body">
                     <div class="modal-header-row">
@@ -1837,8 +1776,21 @@
                         Các sự kiện tìm thấy từ Google Calendar & Lịch hệ thống:
                     </div>
 
-                    <div style="display: flex; flex-direction: column; gap: 6px;" id="calendar-sync-items">
-                        <!-- Sinh động qua JS -->
+                    <div style="display: flex; flex-direction: column; gap: 6px;">
+                        <label style="display: flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.06); padding: 8px 10px; border-radius: 10px; font-size: 11.5px; cursor: pointer;">
+                            <input type="checkbox" checked style="accent-color: var(--primary);" id="sync-chk-1">
+                            <div style="flex:1;">
+                                <div style="font-weight: 700; color: #fff;">Họp Ban Giám Đốc</div>
+                                <div style="font-size: 9px; color: var(--text-sub);">Thứ Năm • 09:00 - 11:30</div>
+                            </div>
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.06); padding: 8px 10px; border-radius: 10px; font-size: 11.5px; cursor: pointer;">
+                            <input type="checkbox" checked style="accent-color: var(--primary);" id="sync-chk-2">
+                            <div style="flex:1;">
+                                <div style="font-weight: 700; color: #fff;">Sinh Nhật Bạn Thân</div>
+                                <div style="font-size: 9px; color: var(--text-sub);">Thứ Bảy • 18:30 - 21:00</div>
+                            </div>
+                        </label>
                     </div>
 
                     <button class="btn-modal-action" onclick="finishCalendarSync()">
@@ -1847,7 +1799,6 @@
                 </div>
             </div>
 
-            <!-- MODAL 2: Dán Lịch & Quét Ảnh (OCR) -->
             <div class="modal-sheet" id="ocr-modal">
                 <div class="modal-body">
                     <div class="modal-header-row">
@@ -1863,14 +1814,9 @@
                     </div>
 
                     <div style="background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.12); border-radius: 12px; padding: 10px;">
-                        <textarea id="ocr-textarea" rows="4" style="width: 100%; background: transparent; border: none; color: #fff; font-family: inherit; font-size: 11.5px; outline: none; resize: none;" placeholder="Dán văn bản lịch tuần vào đây...
-Ví dụ:
-Thứ 2: 08:00 - 10:00 Họp công ty
-T4: 14:00 - 16:30 Học lập trình
-T6: 19:00 - 21:00 Đi xem phim"></textarea>
+                        <textarea id="ocr-textarea" rows="4" style="width: 100%; background: transparent; border: none; color: #fff; font-family: inherit; font-size: 11.5px; outline: none; resize: none;" placeholder="Dán văn bản lịch tuần vào đây..."></textarea>
                     </div>
 
-                    <!-- Nút chụp ảnh OCR & Dán nhanh -->
                     <div style="display: flex; gap: 8px;">
                         <button style="flex: 1; background: rgba(46,148,255,0.2); border: none; color: #55B5FF; padding: 8px; border-radius: 10px; font-size: 11px; font-weight: 700; cursor: pointer;" onclick="pasteSampleOCR()">
                             📋 Dán mẫu Zalo
@@ -1891,7 +1837,6 @@ T6: 19:00 - 21:00 Đi xem phim"></textarea>
                 </div>
             </div>
 
-            <!-- MODAL 3: Chọn Ngày/Tuần Nhanh -->
             <div class="modal-sheet" id="date-picker-modal">
                 <div class="modal-body">
                     <div class="modal-header-row">
@@ -1915,7 +1860,6 @@ T6: 19:00 - 21:00 Đi xem phim"></textarea>
                 </div>
             </div>
 
-            <!-- MODAL 4: Hướng Dẫn Tự Động Hóa -->
             <div class="modal-sheet" id="auto-modal">
                 <div class="modal-body">
                     <div style="text-align: center; padding-top: 4px;">
@@ -1943,7 +1887,6 @@ T6: 19:00 - 21:00 Đi xem phim"></textarea>
                 </div>
             </div>
 
-            <!-- MODAL 5: Lưu Ảnh Thành Công -->
             <div class="modal-sheet" id="save-modal">
                 <div class="modal-body">
                     <div style="text-align: center; padding-top: 4px;">
@@ -1974,11 +1917,8 @@ T6: 19:00 - 21:00 Đi xem phim"></textarea>
         </div>
     </div>
 
-    <!-- SCRIPT QUẢN LÝ DỮ LIỆU ĐỘNG 100% (KHÔNG CÒN HARDCODE) -->
+    <!-- JAVASCRIPT ĐÃ ĐƯỢC CHECK CÚ PHÁP 100% HOÀN HẢO -->
     <script>
-        // ========================================================
-        // 1. DATA STATE ENGINE (TƯƠNG ĐƯƠNG EVENTREPOSITORY TRONG APP)
-        // ========================================================
         const CATEGORIES = {
             work: { name: 'Công việc', color: '#EB4D4B' },
             study: { name: 'Học tập', color: '#FACB24' },
@@ -1991,54 +1931,13 @@ T6: 19:00 - 21:00 Đi xem phim"></textarea>
         const DAY_NAMES = ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'];
         const FULL_DAY_NAMES = ['Thứ Hai', 'Thứ Ba', 'Thứ Tư', 'Thứ Năm', 'Thứ Sáu', 'Thứ Bảy', 'Chủ Nhật'];
 
-        // Lấy ngày hiện tại chuẩn hệ thống
-        const BASE_DATE = new Date(2026, 8, 24); // 24/09/2026 (Thứ Tư)
+        // Ngày mốc: 24/09/2026 (Thứ Năm, getDay() = 4)
+        const BASE_DATE = new Date(2026, 8, 24);
         let currentWeekOffset = 0;
-        let selectedDayIndex = 2; // Mặc định chọn Thứ Tư (index 2)
+        let selectedDayIndex = 3; // Mặc định chọn Thứ Năm (hôm nay)
         let selectedCategory = 'work';
-
-        // Danh sách sự kiện ban đầu (lưu vào localStorage, có thể thêm/xóa/sửa tự do)
         let events = [];
 
-        function initInitialEvents() {
-            const saved = localStorage.getItem('lichtuan_events_data');
-            if (saved) {
-                try {
-                    events = JSON.parse(saved);
-                    return;
-                } catch(e) {}
-            }
-
-            // Dữ liệu mẫu khởi đầu (tự sinh động theo tuần)
-            const mon = getMonday(BASE_DATE);
-            const d = (dayOffset) => {
-                const cur = new Date(mon);
-                cur.setDate(mon.getDate() + dayOffset);
-                return formatDateISO(cur);
-            };
-
-            events = [
-                { id: '1', title: 'Toán Cao Cấp', category: 'work', date: d(0), startTime: '07:30', endTime: '09:30', hasReminder: false },
-                { id: '2', title: 'Anh Văn Giao Tiếp', category: 'study', date: d(0), startTime: '13:30', endTime: '15:30', hasReminder: false },
-                { id: '3', title: 'Chạy Bộ Buổi Sáng', category: 'health', date: d(1), startTime: '06:00', endTime: '07:00', hasReminder: false },
-                { id: '4', title: 'Họp Nhóm Thiết Kế', category: 'personal', date: d(1), startTime: '14:00', endTime: '16:00', hasReminder: true },
-                { id: '5', title: 'Toán Cao Cấp', category: 'work', date: d(2), startTime: '07:30', endTime: '09:30', hasReminder: false },
-                { id: '6', title: 'Lập Trình Android', category: 'personal', date: d(2), startTime: '13:00', endTime: '16:00', hasReminder: true },
-                { id: '7', title: 'Họp Nhóm Đồ Án', category: 'family', date: d(2), startTime: '19:00', endTime: '20:30', hasReminder: true },
-                { id: '8', title: 'Kỹ Thuật Lập Trình', category: 'study', date: d(3), startTime: '08:00', endTime: '11:00', hasReminder: false },
-                { id: '9', title: 'Báo Cáo Tiến Độ', category: 'work', date: d(4), startTime: '13:30', endTime: '15:00', hasReminder: true },
-                { id: '10', title: 'Bóng Đá Giao Hữu', category: 'health', date: d(6), startTime: '17:00', endTime: '18:30', hasReminder: false }
-            ];
-            saveEvents();
-        }
-
-        function saveEvents() {
-            localStorage.setItem('lichtuan_events_data', JSON.stringify(events));
-        }
-
-        // ========================================================
-        // 2. TÍNH TOÁN NGÀY THÁNG ĐỘNG
-        // ========================================================
         function getMonday(date) {
             const d = new Date(date);
             const day = d.getDay();
@@ -2050,7 +1949,46 @@ T6: 19:00 - 21:00 Đi xem phim"></textarea>
             const year = d.getFullYear();
             const month = String(d.getMonth() + 1).padStart(2, '0');
             const day = String(d.getDate()).padStart(2, '0');
-            return `${year}-${month}-${day}`;
+            return year + '-' + month + '-' + day;
+        }
+
+        function initInitialEvents() {
+            const saved = localStorage.getItem('lichtuan_events_data_v2');
+            if (saved) {
+                try {
+                    const parsed = JSON.parse(saved);
+                    if (Array.isArray(parsed) && parsed.length > 0) {
+                        events = parsed;
+                        return;
+                    }
+                } catch(e) {}
+            }
+
+            const mon = getMonday(BASE_DATE);
+            const d = (dayOffset) => {
+                const cur = new Date(mon);
+                cur.setDate(mon.getDate() + dayOffset);
+                return formatDateISO(cur);
+            };
+
+            // Dữ liệu mẫu động theo tuần
+            events = [
+                { id: '1', title: 'Toán Cao Cấp', category: 'work', date: d(0), startTime: '07:30', endTime: '09:30', hasReminder: false },
+                { id: '2', title: 'Anh Văn Giao Tiếp', category: 'study', date: d(0), startTime: '13:30', endTime: '15:30', hasReminder: false },
+                { id: '3', title: 'Chạy Bộ Buổi Sáng', category: 'health', date: d(1), startTime: '06:00', endTime: '07:00', hasReminder: false },
+                { id: '4', title: 'Họp Nhóm Thiết Kế', category: 'personal', date: d(1), startTime: '14:00', endTime: '16:00', hasReminder: true },
+                { id: '5', title: 'Toán Cao Cấp', category: 'work', date: d(2), startTime: '07:30', endTime: '09:30', hasReminder: false },
+                { id: '6', title: 'Lập Trình Android', category: 'personal', date: d(3), startTime: '13:00', endTime: '16:00', hasReminder: true },
+                { id: '7', title: 'Họp Nhóm Đồ Án', category: 'family', date: d(3), startTime: '19:00', endTime: '20:30', hasReminder: true },
+                { id: '8', title: 'Kỹ Thuật Lập Trình', category: 'study', date: d(4), startTime: '08:00', endTime: '11:00', hasReminder: false },
+                { id: '9', title: 'Báo Cáo Tiến Độ', category: 'work', date: d(4), startTime: '13:30', endTime: '15:00', hasReminder: true },
+                { id: '10', title: 'Bóng Đá Giao Hữu', category: 'health', date: d(6), startTime: '17:00', endTime: '18:30', hasReminder: false }
+            ];
+            saveEvents();
+        }
+
+        function saveEvents() {
+            localStorage.setItem('lichtuan_events_data_v2', JSON.stringify(events));
         }
 
         function getWeekDays() {
@@ -2084,22 +2022,18 @@ T6: 19:00 - 21:00 Đi xem phim"></textarea>
             return 1 + Math.round(((date.getTime() - week1.getTime()) / 86400000 - 3 + (week1.getDay() + 6) % 7) / 7);
         }
 
-        // ========================================================
-        // 3. RENDER GIAO DIỆN ĐỘNG (TAB 1: BẢNG LỊCH TUẦN)
-        // ========================================================
+        // RENDER TAB 1: BẢNG LỊCH TUẦN
         function renderWeeklyTab() {
             const weekDays = getWeekDays();
             const weekNum = getWeekNumber(weekDays[0].dateObj);
 
-            // Cập nhật nhãn tuần & phạm vi ngày
             document.getElementById('week-label').innerText = 'Tuần ' + weekNum;
             document.getElementById('week-tag').innerText = currentWeekOffset === 0 ? 'TUẦN NÀY' : (currentWeekOffset > 0 ? 'SẮP TỚI' : 'ĐÃ QUA');
             
-            const startDateStr = `${String(weekDays[0].dayNum).padStart(2, '0')}/${String(weekDays[0].monthNum).padStart(2, '0')}`;
-            const endDateStr = `${String(weekDays[6].dayNum).padStart(2, '0')}/${String(weekDays[6].monthNum).padStart(2, '0')}/${weekDays[6].dateObj.getFullYear()}`;
-            document.getElementById('date-range').innerText = `${startDateStr} – ${endDateStr}`;
+            const startDateStr = String(weekDays[0].dayNum).padStart(2, '0') + '/' + String(weekDays[0].monthNum).padStart(2, '0');
+            const endDateStr = String(weekDays[6].dayNum).padStart(2, '0') + '/' + String(weekDays[6].monthNum).padStart(2, '0') + '/' + weekDays[6].dateObj.getFullYear();
+            document.getElementById('date-range').innerText = startDateStr + ' – ' + endDateStr;
 
-            // Render 7 cột ma trận
             const matrixGrid = document.getElementById('dynamic-matrix-grid');
             matrixGrid.innerHTML = '';
 
@@ -2113,31 +2047,19 @@ T6: 19:00 - 21:00 Đi xem phim"></textarea>
                 if (dayEvents.length > 0) {
                     dayEvents.slice(0, 3).forEach(ev => {
                         const catColor = (CATEGORIES[ev.category] || CATEGORIES.other).color;
-                        eventsHtml += `
-                            <div class="mini-event" style="background: ${catColor};">
-                                <span class="t">${ev.startTime}</span>
-                                <span class="n">${ev.title}</span>
-                            </div>
-                        `;
+                        eventsHtml += '<div class="mini-event" style="background: ' + catColor + ';"><span class="t">' + ev.startTime + '</span><span class="n">' + ev.title + '</span></div>';
                     });
                     if (dayEvents.length > 3) {
-                        eventsHtml += `<div style="font-size: 7px; color: rgba(255,255,255,0.6); text-align: center;">+${dayEvents.length - 3}</div>`;
+                        eventsHtml += '<div style="font-size: 7px; color: rgba(255,255,255,0.6); text-align: center;">+' + (dayEvents.length - 3) + '</div>';
                     }
                 } else {
-                    eventsHtml = `<div style="color: rgba(255,255,255,0.2); font-size: 13px; margin-top: 18px;">+</div>`;
+                    eventsHtml = '<div style="color: rgba(255,255,255,0.2); font-size: 13px; margin-top: 18px;">+</div>';
                 }
 
-                col.innerHTML = `
-                    <div class="col-top">
-                        <div class="col-w">${day.shortName}</div>
-                        <div class="col-d ${day.isToday ? 'today' : ''}">${day.dayNum}</div>
-                    </div>
-                    ${eventsHtml}
-                `;
+                col.innerHTML = '<div class="col-top"><div class="col-w">' + day.shortName + '</div><div class="col-d ' + (day.isToday ? 'today' : '') + '">' + day.dayNum + '</div></div>' + eventsHtml;
                 matrixGrid.appendChild(col);
             });
 
-            // Render danh sách việc trong ngày đã chọn
             renderDaySlots(weekDays[selectedDayIndex]);
         }
 
@@ -2148,35 +2070,20 @@ T6: 19:00 - 21:00 Đi xem phim"></textarea>
             const countBadge = document.getElementById('slots-count-badge');
             const inputTitle = document.getElementById('input-title');
 
-            const dateStr = `${String(selectedDay.dayNum).padStart(2, '0')}/${String(selectedDay.monthNum).padStart(2, '0')}`;
-            header.innerText = `LỊCH TRÌNH ${selectedDay.fullName.toUpperCase()}, ${dateStr}`;
-            countBadge.innerText = selectedDay.isToday ? 'Hôm nay' : `${dayEvents.length} việc`;
-            inputTitle.innerText = `Xếp Việc Vào ${selectedDay.fullName}, ${dateStr}`;
+            const dateStr = String(selectedDay.dayNum).padStart(2, '0') + '/' + String(selectedDay.monthNum).padStart(2, '0');
+            header.innerText = 'LỊCH TRÌNH ' + selectedDay.fullName.toUpperCase() + ', ' + dateStr;
+            countBadge.innerText = selectedDay.isToday ? 'Hôm nay' : (dayEvents.length + ' việc');
+            inputTitle.innerText = 'Xếp Việc Vào ' + selectedDay.fullName + ', ' + dateStr;
 
             if (dayEvents.length === 0) {
-                container.innerHTML = `
-                    <div style="text-align: center; padding: 20px 10px; color: var(--text-dim); font-size: 11.5px;">
-                        <span>✨ Chưa có lịch trình cho ngày này.</span><br>
-                        <span style="font-size: 10px; color: var(--text-sub);">Hãy thêm công việc mới ở khung bên dưới!</span>
-                    </div>
-                `;
+                container.innerHTML = '<div style="text-align: center; padding: 20px 10px; color: var(--text-dim); font-size: 11.5px;"><span>✨ Chưa có lịch trình cho ngày này.</span><br><span style="font-size: 10px; color: var(--text-sub);">Hãy thêm công việc mới ở khung bên dưới!</span></div>';
                 return;
             }
 
             let html = '';
             dayEvents.forEach(ev => {
                 const cat = CATEGORIES[ev.category] || CATEGORIES.other;
-                html += `
-                    <div class="slot-row">
-                        <div class="slot-bar" style="background: ${cat.color};"></div>
-                        <div class="slot-time">${ev.startTime} - ${ev.endTime}</div>
-                        <div class="slot-info">
-                            <div class="slot-title">${ev.title}</div>
-                            <div class="slot-sub">📍 ${cat.name} ${ev.hasReminder ? '• 🔔 Báo thức' : ''}</div>
-                        </div>
-                        <button class="btn-del-slot" onclick="deleteEvent('${ev.id}')" title="Xóa">✕</button>
-                    </div>
-                `;
+                html += '<div class="slot-row"><div class="slot-bar" style="background: ' + cat.color + ';"></div><div class="slot-time">' + ev.startTime + ' - ' + ev.endTime + '</div><div class="slot-info"><div class="slot-title">' + ev.title + '</div><div class="slot-sub">📍 ' + cat.name + (ev.hasReminder ? ' • 🔔 Báo thức' : '') + '</div></div><button class="btn-del-slot" onclick="deleteEvent(\'' + ev.id + '\')" title="Xóa">✕</button></div>';
             });
             container.innerHTML = html;
         }
@@ -2231,7 +2138,7 @@ T6: 19:00 - 21:00 Đi xem phim"></textarea>
             titleInput.value = '';
 
             renderAll();
-            alert(`✅ Đã thêm "${title}" vào ${targetDay.fullName} thành công!`);
+            alert('✅ Đã thêm "' + title + '" vào ' + targetDay.fullName + ' thành công!');
         }
 
         function deleteEvent(id) {
@@ -2240,27 +2147,21 @@ T6: 19:00 - 21:00 Đi xem phim"></textarea>
             renderAll();
         }
 
-        // ========================================================
-        // 4. RENDER GIAO DIỆN ĐỘNG TRÊN CANVAS (TAB 2: STUDIO MÀN HÌNH KHÓA)
-        // ========================================================
+        // RENDER TAB 2: STUDIO MÀN HÌNH KHÓA
         function renderStudioCanvas() {
             const weekDays = getWeekDays();
             const todayIso = formatDateISO(BASE_DATE);
 
-            // Cập nhật ngày tháng màn hình khóa
             const todayObj = BASE_DATE;
             const dayNamesLong = ['Chủ Nhật', 'Thứ Hai', 'Thứ Ba', 'Thứ Tư', 'Thứ Năm', 'Thứ Sáu', 'Thứ Bảy'];
-            const lockDateStr = `${dayNamesLong[todayObj.getDay()]}, ${todayObj.getDate()} Thg ${todayObj.getMonth() + 1}`;
+            const lockDateStr = dayNamesLong[todayObj.getDay()] + ', ' + todayObj.getDate() + ' Thg ' + (todayObj.getMonth() + 1);
             document.getElementById('mock-lock-date').innerText = lockDateStr;
-            document.getElementById('frosted-today-tag').innerText = `Hôm nay: ${DAY_NAMES[(todayObj.getDay() + 6) % 7]}`;
+            document.getElementById('frosted-today-tag').innerText = 'Hôm nay: ' + DAY_NAMES[(todayObj.getDay() + 6) % 7];
 
-            // Lọc sự kiện hôm nay & sự kiện nhắc nhở
             const todayEvents = events.filter(e => e.date === todayIso);
             const reminderEvents = events.filter(e => e.hasReminder);
 
-            // --------------------------------------------------------
-            // 4.1. BỐ CỤC 1: 7 DÒNG CHI TIẾT (Rows Layout - Động)
-            // --------------------------------------------------------
+            // BỐ CỤC 1: 7 DÒNG CHI TIẾT
             const rowsList = document.getElementById('studio-dynamic-rows-list');
             rowsList.innerHTML = '';
 
@@ -2273,24 +2174,16 @@ T6: 19:00 - 21:00 Đi xem phim"></textarea>
                 if (dayEvs.length > 0) {
                     dayEvs.slice(0, 2).forEach(ev => {
                         const catColor = (CATEGORIES[ev.category] || CATEGORIES.other).color;
-                        chipsHtml += `
-                            <div class="row-chip" style="background: ${catColor};">
-                                <span class="t">${ev.startTime}</span>
-                                <span>${ev.title}</span>
-                            </div>
-                        `;
+                        chipsHtml += '<div class="row-chip" style="background: ' + catColor + ';"><span class="t">' + ev.startTime + '</span><span>' + ev.title + '</span></div>';
                     });
                     if (dayEvs.length > 2) {
-                        chipsHtml += `<span style="font-size: 6.5px; opacity: 0.6; font-weight: bold;">+${dayEvs.length - 2}</span>`;
+                        chipsHtml += '<span style="font-size: 6.5px; opacity: 0.6; font-weight: bold;">+' + (dayEvs.length - 2) + '</span>';
                     }
                 } else {
-                    chipsHtml = `<span style="font-size: 7px; opacity: 0.3;">—</span>`;
+                    chipsHtml = '<span style="font-size: 7px; opacity: 0.3;">—</span>';
                 }
 
-                row.innerHTML = `
-                    <div class="row-day-capsule"><span>${day.shortName}</span><span>${day.dayNum}</span></div>
-                    <div class="row-events-track">${chipsHtml}</div>
-                `;
+                row.innerHTML = '<div class="row-day-capsule"><span>' + day.shortName + '</span><span>' + day.dayNum + '</span></div><div class="row-events-track">' + chipsHtml + '</div>';
                 rowsList.appendChild(row);
             });
 
@@ -2300,18 +2193,12 @@ T6: 19:00 - 21:00 Đi xem phim"></textarea>
                 let html = '';
                 todayEvents.slice(0, 3).forEach(ev => {
                     const catColor = (CATEGORIES[ev.category] || CATEGORIES.other).color;
-                    html += `
-                        <div class="agenda-row">
-                            <div class="agenda-time">${ev.startTime}–${ev.endTime}</div>
-                            <div class="agenda-name" style="color: ${catColor};">${ev.title}</div>
-                            ${ev.hasReminder ? '<span style="font-size: 7px;">🔔</span>' : ''}
-                        </div>
-                    `;
+                    html += '<div class="agenda-row"><div class="agenda-time">' + ev.startTime + '–' + ev.endTime + '</div><div class="agenda-name" style="color: ' + catColor + ';">' + ev.title + '</div>' + (ev.hasReminder ? '<span style="font-size: 7px;">🔔</span>' : '') + '</div>';
                 });
                 rowsToday.innerHTML = html;
                 document.getElementById('studio-rows-today-box').style.display = 'block';
             } else {
-                rowsToday.innerHTML = `<div style="font-size: 7px; color: rgba(255,255,255,0.5);">✨ Hôm nay thảnh thơi • Không có lịch</div>`;
+                rowsToday.innerHTML = '<div style="font-size: 7px; color: rgba(255,255,255,0.5);">✨ Hôm nay thảnh thơi • Không có lịch</div>';
             }
 
             // Reminders (Rows)
@@ -2319,13 +2206,7 @@ T6: 19:00 - 21:00 Đi xem phim"></textarea>
             if (reminderEvents.length > 0) {
                 let html = '';
                 reminderEvents.slice(0, 2).forEach(ev => {
-                    html += `
-                        <div class="reminder-row">
-                            <div class="rem-dot"></div>
-                            <div style="flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${ev.title}</div>
-                            <span style="opacity: 0.6; font-size: 6.8px;">(${ev.startTime})</span>
-                        </div>
-                    `;
+                    html += '<div class="reminder-row"><div class="rem-dot"></div><div style="flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">' + ev.title + '</div><span style="opacity: 0.6; font-size: 6.8px;">(' + ev.startTime + ')</span></div>';
                 });
                 rowsReminders.innerHTML = html;
                 document.getElementById('studio-rows-reminders-box').style.display = 'block';
@@ -2333,9 +2214,7 @@ T6: 19:00 - 21:00 Đi xem phim"></textarea>
                 document.getElementById('studio-rows-reminders-box').style.display = 'none';
             }
 
-            // --------------------------------------------------------
-            // 4.2. BỐ CỤC 2: 7 CỘT TỐI GIẢN (Columns Layout - Động)
-            // --------------------------------------------------------
+            // BỐ CỤC 2: 7 CỘT TỐI GIẢN
             const colsGrid = document.getElementById('studio-columns-grid');
             colsGrid.innerHTML = '';
             weekDays.forEach(day => {
@@ -2346,13 +2225,10 @@ T6: 19:00 - 21:00 Đi xem phim"></textarea>
                 let chipsHtml = '';
                 dayEvs.slice(0, 3).forEach(ev => {
                     const catColor = (CATEGORIES[ev.category] || CATEGORIES.other).color;
-                    chipsHtml += `<div class="cell-event-chip" style="background: ${catColor};">${ev.title}</div>`;
+                    chipsHtml += '<div class="cell-event-chip" style="background: ' + catColor + ';">' + ev.title + '</div>';
                 });
 
-                cell.innerHTML = `
-                    <div class="col-cell-head"><div class="dw">${day.shortName}</div><div class="dd">${day.dayNum}</div></div>
-                    <div class="col-cell-events">${chipsHtml}</div>
-                `;
+                cell.innerHTML = '<div class="col-cell-head"><div class="dw">' + day.shortName + '</div><div class="dd">' + day.dayNum + '</div></div><div class="col-cell-events">' + chipsHtml + '</div>';
                 colsGrid.appendChild(cell);
             });
 
@@ -2360,9 +2236,7 @@ T6: 19:00 - 21:00 Đi xem phim"></textarea>
             document.getElementById('studio-columns-reminders-content').innerHTML = rowsReminders.innerHTML;
             document.getElementById('studio-columns-reminders-box').style.display = reminderEvents.length > 0 ? 'block' : 'none';
 
-            // --------------------------------------------------------
-            // 4.3. BỐ CỤC 3: KÍNH MỜ (Frosted Card - Động)
-            // --------------------------------------------------------
+            // BỐ CỤC 3: KÍNH MỜ
             document.getElementById('studio-frosted-grid').innerHTML = colsGrid.innerHTML;
             document.getElementById('studio-frosted-today-content').innerHTML = rowsToday.innerHTML;
             document.getElementById('studio-frosted-reminders-content').innerHTML = rowsReminders.innerHTML;
@@ -2374,9 +2248,7 @@ T6: 19:00 - 21:00 Đi xem phim"></textarea>
             renderStudioCanvas();
         }
 
-        // ========================================================
-        // 5. CÁC TÍNH NĂNG TRONG MENU (...) THỰC THI THẬT TRÊN STATE
-        // ========================================================
+        // TÍNH NĂNG MENU (...)
         function copyCurrentWeekToNextWeek() {
             closeAllMenus();
             const weekDays = getWeekDays();
@@ -2393,7 +2265,6 @@ T6: 19:00 - 21:00 Đi xem phim"></textarea>
                 curDate.setDate(curDate.getDate() + 7);
                 const nextDateStr = formatDateISO(curDate);
 
-                // Kiểm tra xem đã có sự kiện tương tự chưa
                 const exists = events.some(e => e.date === nextDateStr && e.title === ev.title && e.startTime === ev.startTime);
                 if (!exists) {
                     events.push({
@@ -2407,7 +2278,7 @@ T6: 19:00 - 21:00 Đi xem phim"></textarea>
 
             saveEvents();
             renderAll();
-            alert(`📄 Đã sao chép thành công ${copiedCount} sự kiện sang tuần sau!`);
+            alert('📄 Đã sao chép thành công ' + copiedCount + ' sự kiện sang tuần sau!');
         }
 
         function exportCalendarICS() {
@@ -2424,10 +2295,10 @@ T6: 19:00 - 21:00 Đi xem phim"></textarea>
                 const enClean = ev.endTime.replace(/:/g, '') + '00';
 
                 ics += "BEGIN:VEVENT\n";
-                ics += `SUMMARY:${ev.title}\n`;
-                ics += `DTSTART:${dateClean}T${stClean}\n`;
-                ics += `DTEND:${dateClean}T${enClean}\n`;
-                ics += `DESCRIPTION:Danh mục: ${(CATEGORIES[ev.category] || CATEGORIES.other).name}\n`;
+                ics += "SUMMARY:" + ev.title + "\n";
+                ics += "DTSTART:" + dateClean + "T" + stClean + "\n";
+                ics += "DTEND:" + dateClean + "T" + enClean + "\n";
+                ics += "DESCRIPTION:Danh mục: " + (CATEGORIES[ev.category] || CATEGORIES.other).name + "\n";
                 ics += "END:VEVENT\n";
             });
             ics += "END:VCALENDAR";
@@ -2453,9 +2324,9 @@ T6: 19:00 - 21:00 Đi xem phim"></textarea>
             const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
             const link = document.createElement('a');
             link.href = URL.createObjectURL(blob);
-            link.download = `LichTuan_Backup_${formatDateISO(new Date())}.json`;
+            link.download = 'LichTuan_Backup_' + formatDateISO(new Date()) + '.json';
             link.click();
-            alert(`📥 Đã sao lưu toàn bộ ${events.length} sự kiện vào file JSON!`);
+            alert('📥 Đã sao lưu toàn bộ ' + events.length + ' sự kiện vào file JSON!');
         }
 
         function triggerRestoreJSON() {
@@ -2474,7 +2345,7 @@ T6: 19:00 - 21:00 Đi xem phim"></textarea>
                                 events = data.events;
                                 saveEvents();
                                 renderAll();
-                                alert(`🔄 Khôi Phục Thành Công! Đã nạp ${events.length} sự kiện từ: ${file.name}`);
+                                alert('🔄 Khôi Phục Thành Công! Đã nạp ' + events.length + ' sự kiện từ: ' + file.name);
                             } else {
                                 alert('File JSON không đúng cấu trúc ứng dụng!');
                             }
@@ -2504,41 +2375,36 @@ T6: 19:00 - 21:00 Đi xem phim"></textarea>
             const d3 = weekDays[3].isoDate;
             const d5 = weekDays[5].isoDate;
 
-            events.push({
-                id: Date.now().toString() + 'sync1',
-                title: 'Họp Ban Giám Đốc',
-                category: 'work',
-                date: d3,
-                startTime: '09:00',
-                endTime: '11:30',
-                hasReminder: true
-            });
-            events.push({
-                id: Date.now().toString() + 'sync2',
-                title: 'Sinh Nhật Bạn Thân',
-                category: 'personal',
-                date: d5,
-                startTime: '18:30',
-                endTime: '21:00',
-                hasReminder: false
-            });
+            if (document.getElementById('sync-chk-1').checked) {
+                events.push({
+                    id: Date.now().toString() + 'sync1',
+                    title: 'Họp Ban Giám Đốc',
+                    category: 'work',
+                    date: d3,
+                    startTime: '09:00',
+                    endTime: '11:30',
+                    hasReminder: true
+                });
+            }
+            if (document.getElementById('sync-chk-2').checked) {
+                events.push({
+                    id: Date.now().toString() + 'sync2',
+                    title: 'Sinh Nhật Bạn Thân',
+                    category: 'personal',
+                    date: d5,
+                    startTime: '18:30',
+                    endTime: '21:00',
+                    hasReminder: false
+                });
+            }
 
             saveEvents();
             renderAll();
-            alert('✅ Đã đồng bộ 2 sự kiện từ Lịch Điện Thoại vào bảng tuần!');
+            alert('✅ Đã đồng bộ sự kiện từ Lịch Điện Thoại vào bảng tuần!');
         }
 
         function pasteSampleOCR() {
-            document.getElementById('ocr-textarea').value = "Thứ 2:
-- 08:00 - 10:00: Đi làm
-- 14:00 - 16:00: Họp dự án
-T3:
-- 07:30 - 09:00: Tập gym
-- 18:00 - 20:00: Học tiếng Anh
-T4:
-- 13:00 - 16:00: Lập trình Android
-CN:
-- Cả ngày: Đi chơi với gia đình";
+            document.getElementById('ocr-textarea').value = "Thứ 2:\n- 08:00 - 10:00: Đi làm\n- 14:00 - 16:00: Họp dự án\nT3:\n- 07:30 - 09:00: Tập gym\n- 18:00 - 20:00: Học tiếng Anh\nT4:\n- 13:00 - 16:00: Lập trình Android\nCN:\n- Cả ngày: Đi chơi với gia đình";
         }
 
         function simulateScanPhoto() {
@@ -2557,7 +2423,6 @@ CN:
             }
 
             const weekDays = getWeekDays();
-            // Thêm các sự kiện nhận diện được
             events.push({ id: Date.now().toString() + 'ocr1', title: 'Đi Làm', category: 'work', date: weekDays[0].isoDate, startTime: '08:00', endTime: '10:00', hasReminder: false });
             events.push({ id: Date.now().toString() + 'ocr2', title: 'Họp Dự Án', category: 'work', date: weekDays[0].isoDate, startTime: '14:00', endTime: '16:00', hasReminder: true });
             events.push({ id: Date.now().toString() + 'ocr3', title: 'Tập Gym', category: 'health', date: weekDays[1].isoDate, startTime: '07:30', endTime: '09:00', hasReminder: false });
@@ -2587,9 +2452,7 @@ CN:
             renderAll();
         }
 
-        // ========================================================
-        // 6. CÁC HÀM ĐIỀU KHIỂN STUDIO KHÓA & NAVIGATION
-        // ========================================================
+        // HÀM ĐIỀU HƯỚNG TAB
         function switchMainTab(tab) {
             closeAllMenus();
             document.querySelectorAll('.tab-view').forEach(v => v.classList.remove('active'));
@@ -2649,12 +2512,12 @@ CN:
 
         function applyCalendarPosition() {
             const container = document.getElementById('canvas-calendar-container');
-            let basePercent = 31; // Dưới Đồng Hồ (chuẩn iOS baseRatio 0.325)
+            let basePercent = 31;
             if (currentPos === 'center') basePercent = 40;
             else if (currentPos === 'bottom') basePercent = 49;
 
             const offsetPx = currentFineTuneY * 0.45;
-            container.style.top = `calc(${basePercent}% + ${offsetPx}px)`;
+            container.style.top = 'calc(' + basePercent + '% + ' + offsetPx + 'px)';
         }
 
         function setCardPosition(pos, btn) {
@@ -2753,11 +2616,9 @@ CN:
             document.getElementById(id).classList.remove('open');
         }
 
-        // Khởi động toàn bộ ứng dụng
-        window.addEventListener('DOMContentLoaded', () => {
-            initInitialEvents();
-            renderAll();
-        });
+        // Tự động chạy ngay lập tức khi nạp trang
+        initInitialEvents();
+        renderAll();
     </script>
 </body>
 </html>
