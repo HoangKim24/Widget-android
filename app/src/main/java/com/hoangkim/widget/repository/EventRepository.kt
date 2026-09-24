@@ -13,6 +13,7 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
+import java.util.UUID
 
 class EventRepository(context: Context) {
     private val prefs: SharedPreferences = context.getSharedPreferences("widget_events_prefs", Context.MODE_PRIVATE)
@@ -39,7 +40,7 @@ class EventRepository(context: Context) {
                     val obj = array.getJSONObject(i)
                     list.add(
                         CalendarEvent(
-                            id = obj.getString("id"),
+                            id = obj.optString("id", UUID.randomUUID().toString()),
                             title = obj.getString("title"),
                             startDate = LocalDateTime.parse(obj.getString("startDate"), isoFmt),
                             endDate = LocalDateTime.parse(obj.getString("endDate"), isoFmt),
@@ -76,6 +77,103 @@ class EventRepository(context: Context) {
     fun clearAll() {
         _events.value = emptyList()
         saveEvents()
+    }
+
+    fun copyWeekToNextWeek(currentMonday: LocalDate): Int {
+        val nextMonday = currentMonday.plusWeeks(1)
+        val currentEvents = _events.value.filter { e ->
+            (0..6).any { dayOffset -> e.occurs(currentMonday.plusDays(dayOffset.toLong())) }
+        }
+        var copiedCount = 0
+        val currentList = _events.value.toMutableList()
+        for (e in currentEvents) {
+            val oldDate = e.startDate.toLocalDate()
+            val dayDiff = java.time.temporal.ChronoUnit.DAYS.between(currentMonday, oldDate)
+            val targetDate = nextMonday.plusDays(dayDiff)
+            val newStart = LocalDateTime.of(targetDate, e.startDate.toLocalTime())
+            val newEnd = LocalDateTime.of(targetDate, e.endDate.toLocalTime())
+
+            val exists = currentList.any { it.title == e.title && it.startDate == newStart }
+            if (!exists) {
+                currentList.add(
+                    e.copy(
+                        id = UUID.randomUUID().toString(),
+                        startDate = newStart,
+                        endDate = newEnd,
+                        isRecurringWeekly = false
+                    )
+                )
+                copiedCount++
+            }
+        }
+        _events.value = currentList
+        saveEvents()
+        return copiedCount
+    }
+
+    fun generateIcsString(): String {
+        val sb = StringBuilder()
+        val utcFormatter = DateTimeFormatter.ofPattern("yyyyMMdd'T'HHmmss")
+        sb.appendLine("BEGIN:VCALENDAR")
+        sb.appendLine("VERSION:2.0")
+        sb.appendLine("PRODID:-//HoangKim//LichTuan App//VI")
+        sb.appendLine("CALSCALE:GREGORIAN")
+        sb.appendLine("METHOD:PUBLISH")
+
+        for (e in _events.value) {
+            sb.appendLine("BEGIN:VEVENT")
+            sb.appendLine("UID:${e.id}@hoangkim.widget")
+            sb.appendLine("DTSTAMP:${LocalDateTime.now().format(utcFormatter)}")
+            sb.appendLine("DTSTART:${e.startDate.format(utcFormatter)}")
+            sb.appendLine("DTEND:${e.endDate.format(utcFormatter)}")
+            sb.appendLine("SUMMARY:${e.title}")
+            if (e.location.isNotEmpty()) {
+                sb.appendLine("LOCATION:${e.location}")
+            }
+            sb.appendLine("CATEGORIES:${e.category.displayName}")
+            if (e.isRecurringWeekly) {
+                sb.appendLine("RRULE:FREQ=WEEKLY")
+            }
+            sb.appendLine("END:VEVENT")
+        }
+        sb.appendLine("END:VCALENDAR")
+        return sb.toString()
+    }
+
+    fun getBackupJson(): String {
+        return prefs.getString("saved_events_json", "[]") ?: "[]"
+    }
+
+    fun restoreFromJson(jsonString: String): Boolean {
+        return try {
+            val list = mutableListOf<CalendarEvent>()
+            val array = JSONArray(jsonString)
+            val isoFmt = DateTimeFormatter.ISO_LOCAL_DATE_TIME
+            val dateFmt = DateTimeFormatter.ISO_LOCAL_DATE
+
+            for (i in 0 until array.length()) {
+                val obj = array.getJSONObject(i)
+                list.add(
+                    CalendarEvent(
+                        id = obj.optString("id", UUID.randomUUID().toString()),
+                        title = obj.getString("title"),
+                        startDate = LocalDateTime.parse(obj.getString("startDate"), isoFmt),
+                        endDate = LocalDateTime.parse(obj.getString("endDate"), isoFmt),
+                        category = EventCategory.fromId(obj.optString("category", "other")),
+                        isAllDay = obj.optBoolean("isAllDay", false),
+                        isRecurringWeekly = obj.optBoolean("isRecurringWeekly", false),
+                        recurrenceEndDate = if (obj.has("recurrenceEndDate")) LocalDate.parse(obj.getString("recurrenceEndDate"), dateFmt) else null,
+                        hasReminder = obj.optBoolean("hasReminder", true),
+                        location = obj.optString("location", "")
+                    )
+                )
+            }
+            _events.value = list
+            saveEvents()
+            true
+        } catch (e: Exception) {
+            false
+        }
     }
 
     private fun saveEvents() {

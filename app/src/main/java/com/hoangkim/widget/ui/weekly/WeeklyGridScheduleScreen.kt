@@ -1,12 +1,9 @@
 package com.hoangkim.widget.ui.weekly
 
+import android.app.WallpaperManager
+import android.content.Intent
+import android.os.Build
 import android.widget.Toast
-import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.RepeatMode
-import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -33,6 +30,7 @@ import androidx.compose.ui.unit.sp
 import com.hoangkim.widget.model.CalendarEvent
 import com.hoangkim.widget.model.EventCategory
 import com.hoangkim.widget.repository.EventRepository
+import com.hoangkim.widget.wallpaper.FindX9WallpaperRenderer
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
@@ -54,6 +52,7 @@ fun WeeklyGridScheduleScreen(
 
     // Input form state
     var newEventTitle by remember { mutableStateOf("") }
+    var newEventLocation by remember { mutableStateOf("") }
     var startHour by remember { mutableIntStateOf(7) }
     var startMinute by remember { mutableIntStateOf(0) }
     var endHour by remember { mutableIntStateOf(10) }
@@ -61,6 +60,11 @@ fun WeeklyGridScheduleScreen(
     var selectedCategory by remember { mutableStateOf(EventCategory.WORK) }
     var isRecurringWeekly by remember { mutableStateOf(false) }
     var hasReminder by remember { mutableStateOf(true) }
+
+    // Dialog state
+    var showClearConfirmDialog by remember { mutableStateOf(false) }
+    var showRestoreDialog by remember { mutableStateOf(false) }
+    var restoreJsonInput by remember { mutableStateOf("") }
 
     // 7 ngày trong tuần theo weekOffset
     val today = LocalDate.now()
@@ -129,7 +133,12 @@ fun WeeklyGridScheduleScreen(
                             leadingIcon = { Icon(Icons.Default.ContentCopy, contentDescription = null, tint = Color.White.copy(alpha = 0.8f)) },
                             onClick = {
                                 showMoreMenu = false
-                                Toast.makeText(context, "Đã sao chép lịch sang tuần sau thành công!", Toast.LENGTH_SHORT).show()
+                                val copied = repository.copyWeekToNextWeek(targetMonday)
+                                if (copied > 0) {
+                                    Toast.makeText(context, "🎉 Đã sao chép thành công $copied lịch trình sang tuần sau!", Toast.LENGTH_SHORT).show()
+                                } else {
+                                    Toast.makeText(context, "Tuần này chưa có lịch mới để sao chép!", Toast.LENGTH_SHORT).show()
+                                }
                             }
                         )
 
@@ -148,7 +157,17 @@ fun WeeklyGridScheduleScreen(
                             leadingIcon = { Icon(Icons.Default.Share, contentDescription = null, tint = Color.White.copy(alpha = 0.8f)) },
                             onClick = {
                                 showMoreMenu = false
-                                Toast.makeText(context, "Đã xuất file LichTuan.ics", Toast.LENGTH_SHORT).show()
+                                try {
+                                    val ics = repository.generateIcsString()
+                                    val shareIntent = Intent(Intent.ACTION_SEND).apply {
+                                        type = "text/calendar"
+                                        putExtra(Intent.EXTRA_SUBJECT, "LichTuan.ics")
+                                        putExtra(Intent.EXTRA_TEXT, ics)
+                                    }
+                                    context.startActivity(Intent.createChooser(shareIntent, "Xuất file lịch (.ics)"))
+                                } catch (e: Exception) {
+                                    Toast.makeText(context, "Lỗi xuất file: ${e.message}", Toast.LENGTH_SHORT).show()
+                                }
                             }
                         )
                         DropdownMenuItem(
@@ -156,7 +175,17 @@ fun WeeklyGridScheduleScreen(
                             leadingIcon = { Icon(Icons.Default.Download, contentDescription = null, tint = Color.White.copy(alpha = 0.8f)) },
                             onClick = {
                                 showMoreMenu = false
-                                Toast.makeText(context, "Đã sao lưu file LichTuan_Backup.json", Toast.LENGTH_SHORT).show()
+                                try {
+                                    val json = repository.getBackupJson()
+                                    val shareIntent = Intent(Intent.ACTION_SEND).apply {
+                                        type = "text/plain"
+                                        putExtra(Intent.EXTRA_SUBJECT, "LichTuan_Backup.json")
+                                        putExtra(Intent.EXTRA_TEXT, json)
+                                    }
+                                    context.startActivity(Intent.createChooser(shareIntent, "Sao lưu dữ liệu lịch (.json)"))
+                                } catch (e: Exception) {
+                                    Toast.makeText(context, "Lỗi sao lưu: ${e.message}", Toast.LENGTH_SHORT).show()
+                                }
                             }
                         )
                         DropdownMenuItem(
@@ -164,7 +193,7 @@ fun WeeklyGridScheduleScreen(
                             leadingIcon = { Icon(Icons.Default.Restore, contentDescription = null, tint = Color.White.copy(alpha = 0.8f)) },
                             onClick = {
                                 showMoreMenu = false
-                                Toast.makeText(context, "Mở file .json để khôi phục", Toast.LENGTH_SHORT).show()
+                                showRestoreDialog = true
                             }
                         )
 
@@ -183,15 +212,19 @@ fun WeeklyGridScheduleScreen(
                             leadingIcon = { Icon(Icons.Default.Bolt, contentDescription = null, tint = Color(0xFF2E94FF)) },
                             onClick = {
                                 showMoreMenu = false
-                                Toast.makeText(context, "Đã kích hoạt đổi màn hình khóa!", Toast.LENGTH_SHORT).show()
-                            }
-                        )
-                        DropdownMenuItem(
-                            text = { Text("Cài Đặt Tự Động Hóa", color = Color.White, fontSize = 13.sp) },
-                            leadingIcon = { Icon(Icons.Default.Settings, contentDescription = null, tint = Color.White.copy(alpha = 0.8f)) },
-                            onClick = {
-                                showMoreMenu = false
-                                Toast.makeText(context, "Hướng dẫn tự động hóa màn hình khóa", Toast.LENGTH_SHORT).show()
+                                try {
+                                    val wm = WallpaperManager.getInstance(context)
+                                    val bmp = FindX9WallpaperRenderer.renderWallpaper(null, events)
+                                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                                        wm.setBitmap(bmp, null, true, WallpaperManager.FLAG_LOCK)
+                                        Toast.makeText(context, "🎉 Đã cập nhật màn hình khóa thành công!", Toast.LENGTH_SHORT).show()
+                                    } else {
+                                        wm.setBitmap(bmp)
+                                        Toast.makeText(context, "Đã cập nhật màn hình khóa!", Toast.LENGTH_SHORT).show()
+                                    }
+                                } catch (e: Exception) {
+                                    Toast.makeText(context, "Lỗi cập nhật màn hình: ${e.message}", Toast.LENGTH_SHORT).show()
+                                }
                             }
                         )
 
@@ -203,8 +236,7 @@ fun WeeklyGridScheduleScreen(
                             leadingIcon = { Icon(Icons.Default.Delete, contentDescription = null, tint = Color(0xFFFF453A)) },
                             onClick = {
                                 showMoreMenu = false
-                                repository.clearAll()
-                                Toast.makeText(context, "Đã xóa toàn bộ lịch trình", Toast.LENGTH_SHORT).show()
+                                showClearConfirmDialog = true
                             }
                         )
                     }
@@ -220,7 +252,7 @@ fun WeeklyGridScheduleScreen(
                 .padding(horizontal = 14.dp),
             verticalArrangement = Arrangement.spacedBy(14.dp)
         ) {
-            // MARK: - PHẦN 1: BẢNG TỔNG QUAN 7 CỘT TUẦN (weeklyMatrixOverviewCard)
+            // MARK: - PHẦN 1: BẢNG TỔNG QUAN 7 CỘT TUẦN
             item {
                 WeeklyMatrixCard(
                     weekNumber = weekOfYear,
@@ -235,7 +267,7 @@ fun WeeklyGridScheduleScreen(
                 )
             }
 
-            // MARK: - PHẦN 2: DANH SÁCH LỊCH TRÌNH ĐÃ XẾP TRONG NGÀY (scheduledSlotsSection)
+            // MARK: - PHẦN 2: DANH SÁCH LỊCH TRÌNH ĐÃ XẾP TRONG NGÀY
             item {
                 ScheduledSlotsSection(
                     selectedDate = selectedDate,
@@ -244,12 +276,14 @@ fun WeeklyGridScheduleScreen(
                 )
             }
 
-            // MARK: - PHẦN 3: KHUNG XẾP LỊCH TRÌNH VÀO NGÀY ĐANG CHỌN (scheduleInputCard)
+            // MARK: - PHẦN 3: KHUNG XẾP LỊCH TRÌNH VÀO NGÀY ĐANG CHỌN (ScheduleInputCard nâng cấp)
             item {
                 ScheduleInputCard(
                     selectedDate = selectedDate,
                     title = newEventTitle,
                     onTitleChange = { newEventTitle = it },
+                    location = newEventLocation,
+                    onLocationChange = { newEventLocation = it },
                     startHour = startHour,
                     startMinute = startMinute,
                     endHour = endHour,
@@ -278,6 +312,7 @@ fun WeeklyGridScheduleScreen(
                         repository.addEvent(
                             CalendarEvent(
                                 title = newEventTitle.trim(),
+                                location = newEventLocation.trim(),
                                 startDate = sDate,
                                 endDate = eDate,
                                 category = selectedCategory,
@@ -286,6 +321,7 @@ fun WeeklyGridScheduleScreen(
                             )
                         )
                         newEventTitle = ""
+                        newEventLocation = ""
                         Toast.makeText(context, "Đã xếp vào bảng lịch tuần!", Toast.LENGTH_SHORT).show()
                     }
                 )
@@ -321,6 +357,73 @@ fun WeeklyGridScheduleScreen(
                 }
                 Spacer(modifier = Modifier.height(20.dp))
             }
+        }
+
+        // Dialog Xác Nhận Xóa
+        if (showClearConfirmDialog) {
+            AlertDialog(
+                onDismissRequest = { showClearConfirmDialog = false },
+                title = { Text("Xác Nhận Xóa Toàn Bộ Lịch", fontWeight = FontWeight.Bold) },
+                text = { Text("Bạn có chắc chắn muốn xóa toàn bộ lịch trình không? Thao tác này không thể hoàn tác.") },
+                confirmButton = {
+                    TextButton(
+                        onClick = {
+                            repository.clearAll()
+                            showClearConfirmDialog = false
+                            Toast.makeText(context, "Đã xóa toàn bộ lịch trình", Toast.LENGTH_SHORT).show()
+                        }
+                    ) {
+                        Text("Xóa Tất Cả", color = Color(0xFFFF453A), fontWeight = FontWeight.Bold)
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = { showClearConfirmDialog = false }) {
+                        Text("Hủy")
+                    }
+                }
+            )
+        }
+
+        // Dialog Khôi Phục JSON
+        if (showRestoreDialog) {
+            AlertDialog(
+                onDismissRequest = { showRestoreDialog = false },
+                title = { Text("Khôi Phục Dữ Liệu (.json)", fontWeight = FontWeight.Bold) },
+                text = {
+                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Text("Dán chuỗi JSON đã sao lưu vào ô dưới đây:", fontSize = 12.sp)
+                        OutlinedTextField(
+                            value = restoreJsonInput,
+                            onValueChange = { restoreJsonInput = it },
+                            placeholder = { Text("Dán nội dung JSON vào đây...") },
+                            modifier = Modifier.fillMaxWidth().height(120.dp)
+                        )
+                    }
+                },
+                confirmButton = {
+                    TextButton(
+                        onClick = {
+                            if (restoreJsonInput.trim().isNotEmpty()) {
+                                val success = repository.restoreFromJson(restoreJsonInput.trim())
+                                if (success) {
+                                    Toast.makeText(context, "Khôi phục dữ liệu thành công!", Toast.LENGTH_SHORT).show()
+                                    showRestoreDialog = false
+                                    restoreJsonInput = ""
+                                } else {
+                                    Toast.makeText(context, "Dữ liệu JSON không hợp lệ!", Toast.LENGTH_SHORT).show()
+                                }
+                            }
+                        }
+                    ) {
+                        Text("Khôi Phục", fontWeight = FontWeight.Bold)
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = { showRestoreDialog = false }) {
+                        Text("Hủy")
+                    }
+                }
+            )
         }
     }
 }
@@ -649,12 +752,14 @@ fun SlotItemView(
     }
 }
 
-// KHUNG XẾP LỊCH TRÌNH VÀO NGÀY ĐANG CHỌN (Component 3)
+// KHUNG XẾP LỊCH TRÌNH VÀO NGÀY ĐANG CHỌN (Component 3 - Đã thêm Địa Điểm & Chỉnh Giờ Tự Do)
 @Composable
 fun ScheduleInputCard(
     selectedDate: LocalDate,
     title: String,
     onTitleChange: (String) -> Unit,
+    location: String,
+    onLocationChange: (String) -> Unit,
     startHour: Int,
     startMinute: Int,
     endHour: Int,
@@ -678,7 +783,7 @@ fun ScheduleInputCard(
     ) {
         Column(
             modifier = Modifier.padding(14.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
+            verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
@@ -695,12 +800,12 @@ fun ScheduleInputCard(
 
             // 1. Tên công việc
             Column {
-                Text("TÊN CÔNG VIỆC", color = Color.White.copy(0.6f), fontSize = 10.5.sp, fontWeight = FontWeight.Bold)
+                Text("TÊN CÔNG VIỆC / MÔN HỌC", color = Color.White.copy(0.6f), fontSize = 10.5.sp, fontWeight = FontWeight.Bold)
                 Spacer(modifier = Modifier.height(4.dp))
                 OutlinedTextField(
                     value = title,
                     onValueChange = onTitleChange,
-                    placeholder = { Text("Ví dụ: 07:00 Đi làm, Họp team, Tập gym...", color = Color.White.copy(0.35f), fontSize = 13.sp) },
+                    placeholder = { Text("Ví dụ: Toán Cao Cấp, Họp Team, Đi Gym...", color = Color.White.copy(0.35f), fontSize = 13.sp) },
                     modifier = Modifier.fillMaxWidth(),
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedTextColor = Color.White,
@@ -715,10 +820,47 @@ fun ScheduleInputCard(
                 )
             }
 
-            // 2. Khung giờ
+            // 2. Địa điểm (📍)
             Column {
-                Text("KHUNG GIỜ CỤ THỂ", color = Color.White.copy(0.6f), fontSize = 10.5.sp, fontWeight = FontWeight.Bold)
+                Text("ĐỊA ĐIỂM (TÙY CHỌN)", color = Color.White.copy(0.6f), fontSize = 10.5.sp, fontWeight = FontWeight.Bold)
                 Spacer(modifier = Modifier.height(4.dp))
+                OutlinedTextField(
+                    value = location,
+                    onValueChange = onLocationChange,
+                    placeholder = { Text("Ví dụ: Phòng A.201, Tầng 3, Google Meet...", color = Color.White.copy(0.35f), fontSize = 13.sp) },
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedTextColor = Color.White,
+                        unfocusedTextColor = Color.White,
+                        focusedContainerColor = Color.White.copy(0.06f),
+                        unfocusedContainerColor = Color.White.copy(0.06f),
+                        focusedBorderColor = Color(0xFF2E94FF),
+                        unfocusedBorderColor = Color.White.copy(0.12f)
+                    ),
+                    shape = RoundedCornerShape(10.dp),
+                    singleLine = true
+                )
+            }
+
+            // 3. Khung giờ & Bộ chọn giờ linh hoạt
+            Column {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text("KHUNG GIỜ CỤ THỂ", color = Color.White.copy(0.6f), fontSize = 10.5.sp, fontWeight = FontWeight.Bold)
+                    Text(
+                        text = String.format("%02d:%02d – %02d:%02d", startHour, startMinute, endHour, endMinute),
+                        color = Color(0xFF55B5FF),
+                        fontSize = 11.5.sp,
+                        fontFamily = FontFamily.Monospace,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+                Spacer(modifier = Modifier.height(6.dp))
+
+                // Các preset thông dụng
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(6.dp)
@@ -726,27 +868,29 @@ fun ScheduleInputCard(
                     val presets = listOf(
                         "07:00–10:00" to listOf(7, 0, 10, 0),
                         "12:00–13:00" to listOf(12, 0, 13, 0),
-                        "13:30–14:00" to listOf(13, 30, 14, 0),
-                        "16:30–17:00" to listOf(16, 30, 17, 0)
+                        "13:30–15:30" to listOf(13, 30, 15, 30),
+                        "17:00–19:00" to listOf(17, 0, 19, 0)
                     )
                     presets.forEach { (text, times) ->
                         Box(
                             modifier = Modifier
+                                .weight(1f)
                                 .clip(RoundedCornerShape(6.dp))
                                 .background(Color.White.copy(0.06f))
                                 .border(1.dp, Color.White.copy(0.08f), RoundedCornerShape(6.dp))
                                 .clickable {
                                     onTimeChange(times[0], times[1], times[2], times[3])
                                 }
-                                .padding(horizontal = 8.dp, vertical = 6.dp)
+                                .padding(vertical = 6.dp),
+                            contentAlignment = Alignment.Center
                         ) {
-                            Text(text, color = Color.White.copy(0.85f), fontSize = 10.sp, fontFamily = FontFamily.Monospace)
+                            Text(text, color = Color.White.copy(0.85f), fontSize = 9.sp, fontFamily = FontFamily.Monospace)
                         }
                     }
                 }
             }
 
-            // 3. Phân loại màu sắc (6 danh mục chuẩn)
+            // 4. Phân loại màu sắc (6 danh mục chuẩn)
             Column {
                 Text("MÀU SẮC Ô LỊCH", color = Color.White.copy(0.6f), fontSize = 10.5.sp, fontWeight = FontWeight.Bold)
                 Spacer(modifier = Modifier.height(6.dp))
@@ -758,14 +902,14 @@ fun ScheduleInputCard(
                         val isSelected = cat == selectedCategory
                         Box(
                             modifier = Modifier
-                                .size(28.dp)
+                                .size(30.dp)
                                 .clip(CircleShape)
                                 .background(cat.composeColor)
                                 .clickable { onCategoryChange(cat) },
                             contentAlignment = Alignment.Center
                         ) {
                             if (isSelected) {
-                                Text("✓", color = Color.White, fontWeight = FontWeight.ExtraBold, fontSize = 14.sp)
+                                Text("✓", color = Color.White, fontWeight = FontWeight.ExtraBold, fontSize = 15.sp)
                             }
                         }
                     }
