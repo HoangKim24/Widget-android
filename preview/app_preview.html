@@ -2,8 +2,8 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lịch Tuần & Màn Hình Khóa - Chuẩn 100% Bản iPhone (OPPO Find X9)</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Lịch Tuần & Màn Hình Khóa - Chuẩn 100% Tính Năng Bản Gốc (OPPO Find X9)</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
@@ -49,17 +49,18 @@
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            padding: 20px;
+            padding: 10px;
+            overflow-x: hidden;
         }
 
-        /* Khung điện thoại OPPO Find X9 (Tỷ lệ 19.8:9, 1264x2780 px) */
+        /* Khung điện thoại OPPO Find X9 (Tỷ lệ 19.8:9) co giãn vừa vặn màn hình */
         .phone-frame {
-            width: 420px;
-            height: 900px;
+            width: min(420px, 96vw);
+            height: min(870px, 95vh);
             background: #000;
-            border-radius: 54px;
-            padding: 12px;
-            box-shadow: 0 25px 70px rgba(0, 0, 0, 0.8), 0 0 0 3px #2A2D3A, 0 0 30px rgba(46, 148, 255, 0.15);
+            border-radius: 50px;
+            padding: 10px;
+            box-shadow: 0 25px 70px rgba(0, 0, 0, 0.85), 0 0 0 2.5px #2A2D3A, 0 0 35px rgba(46, 148, 255, 0.15);
             display: flex;
             flex-direction: column;
             position: relative;
@@ -69,11 +70,11 @@
         /* Nốt ruồi camera selfie đục lỗ giữa màn hình */
         .phone-camera-punchhole {
             position: absolute;
-            top: 16px;
+            top: 14px;
             left: 50%;
             transform: translateX(-50%);
-            width: 13px;
-            height: 13px;
+            width: 12px;
+            height: 12px;
             background: #000;
             border: 2px solid #1a1a1a;
             border-radius: 50%;
@@ -83,7 +84,7 @@
         .screen-container {
             flex: 1;
             background: var(--screen-bg);
-            border-radius: 44px;
+            border-radius: 40px;
             overflow: hidden;
             display: flex;
             flex-direction: column;
@@ -92,16 +93,16 @@
 
         /* Thanh trạng thái Status Bar */
         .status-bar {
-            height: 40px;
-            padding: 0 24px;
+            height: 36px;
+            padding: 0 22px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            font-size: 13px;
+            font-size: 12.5px;
             font-weight: 700;
             color: #fff;
             z-index: 100;
-            padding-top: 6px;
+            padding-top: 4px;
         }
         .status-icons {
             display: flex;
@@ -139,38 +140,108 @@
         /* TAB 1: BẢNG LỊCH TUẦN                          */
         /* ============================================== */
         .weekly-tab-view {
-            padding: 8px 16px 24px 16px;
-            gap: 12px;
+            padding: 4px 14px 20px 14px;
+            gap: 10px;
         }
 
-        .week-header-bar {
+        /* Thanh Navigation chuẩn iOS với Nút (...) Menu ở góc phải */
+        .native-nav-bar {
+            height: 42px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 4px 0;
+            position: relative;
+            padding: 0 2px;
         }
-        .app-title-group {
+        .nav-bar-title {
+            font-size: 17px;
+            font-weight: 800;
+            color: #fff;
+            letter-spacing: -0.3px;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
         }
-        .app-icon-badge {
+        .btn-more-menu {
             width: 32px;
             height: 32px;
-            border-radius: 9px;
-            background: linear-gradient(135deg, #1C2333 0%, #0F1420 100%);
-            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.08);
+            border: none;
+            color: rgba(255, 255, 255, 0.9);
             display: flex;
             justify-content: center;
             align-items: center;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.2s;
         }
-        .app-title {
-            font-size: 18px;
-            font-weight: 800;
-            letter-spacing: -0.3px;
+        .btn-more-menu:hover, .btn-more-menu:active {
+            background: rgba(255, 255, 255, 0.2);
             color: #fff;
         }
 
+        /* DROPDOWN MENU (...) CHUẨN IOS */
+        .ios-dropdown-menu {
+            display: none;
+            position: absolute;
+            top: 44px;
+            right: 2px;
+            width: 250px;
+            background: rgba(30, 33, 46, 0.96);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 18px;
+            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.65);
+            z-index: 1500;
+            overflow: hidden;
+            animation: fadeInMenu 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .ios-dropdown-menu.open {
+            display: block;
+        }
+        @keyframes fadeInMenu {
+            from { opacity: 0; transform: scale(0.92) translateY(-6px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        .menu-section {
+            padding: 6px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .menu-section:last-child {
+            border-bottom: none;
+        }
+        .menu-section-title {
+            font-size: 9px;
+            font-weight: 800;
+            color: rgba(255, 255, 255, 0.45);
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            padding: 4px 14px 2px 14px;
+        }
+        .menu-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 14px;
+            font-size: 11.5px;
+            font-weight: 600;
+            color: #fff;
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+        .menu-item:hover, .menu-item:active {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        .menu-item .m-icon {
+            font-size: 13px;
+            opacity: 0.9;
+        }
+        .menu-item.danger {
+            color: #FF453A;
+        }
+
+        /* Card Bảng 7 Cột Tuần */
         .matrix-card {
             background: var(--card-bg);
             border: 1px solid var(--card-border);
@@ -201,12 +272,24 @@
         .nav-btn-round:hover {
             background: rgba(255,255,255,0.18);
         }
+        .week-clickable-header {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            padding: 3px 8px;
+            border-radius: 8px;
+            transition: background 0.2s;
+        }
+        .week-clickable-header:hover {
+            background: rgba(255, 255, 255, 0.08);
+        }
         .week-badge {
             font-size: 9px;
             font-weight: 800;
             background: rgba(46,148,255,0.2);
             color: var(--primary);
-            padding: 3px 8px;
+            padding: 2.5px 7px;
             border-radius: 6px;
         }
 
@@ -222,7 +305,7 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            min-height: 105px;
+            min-height: 100px;
             border: 1px solid transparent;
             cursor: pointer;
             transition: all 0.2s;
@@ -251,7 +334,7 @@
         .mini-event {
             width: 94%;
             border-radius: 4px;
-            padding: 2.5px 2px;
+            padding: 2px;
             margin-bottom: 3px;
             font-size: 7px;
             line-height: 1.1;
@@ -397,11 +480,11 @@
         /* TAB 2: STUDIO MÀN HÌNH KHÓA (CHUẨN 100% IPHONE) */
         /* ============================================== */
         .studio-tab-view {
-            padding: 6px 12px 10px 12px;
+            padding: 4px 12px 8px 12px;
             display: flex;
             flex-direction: column;
             height: 100%;
-            gap: 8px;
+            gap: 6px;
             overflow: hidden;
         }
 
@@ -411,6 +494,7 @@
             justify-content: space-between;
             align-items: center;
             padding: 0 4px;
+            height: 32px;
         }
         .studio-title-badge {
             display: flex;
@@ -444,9 +528,11 @@
             position: relative;
         }
         .studio-mock-phone {
-            width: 250px;
-            height: 460px;
-            border-radius: 36px;
+            width: min(240px, 65vw);
+            height: 100%;
+            max-height: 420px;
+            aspect-ratio: 19.8 / 9;
+            border-radius: 34px;
             background: #000;
             box-shadow: 0 16px 40px rgba(0,0,0,0.7), 0 0 0 2px rgba(255,255,255,0.1);
             position: relative;
@@ -474,7 +560,7 @@
             z-index: 2;
         }
 
-        /* Mock Màn Hình Khóa: Dynamic Island / Đục Lỗ, Ngày, Giờ chuẩn */
+        /* Mock Màn Hình Khóa: Punchhole, Ngày, Giờ chuẩn iOS */
         .mock-lock-screen-overlay {
             position: absolute;
             top: 0;
@@ -486,24 +572,24 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            padding-top: 10px;
+            padding-top: 8px;
         }
         .mock-punchhole {
             width: 8px;
             height: 8px;
             background: #000;
             border-radius: 50%;
-            margin-bottom: 6px;
+            margin-bottom: 5px;
         }
         .mock-date {
-            font-size: 11px;
+            font-size: 10.5px;
             font-weight: 600;
             color: rgba(255,255,255,0.9);
             text-shadow: 0 2px 6px rgba(0,0,0,0.5);
             margin-bottom: -4px;
         }
         .mock-clock {
-            font-size: 58px;
+            font-size: 54px;
             font-weight: 800;
             color: rgba(255,255,255,0.95);
             letter-spacing: -2px;
@@ -518,25 +604,25 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 0 20px;
+            padding: 0 18px;
         }
         .mock-circle-btn {
-            width: 32px;
-            height: 32px;
+            width: 30px;
+            height: 30px;
             border-radius: 50%;
             background: rgba(0,0,0,0.4);
             display: flex;
             justify-content: center;
             align-items: center;
-            font-size: 13px;
+            font-size: 12px;
         }
         .mock-home-bar {
             position: absolute;
             bottom: 4px;
             left: 50%;
             transform: translateX(-50%);
-            width: 80px;
-            height: 3.5px;
+            width: 75px;
+            height: 3px;
             background: rgba(255,255,255,0.65);
             border-radius: 2px;
         }
@@ -544,8 +630,8 @@
         /* Khung Lịch Trên Màn Hình Khóa */
         .canvas-calendar-container {
             position: absolute;
-            left: 10px;
-            right: 10px;
+            left: 8px;
+            right: 8px;
             top: 31%; /* Vị trí mặc định: Dưới Đồng Hồ chuẩn 100% iPhone baseRatio 0.325 */
             z-index: 10;
             transition: top 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
@@ -560,14 +646,14 @@
             backdrop-filter: blur(14px);
             border: 1px solid rgba(255, 255, 255, 0.14);
             border-radius: 12px;
-            padding: 6px 7px;
+            padding: 5px 6px;
             box-shadow: 0 10px 25px rgba(0,0,0,0.5);
         }
         .layout-rows-title {
-            font-size: 11px;
+            font-size: 10.5px;
             font-weight: 800;
             color: #fff;
-            margin-bottom: 5px;
+            margin-bottom: 4px;
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -575,7 +661,7 @@
         .rows-list {
             display: flex;
             flex-direction: column;
-            gap: 2.5px;
+            gap: 2px;
         }
         .row-item {
             display: flex;
@@ -583,7 +669,7 @@
             gap: 4px;
             background: rgba(0,0,0,0.28);
             padding: 2px 4px;
-            border-radius: 6px;
+            border-radius: 5px;
         }
         .row-item.today {
             background: rgba(var(--studio-accent-rgb), 0.15);
@@ -592,11 +678,11 @@
             display: flex;
             align-items: center;
             gap: 2px;
-            padding: 1.5px 5px;
+            padding: 1.5px 4px;
             border-radius: 10px;
-            font-size: 8px;
+            font-size: 7.8px;
             font-weight: 800;
-            width: 38px;
+            width: 36px;
             justify-content: center;
             background: rgba(255,255,255,0.08);
             color: var(--studio-accent);
@@ -631,12 +717,12 @@
 
         /* Phân hệ Today & Reminders chuẩn iOS */
         .agenda-today-box {
-            margin-top: 5px;
-            padding-top: 4px;
+            margin-top: 4px;
+            padding-top: 3px;
             border-top: 1px solid rgba(255,255,255,0.08);
         }
         .agenda-header {
-            font-size: 9.5px;
+            font-size: 9px;
             font-weight: 800;
             color: var(--studio-accent);
             margin-bottom: 2px;
@@ -645,15 +731,15 @@
             display: flex;
             align-items: center;
             gap: 4px;
-            font-size: 8px;
-            margin-bottom: 1.5px;
+            font-size: 7.5px;
+            margin-bottom: 1px;
         }
         .agenda-time {
             font-family: 'JetBrains Mono', monospace;
-            font-size: 7.2px;
+            font-size: 7px;
             font-weight: 700;
             color: rgba(255,255,255,0.9);
-            width: 54px;
+            width: 50px;
         }
         .agenda-name {
             font-weight: 700;
@@ -663,24 +749,24 @@
         }
 
         .reminders-box {
-            margin-top: 4px;
+            margin-top: 3px;
             padding-top: 3px;
             border-top: 1px solid rgba(255,255,255,0.08);
         }
         .reminders-header {
-            font-size: 9.5px;
+            font-size: 9px;
             font-weight: 800;
             color: #F59E0B;
             display: flex;
             align-items: center;
             gap: 3px;
-            margin-bottom: 2px;
+            margin-bottom: 1.5px;
         }
         .reminder-row {
             display: flex;
             align-items: center;
             gap: 4px;
-            font-size: 7.5px;
+            font-size: 7.2px;
             color: rgba(255,255,255,0.9);
         }
         .rem-dot {
@@ -698,14 +784,14 @@
             backdrop-filter: blur(14px);
             border: 1px solid rgba(255, 255, 255, 0.14);
             border-radius: 12px;
-            padding: 6px 7px;
+            padding: 5px 6px;
             box-shadow: 0 10px 25px rgba(0,0,0,0.5);
         }
         .canvas-week-columns-grid {
             display: grid;
             grid-template-columns: repeat(7, 1fr);
-            gap: 2.5px;
-            margin-bottom: 5px;
+            gap: 2px;
+            margin-bottom: 4px;
         }
         .col-cell {
             display: flex;
@@ -740,7 +826,7 @@
         }
         .col-cell-events {
             width: 100%;
-            min-height: 28px;
+            min-height: 26px;
             display: flex;
             flex-direction: column;
             gap: 2px;
@@ -765,21 +851,21 @@
             background: rgba(22, 26, 36, 0.72);
             backdrop-filter: blur(18px);
             border: 1.5px solid rgba(var(--studio-accent-rgb), 0.5);
-            border-radius: 16px;
-            padding: 8px;
+            border-radius: 14px;
+            padding: 6px 7px;
             box-shadow: 0 16px 36px rgba(0,0,0,0.6);
         }
         .frosted-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 6px;
+            margin-bottom: 5px;
         }
         .frosted-title {
             display: flex;
             align-items: center;
             gap: 4px;
-            font-size: 8px;
+            font-size: 7.8px;
             font-weight: 800;
             letter-spacing: 0.8px;
             color: var(--studio-accent);
@@ -796,17 +882,17 @@
         .studio-control-panel {
             background: #1C1E26;
             border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 22px;
-            padding: 9px 10px;
+            border-radius: 20px;
+            padding: 8px 10px;
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            gap: 7px;
         }
 
         /* 4 Sub-Tabs: Nền, Kiểu Lịch, Vị Trí, Màu Sắc */
         .studio-tabs-row {
             display: flex;
-            gap: 5px;
+            gap: 4px;
         }
         .sub-tab-btn {
             flex: 1;
@@ -834,7 +920,7 @@
         /* Vùng nội dung theo từng Sub-tab */
         .sub-tab-panel {
             display: none;
-            min-height: 60px;
+            min-height: 56px;
             align-items: center;
         }
         .sub-tab-panel.active {
@@ -854,13 +940,13 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 4px;
+            gap: 3px;
             cursor: pointer;
             flex-shrink: 0;
         }
         .preset-circle {
-            width: 38px;
-            height: 38px;
+            width: 36px;
+            height: 36px;
             border-radius: 50%;
             border: 2px solid transparent;
             transition: all 0.2s;
@@ -874,7 +960,7 @@
             box-shadow: 0 0 10px var(--studio-accent);
         }
         .preset-name {
-            font-size: 9px;
+            font-size: 8.5px;
             color: var(--text-sub);
             white-space: nowrap;
         }
@@ -886,18 +972,18 @@
         /* 2. Sub-tab Kiểu Lịch (Layout) - Chuẩn 100% iPhone */
         .layout-options-row {
             display: flex;
-            gap: 8px;
+            gap: 7px;
             width: 100%;
         }
         .layout-btn {
             flex: 1;
             background: rgba(255, 255, 255, 0.08);
             border-radius: 12px;
-            padding: 10px 4px;
+            padding: 8px 3px;
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 5px;
+            gap: 4px;
             cursor: pointer;
             border: 1.5px solid transparent;
             transition: all 0.2s;
@@ -915,12 +1001,12 @@
             font-size: 16px;
         }
 
-        /* 3. Sub-tab Vị Trí (Position & Calibration) - Chuẩn 100% iPhone */
+        /* 3. Sub-tab Vị Trí (Position & Calibration) - Chuẩn 100% iPhone LockScreenStudioView.swift */
         .pos-options-row {
             display: flex;
             flex-direction: column;
             width: 100%;
-            gap: 7px;
+            gap: 6px;
         }
         .pos-buttons {
             display: flex;
@@ -979,16 +1065,16 @@
             text-align: right;
         }
 
-        /* 4. Sub-tab Màu Sắc (Color Themes & Color Hunt) */
+        /* 4. Sub-tab Màu Sắc (Accent Color & Color Hunt) */
         .color-tab-content {
             display: flex;
             flex-direction: column;
-            gap: 7px;
+            gap: 6px;
             width: 100%;
         }
         .color-hunt-row {
             display: flex;
-            gap: 8px;
+            gap: 7px;
             overflow-x: auto;
             width: 100%;
             scrollbar-width: none;
@@ -1003,8 +1089,8 @@
             flex-shrink: 0;
         }
         .color-hunt-circle {
-            width: 28px;
-            height: 28px;
+            width: 26px;
+            height: 26px;
             border-radius: 50%;
             border: 2px solid transparent;
             transition: all 0.2s;
@@ -1014,7 +1100,7 @@
             box-shadow: 0 0 8px rgba(255,255,255,0.6);
         }
         .color-hunt-name {
-            font-size: 8.5px;
+            font-size: 8px;
             color: rgba(255,255,255,0.7);
         }
         .color-hunt-item.active .color-hunt-name {
@@ -1079,14 +1165,14 @@
         .studio-actions-row {
             display: flex;
             gap: 8px;
-            margin-top: 2px;
+            margin-top: 1px;
         }
         .btn-update-lock {
             flex: 1;
             background: linear-gradient(135deg, #2E94FF 0%, #6C5CE7 100%);
             border: none;
             border-radius: 20px;
-            padding: 10px;
+            padding: 9px;
             color: #fff;
             font-size: 13px;
             font-weight: 800;
@@ -1102,7 +1188,7 @@
             background: linear-gradient(135deg, var(--studio-accent) 0%, rgba(var(--studio-accent-rgb), 0.85) 100%);
             border: none;
             border-radius: 20px;
-            padding: 10px;
+            padding: 9px;
             color: #000;
             font-size: 13px;
             font-weight: 800;
@@ -1118,13 +1204,13 @@
         /* THANH ĐIỀU HƯỚNG ĐÁY CHUẨN 2 PHÂN HỆ RÕ RÀNG  */
         /* ============================================== */
         .bottom-nav-bar {
-            height: 58px;
+            height: 54px;
             background: #14171F;
             border-top: 1px solid rgba(255, 255, 255, 0.08);
             display: flex;
             justify-content: space-around;
             align-items: center;
-            padding-bottom: 4px;
+            padding-bottom: 2px;
             z-index: 100;
         }
         .nav-item {
@@ -1147,7 +1233,7 @@
             font-size: 18px;
         }
 
-        /* Sheet Popup Hướng dẫn */
+        /* MODAL SHEETS CHUẨN IOS */
         .modal-sheet {
             display: none;
             position: absolute;
@@ -1155,26 +1241,59 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0,0,0,0.6);
-            backdrop-filter: blur(8px);
+            background: rgba(0,0,0,0.65);
+            backdrop-filter: blur(10px);
             z-index: 2000;
             justify-content: flex-end;
             flex-direction: column;
+            animation: fadeInSheet 0.2s ease;
         }
         .modal-sheet.open {
             display: flex;
+        }
+        @keyframes fadeInSheet {
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
         .modal-body {
             background: #191B24;
             border-top-left-radius: 28px;
             border-top-right-radius: 28px;
-            padding: 20px;
+            padding: 18px;
             display: flex;
             flex-direction: column;
-            gap: 14px;
+            gap: 12px;
             border-top: 1px solid rgba(255,255,255,0.15);
-            max-height: 85%;
+            max-height: 88%;
             overflow-y: auto;
+        }
+        .modal-header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 6px;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+        }
+        .modal-title {
+            font-size: 15px;
+            font-weight: 800;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .btn-sheet-close {
+            background: rgba(255,255,255,0.08);
+            border: none;
+            color: #fff;
+            border-radius: 50%;
+            width: 26px;
+            height: 26px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 12px;
+            cursor: pointer;
         }
         .modal-step {
             display: flex;
@@ -1202,15 +1321,17 @@
             color: rgba(255,255,255,0.85);
             line-height: 1.4;
         }
-        .btn-modal-close {
-            background: var(--studio-accent);
-            color: #000;
+        .btn-modal-action {
+            background: linear-gradient(135deg, var(--primary) 0%, #1A70DC 100%);
+            color: #fff;
             font-weight: 800;
             border: none;
             padding: 12px;
             border-radius: 14px;
             font-size: 13px;
             cursor: pointer;
+            text-align: center;
+            box-shadow: 0 4px 14px var(--primary-glow);
         }
     </style>
 </head>
@@ -1220,7 +1341,7 @@
         <!-- Nốt ruồi camera selfie -->
         <div class="phone-camera-punchhole"></div>
 
-        <div class="screen-container">
+        <div class="screen-container" onclick="handleScreenClick(event)">
             <!-- Status Bar -->
             <div class="status-bar">
                 <span>09:41</span>
@@ -1237,27 +1358,85 @@
                 <!-- PHÂN HỆ 1: BẢNG LỊCH TUẦN                      -->
                 <!-- ============================================== -->
                 <div id="tab-weekly" class="tab-view weekly-tab-view active">
-                    <!-- Header -->
-                    <div class="week-header-bar">
-                        <div class="app-title-group">
-                            <div class="app-icon-badge">
-                                <span style="font-size: 16px;">📅</span>
-                            </div>
-                            <span class="app-title">Lịch Tuần</span>
+                    <!-- Thanh Navigation Chuẩn iOS với Tiêu Đề & Nút (...) -->
+                    <div class="native-nav-bar">
+                        <div class="nav-bar-title">
+                            <span style="font-size: 18px;">📅</span>
+                            <span>Bảng Lịch Tuần</span>
                         </div>
-                        <button style="background: rgba(255,255,255,0.08); border: none; color: #fff; border-radius: 10px; padding: 6px 10px; font-size: 11px; font-weight: 700; cursor: pointer;" onclick="switchMainTab('studio')">
-                            Studio Khóa ✨
+
+                        <!-- Nút (...) Menu Mở Toàn Bộ Chức Năng Nâng Cao -->
+                        <button class="btn-more-menu" id="btn-more-options" onclick="toggleMoreMenu(event)" title="Tùy chọn khác">
+                            ●●●
                         </button>
+
+                        <!-- Bảng Menu Dropdown (...) Chuẩn 100% Tính Năng Bản iPhone -->
+                        <div class="ios-dropdown-menu" id="ios-dropdown-menu">
+                            <!-- Section 1: Đồng Bộ & Nhập Lịch -->
+                            <div class="menu-section">
+                                <div class="menu-section-title">Đồng Bộ & Nhập Lịch</div>
+                                <div class="menu-item" onclick="openModal('calendar-sync-modal')">
+                                    <span>Đồng Bộ Từ Lịch Điện Thoại</span>
+                                    <span class="m-icon">📅</span>
+                                </div>
+                                <div class="menu-item" onclick="openModal('ocr-modal')">
+                                    <span>Dán Lịch & Quét Ảnh (OCR)</span>
+                                    <span class="m-icon">🪄</span>
+                                </div>
+                                <div class="menu-item" onclick="copyCurrentWeekToNextWeek()">
+                                    <span>Sao Chép Sang Tuần Sau</span>
+                                    <span class="m-icon">📄</span>
+                                </div>
+                            </div>
+
+                            <!-- Section 2: Xuất File & Sao Lưu -->
+                            <div class="menu-section">
+                                <div class="menu-section-title">Xuất File & Sao Lưu</div>
+                                <div class="menu-item" onclick="exportCalendarICS()">
+                                    <span>Xuất File Lịch (.ics)</span>
+                                    <span class="m-icon">📤</span>
+                                </div>
+                                <div class="menu-item" onclick="exportBackupJSON()">
+                                    <span>Sao Lưu Dữ Liệu (.json)</span>
+                                    <span class="m-icon">📥</span>
+                                </div>
+                                <div class="menu-item" onclick="triggerRestoreJSON()">
+                                    <span>Khôi Phục Dữ Liệu (.json)</span>
+                                    <span class="m-icon">🔄</span>
+                                </div>
+                            </div>
+
+                            <!-- Section 3: Màn Hình Khóa -->
+                            <div class="menu-section">
+                                <div class="menu-section-title">Màn Hình Khóa</div>
+                                <div class="menu-item" onclick="triggerUpdateAction()">
+                                    <span>Cập Nhật Màn Khóa Ngay</span>
+                                    <span class="m-icon">⚡</span>
+                                </div>
+                                <div class="menu-item" onclick="openModal('auto-modal')">
+                                    <span>Cài Đặt Tự Động Hóa</span>
+                                    <span class="m-icon">⚙️</span>
+                                </div>
+                            </div>
+
+                            <!-- Section 4: Xóa Lịch -->
+                            <div class="menu-section">
+                                <div class="menu-item danger" onclick="confirmClearAllEvents()">
+                                    <span>Xóa Hết Lịch Trình</span>
+                                    <span class="m-icon">🗑️</span>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
                     <!-- Bảng 7 Cột Lịch Tuần -->
                     <div class="matrix-card">
                         <div class="matrix-nav-row">
                             <button class="nav-btn-round" onclick="changeWeek(-1)">◀</button>
-                            <div style="display: flex; align-items: center; gap: 6px;">
+                            <div class="week-clickable-header" onclick="openModal('date-picker-modal')">
                                 <span style="font-size: 13px; font-weight: 700;" id="week-label">Tuần 39</span>
                                 <span class="week-badge" id="week-tag">TUẦN NÀY</span>
-                                <span style="font-size: 8px; opacity: 0.5;">▼</span>
+                                <span style="font-size: 9px; opacity: 0.6;">📅</span>
                             </div>
                             <button class="nav-btn-round" onclick="changeWeek(1)">▶</button>
                         </div>
@@ -1828,7 +2007,117 @@
                 </div>
             </div>
 
-            <!-- MODAL SHEET 1: Hướng Dẫn Tự Động Hóa (Shortcuts Guide) -->
+            <!-- ======================================================= -->
+            <!-- CÁC MODAL SHEETS TƯƠNG ỨNG CÁC TÍNH NĂNG TRONG MENU (...)-->
+            <!-- ======================================================= -->
+
+            <!-- MODAL 1: Đồng Bộ Từ Lịch Điện Thoại (Device Calendar Sync) -->
+            <div class="modal-sheet" id="calendar-sync-modal">
+                <div class="modal-body">
+                    <div class="modal-header-row">
+                        <div class="modal-title">
+                            <span>📅</span>
+                            <span>Đồng Bộ Từ Lịch Máy</span>
+                        </div>
+                        <button class="btn-sheet-close" onclick="closeModal('calendar-sync-modal')">✕</button>
+                    </div>
+
+                    <div style="font-size: 11px; color: var(--text-sub);">
+                        Các sự kiện tìm thấy từ Google Calendar & Lịch hệ thống tuần này:
+                    </div>
+
+                    <div style="display: flex; flex-direction: column; gap: 6px;">
+                        <label style="display: flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.06); padding: 8px 10px; border-radius: 10px; font-size: 11.5px; cursor: pointer;">
+                            <input type="checkbox" checked style="accent-color: var(--primary);">
+                            <div style="flex:1;">
+                                <div style="font-weight: 700; color: #fff;">Họp Ban Giám Đốc</div>
+                                <div style="font-size: 9px; color: var(--text-sub);">T5, 25/09 • 09:00 - 11:30</div>
+                            </div>
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.06); padding: 8px 10px; border-radius: 10px; font-size: 11.5px; cursor: pointer;">
+                            <input type="checkbox" checked style="accent-color: var(--primary);">
+                            <div style="flex:1;">
+                                <div style="font-weight: 700; color: #fff;">Sinh Nhật Bạn Thân</div>
+                                <div style="font-size: 9px; color: var(--text-sub);">T7, 27/09 • Cả ngày</div>
+                            </div>
+                        </label>
+                    </div>
+
+                    <button class="btn-modal-action" onclick="finishCalendarSync()">
+                        Nhập 2 Sự Kiện Vào Lịch Tuần
+                    </button>
+                </div>
+            </div>
+
+            <!-- MODAL 2: Dán Lịch & Quét Ảnh Thời Khóa Biểu (SmartScheduleImportSheet OCR) -->
+            <div class="modal-sheet" id="ocr-modal">
+                <div class="modal-body">
+                    <div class="modal-header-row">
+                        <div class="modal-title">
+                            <span>🪄</span>
+                            <span>Dán Lịch & Quét Ảnh (OCR)</span>
+                        </div>
+                        <button class="btn-sheet-close" onclick="closeModal('ocr-modal')">✕</button>
+                    </div>
+
+                    <div style="font-size: 11px; color: var(--text-sub);">
+                        Nhận diện thông minh "Thứ 2, T3, 8h-10h..." từ Zalo hoặc ảnh chụp thời khóa biểu.
+                    </div>
+
+                    <div style="background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.12); border-radius: 12px; padding: 10px;">
+                        <textarea id="ocr-textarea" rows="4" style="width: 100%; background: transparent; border: none; color: #fff; font-family: inherit; font-size: 11.5px; outline: none; resize: none;" placeholder="Dán văn bản lịch tuần vào đây...
+Ví dụ:
+Thứ 2: 08:00 - 10:00 Họp công ty
+T4: 14:00 - 16:30 Học lập trình
+T6: 19:00 - 21:00 Đi xem phim"></textarea>
+                    </div>
+
+                    <!-- Nút chụp ảnh OCR & Dán nhanh -->
+                    <div style="display: flex; gap: 8px;">
+                        <button style="flex: 1; background: rgba(46,148,255,0.2); border: none; color: #55B5FF; padding: 8px; border-radius: 10px; font-size: 11px; font-weight: 700; cursor: pointer;" onclick="pasteSampleOCR()">
+                            📋 Dán mẫu Zalo
+                        </button>
+                        <button style="flex: 1; background: rgba(108,92,231,0.25); border: none; color: #B388FF; padding: 8px; border-radius: 10px; font-size: 11px; font-weight: 700; cursor: pointer;" onclick="simulateScanPhoto()">
+                            📸 Quét từ ảnh
+                        </button>
+                    </div>
+
+                    <label style="display: flex; align-items: center; gap: 8px; font-size: 11px; color: var(--text-sub); cursor: pointer;">
+                        <input type="checkbox" id="repeat-weekly-check" checked style="accent-color: var(--primary);">
+                        <span>Lặp lại hàng tuần (Thời khóa biểu cố định)</span>
+                    </label>
+
+                    <button class="btn-modal-action" onclick="finishOCRImport()">
+                        Nhận Diện & Thêm Vào Bảng Lịch
+                    </button>
+                </div>
+            </div>
+
+            <!-- MODAL 3: Chọn Ngày/Tuần Nhanh (MonthWeekDatePickerSheet) -->
+            <div class="modal-sheet" id="date-picker-modal">
+                <div class="modal-body">
+                    <div class="modal-header-row">
+                        <div class="modal-title">
+                            <span>📅</span>
+                            <span>Chọn Tuần Hoặc Tháng</span>
+                        </div>
+                        <button class="btn-sheet-close" onclick="closeModal('date-picker-modal')">✕</button>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin: 6px 0;">
+                        <button style="background: rgba(255,255,255,0.08); border: none; color: #fff; padding: 10px; border-radius: 10px; font-size: 11px; font-weight: 700; cursor: pointer;" onclick="jumpToRelativeWeek(-1)">Tuần Trước</button>
+                        <button style="background: var(--primary); border: none; color: #fff; padding: 10px; border-radius: 10px; font-size: 11px; font-weight: 800; cursor: pointer;" onclick="jumpToRelativeWeek(0)">Tuần Này</button>
+                        <button style="background: rgba(255,255,255,0.08); border: none; color: #fff; padding: 10px; border-radius: 10px; font-size: 11px; font-weight: 700; cursor: pointer;" onclick="jumpToRelativeWeek(1)">Tuần Sau</button>
+                    </div>
+
+                    <div style="font-size: 11px; color: var(--text-sub); margin-top: 4px;">Hoặc nhảy đến ngày bất kỳ:</div>
+                    <div class="input-box">
+                        <input type="date" value="2026-09-24" style="color: #fff;" onchange="closeModal('date-picker-modal'); alert('Đã chuyển tới ngày: ' + this.value);">
+                    </div>
+                </div>
+            </div>
+
+            <!-- MODAL 4: Hướng Dẫn Tự Động Hóa (AutoWallpaperSetupGuideView) -->
             <div class="modal-sheet" id="auto-modal">
                 <div class="modal-body">
                     <div style="text-align: center; padding-top: 4px;">
@@ -1852,11 +2141,11 @@
                         </div>
                     </div>
 
-                    <button class="btn-modal-close" onclick="closeModal('auto-modal')">Đã Hiểu</button>
+                    <button class="btn-modal-action" onclick="closeModal('auto-modal')">Đã Hiểu</button>
                 </div>
             </div>
 
-            <!-- MODAL SHEET 2: Lưu Ảnh Thành Công -->
+            <!-- MODAL 5: Lưu Ảnh Thành Công (successTutorialSheet) -->
             <div class="modal-sheet" id="save-modal">
                 <div class="modal-body">
                     <div style="text-align: center; padding-top: 4px;">
@@ -1880,17 +2169,18 @@
                         </div>
                     </div>
 
-                    <button class="btn-modal-close" onclick="closeModal('save-modal')">Tuyệt Vời, Tôi Đã Hiểu!</button>
+                    <button class="btn-modal-action" onclick="closeModal('save-modal')">Tuyệt Vời, Tôi Đã Hiểu!</button>
                 </div>
             </div>
 
         </div>
     </div>
 
-    <!-- SCRIPT ĐIỀU KHIỂN LOGIC CHUẨN 100% -->
+    <!-- SCRIPT ĐIỀU KHIỂN TOÀN BỘ TÍNH NĂNG VÀ CÁC CHỨC NĂNG TRONG (...) -->
     <script>
         // --- 1. CHUYỂN TAB CHÍNH (Bảng Lịch Tuần / Màn Hình Khóa) ---
         function switchMainTab(tab) {
+            closeAllMenus();
             document.querySelectorAll('.tab-view').forEach(v => v.classList.remove('active'));
             document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
 
@@ -1903,7 +2193,130 @@
             }
         }
 
-        // --- 2. CHUYỂN SUB-TAB TRONG STUDIO (Nền / Kiểu Lịch / Vị Trí / Màu Sắc) ---
+        // --- 2. BẬT / TẮT MENU (...) CHUẨN IOS ---
+        function toggleMoreMenu(e) {
+            e.stopPropagation();
+            const menu = document.getElementById('ios-dropdown-menu');
+            menu.classList.toggle('open');
+        }
+
+        function closeAllMenus() {
+            const menu = document.getElementById('ios-dropdown-menu');
+            if (menu) menu.classList.remove('open');
+        }
+
+        function handleScreenClick(e) {
+            if (!e.target.closest('#ios-dropdown-menu') && !e.target.closest('#btn-more-options')) {
+                closeAllMenus();
+            }
+        }
+
+        // --- 3. CÁC TÍNH NĂNG TRONG MENU (...) ---
+        // 3.1. Sao chép lịch sang tuần sau (copyCurrentWeekToNextWeek)
+        function copyCurrentWeekToNextWeek() {
+            closeAllMenus();
+            alert('📄 Đã sao chép 5 sự kiện từ Tuần 39 sang Tuần 40 thành công!');
+        }
+
+        // 3.2. Xuất File Lịch (.ics) (exportCalendarICS)
+        function exportCalendarICS() {
+            closeAllMenus();
+            const icsData = "BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//HoangKim//LichTuan//VI\nBEGIN:VEVENT\nSUMMARY:Toan Cao Cap\nDTSTART:20260924T073000\nDTEND:20260924T093000\nEND:VEVENT\nEND:VCALENDAR";
+            const blob = new Blob([icsData], { type: 'text/calendar;charset=utf-8' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = 'LichTuan_Export.ics';
+            link.click();
+            alert('📤 Đã tạo và tải về file lịch "LichTuan_Export.ics" thành công!');
+        }
+
+        // 3.3. Sao lưu dữ liệu (.json) (exportBackupJSON)
+        function exportBackupJSON() {
+            closeAllMenus();
+            const backupData = JSON.stringify({
+                version: "2.0",
+                exportedAt: new Date().toISOString(),
+                events: [
+                    { id: "1", title: "Toán Cao Cấp", category: "work", time: "07:30 - 09:30" },
+                    { id: "2", title: "Lập Trình Android", category: "personal", time: "13:00 - 16:00" },
+                    { id: "3", title: "Họp Nhóm Đồ Án", category: "family", time: "19:00 - 20:30" }
+                ]
+            }, null, 2);
+            const blob = new Blob([backupData], { type: 'application/json' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = 'LichTuan_Backup.json';
+            link.click();
+            alert('📥 Đã sao lưu toàn bộ dữ liệu lịch vào file "LichTuan_Backup.json"!');
+        }
+
+        // 3.4. Khôi phục dữ liệu (.json) (triggerRestoreJSON)
+        function triggerRestoreJSON() {
+            closeAllMenus();
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.json';
+            input.onchange = e => {
+                const file = e.target.files[0];
+                if (file) {
+                    alert('🔄 Khôi Phục Thành Công! Đã nạp dữ liệu từ: ' + file.name);
+                }
+            };
+            input.click();
+        }
+
+        // 3.5. Xóa hết lịch trình (clearAll)
+        function confirmClearAllEvents() {
+            closeAllMenus();
+            if (confirm('⚠️ Bạn có chắc chắn muốn xóa toàn bộ lịch trình và thông báo không? Thao tác này không thể hoàn tác.')) {
+                alert('🗑️ Đã xóa toàn bộ lịch trình!');
+            }
+        }
+
+        // 3.6. Đồng bộ lịch máy (Device Calendar Sync)
+        function finishCalendarSync() {
+            closeModal('calendar-sync-modal');
+            alert('✅ Đã đồng bộ thành công 2 sự kiện từ Lịch Hệ Thống vào Bảng Lịch Tuần!');
+        }
+
+        // 3.7. Nhập lịch từ văn bản OCR
+        function pasteSampleOCR() {
+            document.getElementById('ocr-textarea').value = "Thứ 2:
+- 08:00 - 10:00: Đi làm
+- 14:00 - 16:00: Họp dự án
+T3:
+- 07:30 - 09:00: Tập gym
+- 18:00 - 20:00: Học tiếng Anh
+T4:
+- 13:00 - 16:00: Lập trình Android
+CN:
+- Cả ngày: Đi chơi với gia đình";
+        }
+
+        function simulateScanPhoto() {
+            alert('📸 Đang dùng ML Kit OCR quét chữ từ ảnh thời khóa biểu...');
+            setTimeout(() => {
+                pasteSampleOCR();
+                alert('✨ Đã quét thành công các khung giờ và thứ trong tuần!');
+            }, 600);
+        }
+
+        function finishOCRImport() {
+            const val = document.getElementById('ocr-textarea').value.trim();
+            if (!val) {
+                alert('Vui lòng dán hoặc quét văn bản trước!');
+                return;
+            }
+            closeModal('ocr-modal');
+            alert('🎉 Nhận diện thành công và đã thêm 6 sự kiện vào lịch tuần!');
+        }
+
+        function jumpToRelativeWeek(offset) {
+            closeModal('date-picker-modal');
+            changeWeek(offset);
+        }
+
+        // --- 4. CHUYỂN SUB-TAB TRONG STUDIO (Nền / Kiểu Lịch / Vị Trí / Màu Sắc) ---
         function switchStudioSubTab(subId, btn) {
             document.querySelectorAll('.sub-tab-panel').forEach(p => p.classList.remove('active'));
             document.querySelectorAll('.sub-tab-btn').forEach(b => b.classList.remove('active'));
@@ -1912,7 +2325,7 @@
             btn.classList.add('active');
         }
 
-        // --- 3. ĐỔI KIỂU LỊCH (7 Dòng Chi Tiết / 7 Cột Tối Giản / Kính Mờ) ---
+        // --- 5. ĐỔI KIỂU LỊCH (7 Dòng Chi Tiết / 7 Cột Tối Giản / Kính Mờ) ---
         function setLayoutType(type, btn) {
             document.querySelectorAll('.layout-btn').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
@@ -1934,7 +2347,7 @@
             }
         }
 
-        // --- 4. ĐIỀU CHỈNH VỊ TRÍ CHUẨN IPHONE (Dưới Đồng Hồ / Chính Giữa / Dưới Đáy / Tự Căn) ---
+        // --- 6. ĐIỀU CHỈNH VỊ TRÍ CHUẨN IPHONE (Dưới Đồng Hồ / Chính Giữa / Dưới Đáy / Tự Căn) ---
         let currentPos = 'top';
         let currentFineTuneY = 0;
 
@@ -1948,8 +2361,7 @@
                 basePercent = 49; // Dưới Đáy
             }
 
-            // Mỗi 1pt fine-tune tương ứng khoảng 0.5px trên màn hình preview nhỏ
-            const offsetPx = currentFineTuneY * 0.5;
+            const offsetPx = currentFineTuneY * 0.45;
             container.style.top = `calc(${basePercent}% + ${offsetPx}px)`;
         }
 
@@ -1972,7 +2384,6 @@
         }
 
         function autoCalibratePosition() {
-            // Tự Căn: Đưa về "Dưới Đồng Hồ" và slider về 0pt chuẩn 100% như iPhone
             currentPos = 'top';
             currentFineTuneY = 0;
 
@@ -1986,7 +2397,7 @@
             applyCalendarPosition();
         }
 
-        // --- 5. ĐỔI NỀN (PRESET WALLPAPER) ---
+        // --- 7. ĐỔI NỀN (PRESET WALLPAPER) ---
         const wallpaperGradients = {
             sunset: 'linear-gradient(135deg, #24143D 0%, #D85A5A 50%, #F4A261 100%)',
             aurora: 'linear-gradient(180deg, #0D1438 0%, #2E6B94 50%, #7340B2 100%)',
@@ -2008,7 +2419,7 @@
             alert('📸 Chọn ảnh cá nhân từ Thư viện để làm hình nền lịch khóa!');
         }
 
-        // --- 6. ĐỔI MÀU SẮC ĐIỂM NHẤN (ACCENT COLOR & COLOR HUNT) ---
+        // --- 8. ĐỔI MÀU SẮC ĐIỂM NHẤN (ACCENT COLOR & COLOR HUNT) ---
         function setStudioColor(hex, rgb, el) {
             if (el) {
                 document.querySelectorAll('.color-hunt-item').forEach(i => i.classList.remove('active'));
@@ -2043,8 +2454,9 @@
             btn.innerHTML = isMonochrome ? '<span>✅</span> Đồng bộ màu' : '<span>⭕</span> Đồng bộ màu';
         }
 
-        // --- 7. HÀNH ĐỘNG CẬP NHẬT & LƯU ẢNH ---
+        // --- 9. HÀNH ĐỘNG CẬP NHẬT & LƯU ẢNH ---
         function triggerUpdateAction() {
+            closeAllMenus();
             alert('⚡ Cập Nhật Thành Công! Đã áp dụng hình nền lịch mới trực tiếp vào Màn Hình Khóa.');
         }
 
@@ -2053,6 +2465,7 @@
         }
 
         function openModal(id) {
+            closeAllMenus();
             document.getElementById(id).classList.add('open');
         }
 
@@ -2060,7 +2473,7 @@
             document.getElementById(id).classList.remove('open');
         }
 
-        // --- 8. LOGIC TAB BẢNG LỊCH TUẦN ---
+        // --- 10. LOGIC TAB BẢNG LỊCH TUẦN ---
         function selectDay(dayIdx, el) {
             document.querySelectorAll('.matrix-col').forEach(c => c.classList.remove('selected'));
             el.classList.add('selected');
