@@ -2,7 +2,6 @@ package com.hoangkim.widget.widget
 
 import android.content.Context
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.glance.GlanceId
@@ -23,6 +22,7 @@ import androidx.glance.layout.padding
 import androidx.glance.text.FontWeight
 import androidx.glance.text.Text
 import androidx.glance.text.TextStyle
+import androidx.glance.unit.ColorProvider
 
 class WeeklyScheduleWidget : GlanceAppWidget() {
     override suspend fun provideGlance(context: Context, id: GlanceId) {
@@ -38,7 +38,7 @@ class WeeklyScheduleWidget : GlanceAppWidget() {
         Box(
             modifier = GlanceModifier
                 .fillMaxSize()
-                .background(Color(0xFF1E222B))
+                .background(ColorProvider(androidx.compose.ui.graphics.Color(0xFF1E222B)))
                 .cornerRadius(22.dp)
                 .padding(16.dp)
         ) {
@@ -48,18 +48,18 @@ class WeeklyScheduleWidget : GlanceAppWidget() {
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = "LỊCH TUẦN NÀY",
+                        text = "LICH TUAN NAY",
                         style = TextStyle(
-                            color = Color(0xFFF4F7FB),
+                            color = ColorProvider(androidx.compose.ui.graphics.Color(0xFFF4F7FB)),
                             fontSize = 16.sp,
                             fontWeight = FontWeight.Bold
                         )
                     )
                 }
                 Text(
-                    text = "Chạm để xem toàn bộ 7 ngày trên OPPO Find X9",
+                    text = "Cham de xem toan bo 7 ngay tren OPPO Find X9",
                     style = TextStyle(
-                        color = Color(0xFF8E9AA8),
+                        color = ColorProvider(androidx.compose.ui.graphics.Color(0xFF8E9AA8)),
                         fontSize = 12.sp
                     ),
                     modifier = GlanceModifier.padding(top = 4.dp)
