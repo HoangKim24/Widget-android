@@ -3,24 +3,31 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lịch Tuần - Demo Giao Diện OPPO Find X9</title>
+    <title>Lịch Tuần - Demo Chuẩn Giao Diện OPPO Find X9</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-color: #0B0E14;
-            --phone-body: #161B22;
-            --phone-border: #2D3748;
-            --screen-bg: #12151B;
-            --card-bg: #1E222B;
-            --card-stroke: rgba(255, 255, 255, 0.08);
-            --primary: #1E88E5;
-            --accent-gold: #FFA726;
-            --accent-badge: #42A5F5;
-            --live-red: #FF3B30;
-            --text-main: #F4F7FB;
-            --text-sub: #8E9AA8;
+            --bg-outer: #0A0D14;
+            --phone-bezel: #1F2430;
+            --screen-bg: #14171F; /* Màu gốc: Color(red: 0.08, green: 0.09, blue: 0.12) */
+            --card-bg: #1E212B;   /* Màu gốc: Color(red: 0.12, green: 0.13, blue: 0.17) */
+            --card-border: rgba(255, 255, 255, 0.12);
+            --primary: #2E94FF;   /* Color(red: 0.18, green: 0.58, blue: 1.0) */
+            --primary-glow: rgba(46, 148, 255, 0.28);
+            --accent-cyan: #47C5E2;
+            --text-main: #FFFFFF;
+            --text-sub: rgba(255, 255, 255, 0.65);
+            --text-dim: rgba(255, 255, 255, 0.4);
+
+            /* Danh mục màu chuẩn app */
+            --cat-work: #2B82F6;     /* Công việc: Xanh biển */
+            --cat-personal: #F59E0B; /* Cá nhân: Vàng cam */
+            --cat-health: #10B981;   /* Sức khỏe: Xanh ngọc */
+            --cat-study: #8B5CF6;    /* Học tập: Tím pastel */
+            --cat-family: #EC4899;   /* Gia đình: Hồng */
+            --cat-other: #6B7280;    /* Khác: Xám */
         }
 
         * {
@@ -32,7 +39,7 @@
 
         body {
             font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: radial-gradient(circle at top, #1A2234 0%, #080A0F 100%);
+            background: radial-gradient(circle at 50% 10%, #1A2234 0%, #06080D 100%);
             color: var(--text-main);
             min-height: 100vh;
             display: flex;
@@ -42,446 +49,1135 @@
             padding: 24px;
         }
 
-        .controls {
+        /* Thanh Chuyển Chế Độ Xem (Top Nav) */
+        .mode-switcher {
             display: flex;
-            gap: 12px;
-            margin-bottom: 24px;
-            background: rgba(30, 34, 43, 0.7);
-            padding: 6px;
+            gap: 10px;
+            margin-bottom: 20px;
+            background: rgba(30, 33, 43, 0.8);
+            padding: 5px;
             border-radius: 999px;
-            backdrop-filter: blur(12px);
-            border: 1px solid var(--card-stroke);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--card-border);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            z-index: 10;
         }
 
-        .tab-btn {
+        .mode-btn {
             background: transparent;
             border: none;
             color: var(--text-sub);
-            padding: 10px 22px;
+            padding: 10px 20px;
             border-radius: 999px;
-            font-size: 14px;
-            font-weight: 600;
+            font-size: 13.5px;
+            font-weight: 700;
             cursor: pointer;
             transition: all 0.25s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
-        .tab-btn.active {
+        .mode-btn.active {
             background: var(--primary);
-            color: white;
-            box-shadow: 0 4px 16px rgba(30, 136, 229, 0.4);
+            color: #fff;
+            box-shadow: 0 4px 16px var(--primary-glow);
         }
 
-        /* OPPO Find X9 Phone Frame (Ratio 19.8:9) */
-        .device-wrapper {
+        /* KHUNG ĐIỆN THOẠI OPPO FIND X9 (TỶ LỆ 19.8:9) */
+        .phone-frame {
             position: relative;
-            width: 380px;
-            height: 790px;
+            width: 410px;
+            height: 860px;
             background: #000;
-            border-radius: 52px;
+            border-radius: 54px;
             padding: 10px;
-            box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.8),
-                        0 0 0 2px #333d4b,
-                        0 0 40px rgba(30, 136, 229, 0.15);
+            box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.9),
+                        0 0 0 2px #2A303C,
+                        0 0 45px rgba(46, 148, 255, 0.12);
         }
 
-        .screen {
+        .phone-screen {
             width: 100%;
             height: 100%;
             background: var(--screen-bg);
-            border-radius: 42px;
+            border-radius: 44px;
             overflow: hidden;
             position: relative;
             display: flex;
             flex-direction: column;
         }
 
-        /* Punch hole camera */
-        .punch-hole {
+        /* Nốt ruồi camera đục lỗ chính giữa đỉnh */
+        .camera-punch {
             position: absolute;
-            top: 14px;
+            top: 13px;
             left: 50%;
             transform: translateX(-50%);
             width: 14px;
             height: 14px;
             background: #050505;
             border-radius: 50%;
-            z-index: 100;
-            box-shadow: inset 0 0 2px #222;
+            z-index: 200;
+            box-shadow: inset 0 0 3px #1a1a1a;
         }
 
-        /* Status bar */
+        /* Status bar ColorOS */
         .status-bar {
             height: 38px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 0 24px;
-            font-size: 13px;
-            font-weight: 600;
-            color: #ccc;
-            z-index: 50;
+            padding: 0 26px;
+            font-size: 12.5px;
+            font-weight: 700;
+            color: rgba(255,255,255,0.85);
+            z-index: 150;
         }
 
-        .view-container {
+        /* View Scroll Container */
+        .view-content {
             flex: 1;
             overflow-y: auto;
+            overflow-x: hidden;
             display: none;
             flex-direction: column;
-            padding: 14px 20px 80px 20px;
+            padding-bottom: 30px;
         }
-
-        .view-container.active {
+        .view-content.active {
             display: flex;
         }
 
-        /* View 1: Main App */
-        .app-header {
-            margin-bottom: 20px;
+        /* Custom scrollbar */
+        .view-content::-webkit-scrollbar {
+            width: 4px;
         }
-        .app-title {
-            font-size: 26px;
-            font-weight: 800;
-            letter-spacing: -0.5px;
-        }
-        .app-sub {
-            font-size: 13px;
-            color: var(--text-sub);
-            margin-top: 2px;
+        .view-content::-webkit-scrollbar-thumb {
+            background: rgba(255,255,255,0.15);
+            border-radius: 4px;
         }
 
-        /* Day selector pills */
-        .days-row {
-            display: flex;
-            justify-content: space-between;
-            gap: 6px;
-            margin-bottom: 20px;
-        }
-        .day-pill {
-            flex: 1;
-            padding: 10px 0;
-            border-radius: 12px;
-            background: var(--card-bg);
-            border: 1px solid var(--card-stroke);
-            text-align: center;
-            font-size: 13px;
-            font-weight: 600;
-            color: var(--text-sub);
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        .day-pill.active {
-            background: var(--primary);
-            color: #fff;
-            box-shadow: 0 4px 14px rgba(30, 136, 229, 0.4);
-            border-color: transparent;
-        }
+        /* ==================================================== */
+        /* MÀN HÌNH 1: BẢNG LỊCH TUẦN GỐC (CHUẨN 100% CODE SWIFT) */
+        /* ==================================================== */
 
-        /* Events list */
-        .event-card {
-            background: var(--card-bg);
-            border: 1px solid var(--card-stroke);
-            border-radius: 18px;
-            padding: 16px;
-            margin-bottom: 12px;
+        /* App Bar Trên Cùng */
+        .app-bar {
+            height: 44px;
             display: flex;
             align-items: center;
+            justify-content: space-between;
+            padding: 0 16px;
             position: relative;
-            transition: transform 0.2s;
         }
-        .event-card.live-card {
-            border: 2px solid var(--live-red);
-            box-shadow: 0 0 20px rgba(255, 59, 48, 0.25);
-            animation: pulse-border 2s infinite ease-in-out;
+        .app-bar-title {
+            font-size: 17px;
+            font-weight: 800;
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            letter-spacing: -0.3px;
         }
-        @keyframes pulse-border {
-            0%, 100% { box-shadow: 0 0 15px rgba(255, 59, 48, 0.2); }
-            50% { box-shadow: 0 0 25px rgba(255, 59, 48, 0.45); }
+        .app-bar-btn {
+            background: transparent;
+            border: none;
+            color: rgba(255,255,255,0.85);
+            font-size: 20px;
+            cursor: pointer;
+            width: 34px;
+            height: 34px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
-        .event-time-col {
-            width: 76px;
+        .scroll-body {
+            padding: 8px 14px 20px 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
         }
-        .event-day-tag {
+
+        /* PHẦN 1: BẢNG TỔNG QUAN 7 CỘT TUẦN (weeklyMatrixOverviewCard) */
+        .weekly-matrix-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 18px;
+            padding: 12px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+        }
+
+        .week-nav-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+
+        .nav-circle-btn {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.08);
+            border: none;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .nav-circle-btn:hover {
+            background: rgba(255,255,255,0.18);
+        }
+
+        .week-selector-capsule {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(255,255,255,0.06);
+            padding: 5px 10px;
+            border-radius: 999px;
+            cursor: pointer;
+        }
+        .week-selector-capsule .cal-icon {
+            font-size: 11px;
+            color: var(--accent-cyan);
+        }
+        .week-selector-capsule .title {
             font-size: 13px;
-            font-weight: 800;
-            color: var(--accent-gold);
+            font-weight: 700;
         }
-        .event-time {
+        .week-tag-badge {
+            font-size: 8.5px;
+            font-weight: 800;
+            padding: 2px 7px;
+            border-radius: 999px;
+            background: rgba(46, 148, 255, 0.25);
+            color: #55B5FF;
+        }
+
+        .sub-nav-text-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 11px;
+            margin-bottom: 10px;
+            padding: 0 4px;
+        }
+        .sub-nav-dates {
+            color: var(--text-sub);
+            font-weight: 600;
+        }
+        .sub-nav-hint {
+            color: var(--accent-cyan);
+            font-weight: 600;
+        }
+
+        /* 7 CỘT THỜI GIAN (T2 -> CN) */
+        .matrix-columns-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 4px;
+        }
+
+        .matrix-col {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 10px;
+            padding: 6px 2px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            min-height: 125px;
+        }
+
+        .matrix-col.selected {
+            background: rgba(46, 148, 255, 0.18);
+            border: 1.5px solid var(--primary);
+            box-shadow: 0 0 14px rgba(46, 148, 255, 0.25);
+        }
+
+        .col-header {
+            text-align: center;
+            width: 100%;
+            padding-bottom: 4px;
+            margin-bottom: 4px;
+            border-bottom: 1.5px solid rgba(255, 255, 255, 0.1);
+        }
+        .matrix-col.selected .col-header {
+            border-bottom-color: var(--primary);
+        }
+
+        .col-weekday {
+            font-size: 9.5px;
+            font-weight: 700;
+            color: var(--text-sub);
+        }
+        .matrix-col.selected .col-weekday {
+            color: var(--primary);
+        }
+
+        .col-daynum {
+            font-size: 13.5px;
+            font-weight: 800;
+            color: #fff;
+            line-height: 1.1;
+        }
+        .col-daynum.today {
+            color: #F8A555;
+        }
+        .matrix-col.selected .col-daynum {
+            color: var(--primary);
+        }
+
+        /* Các khối ô công việc nhỏ xếp trong cột */
+        .col-blocks-container {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+            flex: 1;
+        }
+
+        .mini-event-block {
+            border-radius: 4px;
+            padding: 3px 2px;
+            font-size: 6px;
+            text-align: center;
+            color: #fff;
+            font-weight: 700;
+            display: flex;
+            flex-direction: column;
+            gap: 1px;
+            min-height: 22px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+        }
+        .mini-event-block .time {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 5.5px;
+            opacity: 0.9;
+            font-weight: 700;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .mini-event-block .title {
+            font-size: 6.5px;
+            font-weight: 800;
+            line-height: 1.1;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .empty-col-plus {
+            height: 38px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: rgba(255, 255, 255, 0.2);
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        /* PHẦN 2: LỊCH TRÌNH ĐÃ XẾP TRONG NGÀY (scheduledSlotsSection) */
+        .scheduled-slots-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 18px;
+            padding: 14px;
+        }
+
+        .section-title {
+            font-size: 11.5px;
+            font-weight: 800;
+            color: var(--text-sub);
+            letter-spacing: 0.5px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .slot-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: rgba(255, 255, 255, 0.04);
+            border-radius: 12px;
+            padding: 10px 12px;
+            margin-bottom: 8px;
+            position: relative;
+        }
+        .slot-item.is-live {
+            border: 1.5px solid #FF3B30;
+            box-shadow: 0 0 12px rgba(255, 59, 48, 0.3);
+        }
+
+        .slot-color-bar {
+            width: 4px;
+            height: 34px;
+            border-radius: 4px;
+            flex-shrink: 0;
+        }
+
+        .slot-time-col {
+            width: 88px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            font-weight: 700;
+            color: rgba(255,255,255,0.9);
+            flex-shrink: 0;
+        }
+
+        .slot-detail-col {
+            flex: 1;
+            min-width: 0;
+        }
+        .slot-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: #fff;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .slot-sub {
             font-size: 11px;
             color: var(--text-sub);
             margin-top: 2px;
         }
 
-        .event-bar {
-            width: 4px;
-            height: 38px;
-            border-radius: 4px;
-            margin-right: 14px;
-        }
-
-        .event-info {
-            flex: 1;
-        }
-        .event-name {
-            font-size: 15px;
-            font-weight: 700;
-            color: var(--text-main);
-        }
-        .event-loc {
-            font-size: 12px;
-            color: var(--text-sub);
-            margin-top: 3px;
-        }
-
-        .live-tag {
-            background: var(--live-red);
+        .live-chip {
+            background: #FF3B30;
             color: #fff;
-            font-size: 10px;
+            font-size: 9.5px;
             font-weight: 800;
-            padding: 4px 8px;
-            border-radius: 6px;
-            letter-spacing: 0.5px;
+            padding: 3px 6px;
+            border-radius: 5px;
             display: flex;
             align-items: center;
             gap: 4px;
         }
-        .live-dot {
-            width: 6px;
-            height: 6px;
+        .live-chip::before {
+            content: '';
+            width: 5px;
+            height: 5px;
             background: #fff;
             border-radius: 50%;
-            animation: blink 1s infinite alternate;
+            animation: pulse-dot 1s infinite alternate;
         }
-        @keyframes blink { from { opacity: 0.3; } to { opacity: 1; } }
+        @keyframes pulse-dot { from { opacity: 0.3; } to { opacity: 1; } }
 
-        .fab-btn {
-            position: absolute;
-            bottom: 24px;
-            right: 24px;
-            width: 56px;
-            height: 56px;
-            background: var(--primary);
+        /* PHẦN 3: KHUNG XẾP LỊCH TRÌNH VÀO NGÀY ĐANG CHỌN (scheduleInputCard) */
+        .schedule-input-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
             border-radius: 18px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 28px;
-            color: #fff;
-            box-shadow: 0 8px 24px rgba(30, 136, 229, 0.45);
-            cursor: pointer;
-            transition: transform 0.2s;
-        }
-        .fab-btn:hover {
-            transform: scale(1.05);
-        }
-
-        /* View 2: Widget */
-        .widget-screen {
-            background: url('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1000&auto=format&fit=crop') center/cover;
-            padding: 20px;
+            padding: 14px;
             display: flex;
             flex-direction: column;
-            justify-content: center;
+            gap: 12px;
         }
-        .coloros-widget {
-            background: rgba(30, 34, 43, 0.85);
-            backdrop-filter: blur(25px);
+
+        .input-card-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14.5px;
+            font-weight: 800;
+            color: #fff;
+        }
+        .input-card-header .icon {
+            color: var(--primary);
+            font-size: 17px;
+        }
+
+        .field-label {
+            font-size: 10.5px;
+            font-weight: 800;
+            color: var(--text-sub);
+            margin-bottom: 5px;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+        }
+
+        .text-input-box {
+            display: flex;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.06);
             border: 1px solid rgba(255, 255, 255, 0.12);
-            border-radius: 28px;
-            padding: 18px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+            border-radius: 10px;
+            padding: 9px 12px;
+            gap: 8px;
         }
-        .widget-head {
+        .text-input-box input {
+            background: transparent;
+            border: none;
+            outline: none;
+            color: #fff;
+            font-size: 13.5px;
+            font-family: inherit;
+            width: 100%;
+        }
+        .text-input-box input::placeholder {
+            color: rgba(255,255,255,0.4);
+        }
+
+        .time-pickers-row {
             display: flex;
-            justify-content: space-between;
             align-items: center;
-            margin-bottom: 14px;
+            gap: 8px;
         }
-        .widget-title {
+        .time-box {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.06);
+            border-radius: 10px;
+            padding: 6px 10px;
+            display: flex;
+            flex-direction: column;
+        }
+        .time-box label {
+            font-size: 9.5px;
+            color: var(--text-sub);
+            margin-bottom: 2px;
+        }
+        .time-box input[type="time"] {
+            background: transparent;
+            border: none;
+            color: #fff;
+            font-family: 'JetBrains Mono', monospace;
             font-size: 14px;
-            font-weight: 700;
-            letter-spacing: 0.5px;
+            font-weight: bold;
+            outline: none;
+        }
+
+        .preset-hours-row {
+            display: flex;
+            gap: 5px;
+            overflow-x: auto;
+            padding-bottom: 2px;
+        }
+        .preset-hour-pill {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 6px;
+            padding: 4px 8px;
+            font-size: 10.5px;
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--text-sub);
+            cursor: pointer;
+            white-space: nowrap;
+        }
+        .preset-hour-pill:hover {
+            background: rgba(255, 255, 255, 0.15);
             color: #fff;
         }
 
-        /* View 3: Lock Screen with Safe Zone */
-        .lock-screen {
-            background: linear-gradient(180deg, #1b2838 0%, #0d121b 100%);
-            padding: 0;
+        /* 6 Vòng tròn màu phân loại */
+        .color-circles-row {
             display: flex;
-            flex-direction: column;
+            gap: 10px;
             align-items: center;
+        }
+        .color-circle {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.2s;
             position: relative;
         }
-        .lock-clock-area {
-            margin-top: 40px;
+        .color-circle.selected::after {
+            content: '✓';
+            color: #fff;
+            font-size: 14px;
+            font-weight: 800;
+        }
+
+        /* Toggles */
+        .toggle-box {
+            background: rgba(255, 255, 255, 0.04);
+            border-radius: 10px;
+            padding: 10px 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .toggle-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            font-weight: 600;
+            color: rgba(255,255,255,0.9);
+        }
+
+        /* Nút Switch */
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 38px;
+            height: 22px;
+        }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider {
+            position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
+            background-color: rgba(255, 255, 255, 0.2);
+            transition: .3s; border-radius: 22px;
+        }
+        .slider:before {
+            position: absolute; content: ""; height: 16px; width: 16px; left: 3px; bottom: 3px;
+            background-color: white; transition: .3s; border-radius: 50%;
+        }
+        input:checked + .slider { background-color: #10B981; }
+        input:checked + .slider:before { transform: translateX(16px); }
+
+        /* Nút thêm to */
+        .add-schedule-btn {
+            background: var(--primary);
+            color: #fff;
+            border: none;
+            border-radius: 12px;
+            padding: 12px;
+            font-size: 14px;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            cursor: pointer;
+            box-shadow: 0 4px 14px var(--primary-glow);
+            transition: opacity 0.2s;
+        }
+        .add-schedule-btn:hover { opacity: 0.9; }
+
+        /* Nút Gradient To Đáy App: XEM & XUẤT HÌNH NỀN MÀN HÌNH KHÓA */
+        .gradient-studio-btn {
+            background: linear-gradient(135deg, #1E88E5 0%, #6C5CE7 100%);
+            color: #fff;
+            border: none;
+            border-radius: 14px;
+            padding: 14px;
+            font-size: 14px;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            cursor: pointer;
+            box-shadow: 0 8px 24px rgba(46, 148, 255, 0.35);
+            transition: transform 0.2s;
+        }
+        .gradient-studio-btn:hover {
+            transform: translateY(-1px);
+        }
+
+        /* ==================================================== */
+        /* MÀN HÌNH 2: STUDIO MÀN HÌNH KHÓA OPPO FIND X9        */
+        /* ==================================================== */
+        .lockscreen-studio-view {
+            position: relative;
+            background: url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=1000&auto=format&fit=crop') center/cover;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .lockscreen-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.35);
+            backdrop-filter: blur(2px);
+        }
+        .lock-content {
+            position: relative;
+            z-index: 10;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 10px 14px 30px 14px;
+        }
+
+        /* Đồng hồ ColorOS */
+        .coloros-clock-section {
+            margin-top: 36px;
             text-align: center;
         }
-        .lock-time {
-            font-size: 68px;
-            font-weight: 300;
+        .coloros-time {
+            font-size: 72px;
+            font-weight: 200;
             line-height: 1;
             letter-spacing: -2px;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.5);
         }
-        .lock-date {
+        .coloros-date {
             font-size: 14px;
-            color: var(--text-sub);
-            margin-top: 6px;
+            font-weight: 600;
+            color: rgba(255,255,255,0.85);
+            margin-top: 4px;
+            text-shadow: 0 1px 4px rgba(0,0,0,0.5);
         }
 
-        .lock-safe-card {
-            margin: 30px 20px 0 20px;
-            background: rgba(22, 27, 34, 0.75);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 24px;
-            padding: 16px;
-            width: calc(100% - 40px);
+        /* Safe Zone Calendar Card */
+        .lock-calendar-card {
+            background: rgba(22, 27, 34, 0.78);
+            backdrop-filter: blur(24px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 22px;
+            padding: 12px;
+            box-shadow: 0 16px 36px rgba(0,0,0,0.5);
+        }
+        .lock-card-header {
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+            color: #55B5FF;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
         }
 
-        .fingerprint-area {
-            position: absolute;
-            bottom: 40px;
+        .fingerprint-zone {
             display: flex;
             flex-direction: column;
             align-items: center;
-            color: rgba(255, 255, 255, 0.4);
-            font-size: 11px;
+            gap: 4px;
+            color: rgba(255,255,255,0.45);
+            font-size: 10px;
+            margin-bottom: 8px;
         }
-        .fp-icon {
+        .fp-ring {
             width: 44px;
             height: 44px;
             border-radius: 50%;
-            border: 1px dashed rgba(255, 255, 255, 0.3);
+            border: 1px dashed rgba(255, 255, 255, 0.4);
             display: flex;
             align-items: center;
             justify-content: center;
-            margin-bottom: 6px;
+            font-size: 18px;
+        }
+
+        /* ==================================================== */
+        /* MÀN HÌNH 3: WIDGET MÀN HÌNH CHÍNH COLOROS            */
+        /* ==================================================== */
+        .widget-preview-view {
+            background: url('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1000&auto=format&fit=crop') center/cover;
+            height: 100%;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        .coloros-home-widget {
+            background: rgba(24, 28, 38, 0.88);
+            backdrop-filter: blur(30px);
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            border-radius: 26px;
+            padding: 16px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.6);
         }
     </style>
 </head>
 <body>
 
-    <div class="controls">
-        <button class="tab-btn active" onclick="switchView('app-view', this)">📱 App Lịch Tuần</button>
-        <button class="tab-btn" onclick="switchView('widget-view', this)">🧩 Widget ColorOS</button>
-        <button class="tab-btn" onclick="switchView('lock-view', this)">🔒 Màn Hình Khóa Find X9</button>
+    <!-- BỘ CHUYỂN CHẾ ĐỘ XEM TRÊN CÙNG -->
+    <div class="mode-switcher">
+        <button class="mode-btn active" onclick="setMode('tab-app', this)">
+            📅 Bảng Lịch Tuần (App Chuẩn)
+        </button>
+        <button class="mode-btn" onclick="setMode('tab-lock', this)">
+            🔒 Màn Hình Khóa Find X9
+        </button>
+        <button class="mode-btn" onclick="setMode('tab-widget', this)">
+            🧩 Widget ColorOS
+        </button>
     </div>
 
-    <div class="device-wrapper">
-        <div class="punch-hole"></div>
+    <!-- KHUNG ĐIỆN THOẠI OPPO FIND X9 -->
+    <div class="phone-frame">
+        <div class="camera-punch"></div>
 
-        <div class="screen">
-            <!-- Status Bar -->
+        <div class="phone-screen">
+            <!-- Thanh trạng thái hệ thống ColorOS -->
             <div class="status-bar">
-                <span>14:02</span>
-                <span>5G &nbsp; 98%</span>
+                <span>14:30</span>
+                <span>5G &nbsp; 🔋 98%</span>
             </div>
 
-            <!-- VIEW 1: Main App View -->
-            <div id="app-view" class="view-container active">
-                <div class="app-header">
-                    <h1 class="app-title">Lịch Tuần Này</h1>
-                    <p class="app-sub">Thứ Tư, 24 Tháng 9 • OPPO Find X9</p>
+            <!-- ============================================== -->
+            <!-- 1. MÀN HÌNH CHÍNH APP: BẢNG LỊCH TUẦN ĐẦY ĐỦ   -->
+            <!-- ============================================== -->
+            <div id="tab-app" class="view-content active">
+                <!-- Navigation App Bar -->
+                <div class="app-bar">
+                    <div style="width: 34px;"></div>
+                    <div class="app-bar-title">Bảng Lịch Tuần</div>
+                    <button class="app-bar-btn" title="Đồng bộ & Tùy chọn">•••</button>
                 </div>
 
-                <div class="days-row">
-                    <div class="day-pill">T2</div>
-                    <div class="day-pill">T3</div>
-                    <div class="day-pill active">T4</div>
-                    <div class="day-pill">T5</div>
-                    <div class="day-pill">T6</div>
-                    <div class="day-pill">T7</div>
-                    <div class="day-pill">CN</div>
-                </div>
-
-                <!-- Event 1 -->
-                <div class="event-card">
-                    <div class="event-time-col">
-                        <div class="event-day-tag">T4</div>
-                        <div class="event-time">07:30 - 09:30</div>
-                    </div>
-                    <div class="event-bar" style="background: #1E88E5;"></div>
-                    <div class="event-info">
-                        <div class="event-name">Toán Cao Cấp</div>
-                        <div class="event-loc">📍 Phòng A.201</div>
-                    </div>
-                </div>
-
-                <!-- Event 2: LIVE NOW -->
-                <div class="event-card live-card">
-                    <div class="event-time-col">
-                        <div class="event-day-tag">T4</div>
-                        <div class="event-time">13:00 - 16:00</div>
-                    </div>
-                    <div class="event-bar" style="background: #FFA726;"></div>
-                    <div class="event-info">
-                        <div class="event-name">Lập Trình Android</div>
-                        <div class="event-loc">📍 Phòng Lab 3</div>
-                    </div>
-                    <div class="live-tag">
-                        <div class="live-dot"></div> LIVE
-                    </div>
-                </div>
-
-                <!-- Event 3 -->
-                <div class="event-card">
-                    <div class="event-time-col">
-                        <div class="event-day-tag">T4</div>
-                        <div class="event-time">19:00 - 20:30</div>
-                    </div>
-                    <div class="event-bar" style="background: #42A5F5;"></div>
-                    <div class="event-info">
-                        <div class="event-name">Họp Nhóm Đồ Án</div>
-                        <div class="event-loc">🌐 Online Meet</div>
-                    </div>
-                    <span style="font-size: 16px; opacity: 0.6;">🔔</span>
-                </div>
-
-                <div class="fab-btn">+</div>
-            </div>
-
-            <!-- VIEW 2: ColorOS Widget View -->
-            <div id="widget-view" class="view-container widget-screen">
-                <div class="coloros-widget">
-                    <div class="widget-head">
-                        <span class="widget-title">📅 LỊCH TUẦN NÀY (COLOROS)</span>
-                        <span style="font-size: 11px; background: rgba(30,136,229,0.3); color: #42A5F5; padding: 2px 8px; border-radius: 6px; font-weight: bold;">HÔM NAY</span>
-                    </div>
-
-                    <div style="background: rgba(255,255,255,0.05); padding: 12px; border-radius: 16px; margin-bottom: 8px; border-left: 4px solid #FFA726; display: flex; justify-content: space-between; align-items: center;">
-                        <div>
-                            <div style="font-weight: 700; font-size: 14px;">Lập Trình Android</div>
-                            <div style="font-size: 11px; color: #8E9AA8;">13:00 - 16:00 • Phòng Lab 3</div>
+                <div class="scroll-body">
+                    <!-- PHẦN 1: BẢNG TỔNG QUAN 7 CỘT TUẦN (weeklyMatrixOverviewCard) -->
+                    <div class="weekly-matrix-card">
+                        <!-- Thanh chuyển tuần -->
+                        <div class="week-nav-row">
+                            <button class="nav-circle-btn" onclick="changeWeek(-1)">◀</button>
+                            <div class="week-selector-capsule">
+                                <span class="cal-icon">📅</span>
+                                <span class="title" id="week-title-text">Tuần 39</span>
+                                <span class="week-tag-badge" id="week-tag">TUẦN NÀY</span>
+                                <span style="font-size: 8px; opacity: 0.5;">▼</span>
+                            </div>
+                            <button class="nav-circle-btn" onclick="changeWeek(1)">▶</button>
                         </div>
-                        <div class="live-tag" style="font-size: 9px; padding: 2px 6px;">LIVE</div>
+
+                        <!-- Dòng chữ phụ ngày tháng & hướng dẫn -->
+                        <div class="sub-nav-text-row">
+                            <span class="sub-nav-dates" id="week-date-range">22/09 – 28/09/2026</span>
+                            <span class="sub-nav-hint">Chạm vào cột để xếp lịch</span>
+                        </div>
+
+                        <!-- 7 CỘT TUẦN (T2, T3, T4, T5, T6, T7, CN) -->
+                        <div class="matrix-columns-grid">
+                            <!-- T2 -->
+                            <div class="matrix-col" onclick="selectDay(0, this)">
+                                <div class="col-header">
+                                    <div class="col-weekday">T2</div>
+                                    <div class="col-daynum">22</div>
+                                </div>
+                                <div class="col-blocks-container">
+                                    <div class="mini-event-block" style="background: var(--cat-work);">
+                                        <span class="time">07:30</span>
+                                        <span class="title">Toán</span>
+                                    </div>
+                                    <div class="mini-event-block" style="background: var(--cat-study);">
+                                        <span class="time">13:30</span>
+                                        <span class="title">Anh Văn</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- T3 -->
+                            <div class="matrix-col" onclick="selectDay(1, this)">
+                                <div class="col-header">
+                                    <div class="col-weekday">T3</div>
+                                    <div class="col-daynum">23</div>
+                                </div>
+                                <div class="col-blocks-container">
+                                    <div class="mini-event-block" style="background: var(--cat-health);">
+                                        <span class="time">06:00</span>
+                                        <span class="title">Chạy Bộ</span>
+                                    </div>
+                                    <div class="mini-event-block" style="background: var(--cat-personal);">
+                                        <span class="time">14:00</span>
+                                        <span class="title">Họp Team</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- T4 (HÔM NAY - ĐANG CHỌN) -->
+                            <div class="matrix-col selected" onclick="selectDay(2, this)">
+                                <div class="col-header">
+                                    <div class="col-weekday">T4</div>
+                                    <div class="col-daynum today">24</div>
+                                </div>
+                                <div class="col-blocks-container">
+                                    <div class="mini-event-block" style="background: var(--cat-work);">
+                                        <span class="time">07:30</span>
+                                        <span class="title">Toán C.Cấp</span>
+                                    </div>
+                                    <div class="mini-event-block" style="background: var(--cat-personal); box-shadow: 0 0 8px rgba(245,158,11,0.5);">
+                                        <span class="time">13:00</span>
+                                        <span class="title">Android</span>
+                                    </div>
+                                    <div class="mini-event-block" style="background: var(--cat-family);">
+                                        <span class="time">19:00</span>
+                                        <span class="title">Đồ Án</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- T5 -->
+                            <div class="matrix-col" onclick="selectDay(3, this)">
+                                <div class="col-header">
+                                    <div class="col-weekday">T5</div>
+                                    <div class="col-daynum">25</div>
+                                </div>
+                                <div class="col-blocks-container">
+                                    <div class="mini-event-block" style="background: var(--cat-study);">
+                                        <span class="time">08:00</span>
+                                        <span class="title">Kỹ Thuật L.Trình</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- T6 -->
+                            <div class="matrix-col" onclick="selectDay(4, this)">
+                                <div class="col-header">
+                                    <div class="col-weekday">T6</div>
+                                    <div class="col-daynum">26</div>
+                                </div>
+                                <div class="col-blocks-container">
+                                    <div class="mini-event-block" style="background: var(--cat-work);">
+                                        <span class="time">13:30</span>
+                                        <span class="title">Báo Cáo Tuần</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- T7 -->
+                            <div class="matrix-col" onclick="selectDay(5, this)">
+                                <div class="col-header">
+                                    <div class="col-weekday">T7</div>
+                                    <div class="col-daynum">27</div>
+                                </div>
+                                <div class="col-blocks-container">
+                                    <div class="empty-col-plus">+</div>
+                                </div>
+                            </div>
+
+                            <!-- CN -->
+                            <div class="matrix-col" onclick="selectDay(6, this)">
+                                <div class="col-header">
+                                    <div class="col-weekday">CN</div>
+                                    <div class="col-daynum">28</div>
+                                </div>
+                                <div class="col-blocks-container">
+                                    <div class="mini-event-block" style="background: var(--cat-health);">
+                                        <span class="time">17:00</span>
+                                        <span class="title">Bóng Đá</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
-                    <div style="background: rgba(255,255,255,0.03); padding: 12px; border-radius: 16px; border-left: 4px solid #42A5F5;">
-                        <div style="font-weight: 700; font-size: 14px;">Họp Nhóm Đồ Án</div>
-                        <div style="font-size: 11px; color: #8E9AA8;">19:00 - 20:30 • Online Meet</div>
+                    <!-- PHẦN 2: LỊCH TRÌNH ĐÃ XẾP TRONG NGÀY (scheduledSlotsSection) -->
+                    <div class="scheduled-slots-card">
+                        <div class="section-title">
+                            <span id="selected-day-header">LỊCH TRÌNH THỨ TƯ, 24/09 (3)</span>
+                            <span style="color: var(--accent-cyan); font-size: 10px; cursor: pointer;">Hôm nay</span>
+                        </div>
+
+                        <!-- Slot 1 -->
+                        <div class="slot-item">
+                            <div class="slot-color-bar" style="background: var(--cat-work);"></div>
+                            <div class="slot-time-col">07:30 - 09:30</div>
+                            <div class="slot-detail-col">
+                                <div class="slot-title">Toán Cao Cấp</div>
+                                <div class="slot-sub">📍 Phòng A.201 • Học tập</div>
+                            </div>
+                            <span style="font-size: 13px; opacity: 0.5;">🔔</span>
+                        </div>
+
+                        <!-- Slot 2 (LIVE NOW) -->
+                        <div class="slot-item is-live">
+                            <div class="slot-color-bar" style="background: var(--cat-personal);"></div>
+                            <div class="slot-time-col" style="color: #FFA726;">13:00 - 16:00</div>
+                            <div class="slot-detail-col">
+                                <div class="slot-title">Lập Trình Android</div>
+                                <div class="slot-sub">📍 Phòng Lab 3 • Đang học</div>
+                            </div>
+                            <div class="live-chip">LIVE</div>
+                        </div>
+
+                        <!-- Slot 3 -->
+                        <div class="slot-item">
+                            <div class="slot-color-bar" style="background: var(--cat-family);"></div>
+                            <div class="slot-time-col">19:00 - 20:30</div>
+                            <div class="slot-detail-col">
+                                <div class="slot-title">Họp Nhóm Đồ Án</div>
+                                <div class="slot-sub">🌐 Google Meet • Báo thức 18:45</div>
+                            </div>
+                            <span style="font-size: 13px; opacity: 0.5;">🔔</span>
+                        </div>
+                    </div>
+
+                    <!-- PHẦN 3: KHUNG XẾP LỊCH TRÌNH VÀO NGÀY ĐANG CHỌN (scheduleInputCard) -->
+                    <div class="schedule-input-card">
+                        <div class="input-card-header">
+                            <span class="icon">📅</span>
+                            <span id="input-day-title">Xếp Việc Vào Thứ Tư, 24/09</span>
+                        </div>
+
+                        <!-- 1. Tên công việc -->
+                        <div>
+                            <div class="field-label">Tên Công Việc / Môn Học</div>
+                            <div class="text-input-box">
+                                <span>✏️</span>
+                                <input type="text" id="event-input-title" placeholder="Ví dụ: 07:00 Đi làm, Họp team, Tập gym...">
+                            </div>
+                        </div>
+
+                        <!-- 2. Khung giờ cụ thể -->
+                        <div>
+                            <div class="field-label">Khung Giờ Cụ Thể</div>
+                            <div class="time-pickers-row">
+                                <div class="time-box">
+                                    <label>Bắt đầu</label>
+                                    <input type="time" id="start-time-val" value="07:00">
+                                </div>
+                                <span style="color: rgba(255,255,255,0.4); font-weight: bold;">➜</span>
+                                <div class="time-box">
+                                    <label>Kết thúc</label>
+                                    <input type="time" id="end-time-val" value="10:00">
+                                </div>
+                            </div>
+
+                            <!-- Giờ nhanh -->
+                            <div class="preset-hours-row" style="margin-top: 6px;">
+                                <div class="preset-hour-pill" onclick="setPresetTime('07:00','10:00')">07:00–10:00</div>
+                                <div class="preset-hour-pill" onclick="setPresetTime('12:00','13:00')">12:00–13:00</div>
+                                <div class="preset-hour-pill" onclick="setPresetTime('13:30','14:00')">13:30–14:00</div>
+                                <div class="preset-hour-pill" onclick="setPresetTime('16:30','17:00')">16:30–17:00</div>
+                            </div>
+                        </div>
+
+                        <!-- 3. Chọn Màu Sắc Ô Lịch -->
+                        <div>
+                            <div class="field-label">Màu Sắc Ô Lịch</div>
+                            <div class="color-circles-row">
+                                <div class="color-circle selected" style="background: var(--cat-work);" onclick="pickCatColor(this, 'var(--cat-work)')" title="Công việc"></div>
+                                <div class="color-circle" style="background: var(--cat-personal);" onclick="pickCatColor(this, 'var(--cat-personal)')" title="Cá nhân"></div>
+                                <div class="color-circle" style="background: var(--cat-health);" onclick="pickCatColor(this, 'var(--cat-health)')" title="Sức khỏe"></div>
+                                <div class="color-circle" style="background: var(--cat-study);" onclick="pickCatColor(this, 'var(--cat-study)')" title="Học tập"></div>
+                                <div class="color-circle" style="background: var(--cat-family);" onclick="pickCatColor(this, 'var(--cat-family)')" title="Gia đình"></div>
+                                <div class="color-circle" style="background: var(--cat-other);" onclick="pickCatColor(this, 'var(--cat-other)')" title="Khác"></div>
+                            </div>
+                        </div>
+
+                        <!-- Toggles -->
+                        <div class="toggle-box">
+                            <div class="toggle-label">
+                                <span style="color: #FBBF24;">🔔</span>
+                                <span>Bật nhắc nhở & Báo thức</span>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" checked>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+
+                        <!-- Nút Xếp Vào Bảng Lịch -->
+                        <button class="add-schedule-btn" onclick="addNewEvent()">
+                            <span>➕</span> Xếp Vào Bảng Lịch
+                        </button>
+                    </div>
+
+                    <!-- NÚT GRADIENT TO: XEM & XUẤT HÌNH NỀN MÀN HÌNH KHÓA -->
+                    <button class="gradient-studio-btn" onclick="setMode('tab-lock', document.querySelectorAll('.mode-btn')[1])">
+                        <span>✨</span> Xem & Xuất Hình Nền Màn Hình Khóa
+                    </button>
+                </div>
+            </div>
+
+            <!-- ============================================== -->
+            <!-- 2. STUDIO MÀN HÌNH KHÓA (OPPO FIND X9)         -->
+            <!-- ============================================== -->
+            <div id="tab-lock" class="view-content lockscreen-studio-view">
+                <div class="lockscreen-overlay"></div>
+                <div class="lock-content">
+                    <!-- Đồng hồ ColorOS -->
+                    <div class="coloros-clock-section">
+                        <div class="coloros-time">14:30</div>
+                        <div class="coloros-date">Thứ Tư, 24 Tháng 9</div>
+                    </div>
+
+                    <!-- VÙNG AN TOÀN (SAFE ZONE CHO LỊCH TUẦN) -->
+                    <div class="lock-calendar-card">
+                        <div class="lock-card-header">
+                            <span>📅 BẢNG LỊCH TUẦN NÀY</span>
+                            <span style="background: rgba(46,148,255,0.3); padding: 1px 6px; border-radius: 4px; color: #fff;">FIND X9</span>
+                        </div>
+
+                        <!-- Ma trận lịch thu nhỏ trên màn hình khóa -->
+                        <div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; margin-bottom: 8px;">
+                            <div style="background: rgba(255,255,255,0.06); padding: 4px 1px; border-radius: 6px; text-align: center;">
+                                <div style="font-size: 8px; color: #aaa;">T2</div>
+                                <div style="font-size: 10px; font-weight: bold;">22</div>
+                                <div style="height: 3px; background: var(--cat-work); border-radius: 2px; margin-top: 3px;"></div>
+                            </div>
+                            <div style="background: rgba(255,255,255,0.06); padding: 4px 1px; border-radius: 6px; text-align: center;">
+                                <div style="font-size: 8px; color: #aaa;">T3</div>
+                                <div style="font-size: 10px; font-weight: bold;">23</div>
+                                <div style="height: 3px; background: var(--cat-health); border-radius: 2px; margin-top: 3px;"></div>
+                            </div>
+                            <div style="background: rgba(46,148,255,0.25); border: 1px solid var(--primary); padding: 4px 1px; border-radius: 6px; text-align: center;">
+                                <div style="font-size: 8px; color: var(--primary); font-weight: bold;">T4</div>
+                                <div style="font-size: 10px; font-weight: bold; color: #F8A555;">24</div>
+                                <div style="height: 3px; background: #FF3B30; border-radius: 2px; margin-top: 3px;"></div>
+                            </div>
+                            <div style="background: rgba(255,255,255,0.06); padding: 4px 1px; border-radius: 6px; text-align: center;">
+                                <div style="font-size: 8px; color: #aaa;">T5</div>
+                                <div style="font-size: 10px; font-weight: bold;">25</div>
+                                <div style="height: 3px; background: var(--cat-study); border-radius: 2px; margin-top: 3px;"></div>
+                            </div>
+                            <div style="background: rgba(255,255,255,0.06); padding: 4px 1px; border-radius: 6px; text-align: center;">
+                                <div style="font-size: 8px; color: #aaa;">T6</div>
+                                <div style="font-size: 10px; font-weight: bold;">26</div>
+                                <div style="height: 3px; background: var(--cat-work); border-radius: 2px; margin-top: 3px;"></div>
+                            </div>
+                            <div style="background: rgba(255,255,255,0.06); padding: 4px 1px; border-radius: 6px; text-align: center;">
+                                <div style="font-size: 8px; color: #aaa;">T7</div>
+                                <div style="font-size: 10px; font-weight: bold;">27</div>
+                            </div>
+                            <div style="background: rgba(255,255,255,0.06); padding: 4px 1px; border-radius: 6px; text-align: center;">
+                                <div style="font-size: 8px; color: #aaa;">CN</div>
+                                <div style="font-size: 10px; font-weight: bold;">28</div>
+                                <div style="height: 3px; background: var(--cat-health); border-radius: 2px; margin-top: 3px;"></div>
+                            </div>
+                        </div>
+
+                        <!-- Tiết học hôm nay hiển thị rõ trên màn hình khóa -->
+                        <div style="background: rgba(255,255,255,0.08); border-radius: 10px; padding: 8px 10px; display: flex; justify-content: space-between; align-items: center; border-left: 3px solid #FFA726;">
+                            <div>
+                                <div style="font-size: 12.5px; font-weight: bold; color: #fff;">Lập Trình Android</div>
+                                <div style="font-size: 10px; color: #ccc;">13:00 - 16:00 • Phòng Lab 3</div>
+                            </div>
+                            <span class="live-chip" style="font-size: 8.5px;">LIVE</span>
+                        </div>
+                    </div>
+
+                    <!-- Khu vực cảm biến vân tay quang học trong màn hình -->
+                    <div class="fingerprint-zone">
+                        <div class="fp-ring">👆</div>
+                        <span>Chạm vân tay để mở khóa</span>
                     </div>
                 </div>
             </div>
 
-            <!-- VIEW 3: Lock Screen View with Safe Zone -->
-            <div id="lock-view" class="view-container lock-screen">
-                <div class="lock-clock-area">
-                    <div class="lock-time">14:02</div>
-                    <div class="lock-date">Thứ Tư, 24 Tháng 9</div>
-                </div>
-
-                <div class="lock-safe-card">
-                    <div style="font-size: 11px; font-weight: 800; color: #FFA726; margin-bottom: 8px; letter-spacing: 0.5px;">
-                        🎯 TIẾT HỌC HIỆN TẠI
+            <!-- ============================================== -->
+            <!-- 3. WIDGET MÀN HÌNH CHÍNH (COLOROS 4x3)         -->
+            <!-- ============================================== -->
+            <div id="tab-widget" class="view-content widget-preview-view">
+                <div class="coloros-home-widget">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                        <div style="display: flex; align-items: center; gap: 6px;">
+                            <span style="font-size: 16px;">📅</span>
+                            <span style="font-size: 13.5px; font-weight: 800; color: #fff;">LỊCH TUẦN NÀY (OPPO)</span>
+                        </div>
+                        <span style="font-size: 10px; background: rgba(46,148,255,0.3); color: #55B5FF; padding: 2px 7px; border-radius: 6px; font-weight: 800;">HÔM NAY T4</span>
                     </div>
-                    <div style="font-size: 16px; font-weight: bold;">Lập Trình Android</div>
-                    <div style="font-size: 12px; color: #8E9AA8; margin-top: 2px;">13:00 - 16:00 • Phòng Lab 3 (Còn 1h58m)</div>
-                </div>
 
-                <div class="fingerprint-area">
-                    <div class="fp-icon">👆</div>
-                    <span>Cảm biến vân tay quang học</span>
+                    <div style="background: rgba(255,255,255,0.06); padding: 10px 12px; border-radius: 14px; margin-bottom: 8px; border-left: 4px solid #FFA726; display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <div style="font-weight: 700; font-size: 13px;">Lập Trình Android</div>
+                            <div style="font-size: 11px; color: var(--text-sub);">13:00 - 16:00 • Phòng Lab 3</div>
+                        </div>
+                        <div class="live-chip">LIVE</div>
+                    </div>
+
+                    <div style="background: rgba(255,255,255,0.04); padding: 10px 12px; border-radius: 14px; border-left: 4px solid var(--cat-family);">
+                        <div style="font-weight: 700; font-size: 13px;">Họp Nhóm Đồ Án</div>
+                        <div style="font-size: 11px; color: var(--text-sub);">19:00 - 20:30 • Google Meet</div>
+                    </div>
                 </div>
             </div>
 
@@ -489,11 +1185,96 @@
     </div>
 
     <script>
-        function switchView(viewId, btn) {
-            document.querySelectorAll('.view-container').forEach(el => el.classList.remove('active'));
-            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
-            document.getElementById(viewId).classList.add('active');
+        let currentWeekOffset = 0;
+        const days = ['Thứ Hai', 'Thứ Ba', 'Thứ Tư', 'Thứ Năm', 'Thứ Sáu', 'Thứ Bảy', 'Chủ Nhật'];
+        const dayDates = ['22/09', '23/09', '24/09', '25/09', '26/09', '27/09', '28/09'];
+        let selectedCategoryColor = 'var(--cat-work)';
+
+        function setMode(tabId, btn) {
+            document.querySelectorAll('.view-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.mode-btn').forEach(el => el.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
             btn.classList.add('active');
+        }
+
+        function selectDay(index, el) {
+            document.querySelectorAll('.matrix-col').forEach(c => c.classList.remove('selected'));
+            el.classList.add('selected');
+            document.getElementById('selected-day-header').textContent = 'LỊCH TRÌNH ' + days[index].toUpperCase() + ', ' + dayDates[index] + ' (2)';
+            document.getElementById('input-day-title').textContent = 'Xếp Việc Vào ' + days[index] + ', ' + dayDates[index];
+        }
+
+        function changeWeek(delta) {
+            currentWeekOffset += delta;
+            const weekNum = 39 + currentWeekOffset;
+            document.getElementById('week-title-text').textContent = 'Tuần ' + weekNum;
+            const tag = document.getElementById('week-tag');
+            if (currentWeekOffset === 0) {
+                tag.textContent = 'TUẦN NÀY';
+                tag.style.background = 'rgba(46, 148, 255, 0.25)';
+                tag.style.color = '#55B5FF';
+            } else if (currentWeekOffset === 1) {
+                tag.textContent = 'TUẦN SAU';
+                tag.style.background = 'rgba(16, 185, 129, 0.25)';
+                tag.style.color = '#10B981';
+            } else {
+                tag.textContent = (currentWeekOffset > 0 ? '+' : '') + currentWeekOffset + ' TUẦN';
+                tag.style.background = 'rgba(139, 92, 246, 0.25)';
+                tag.style.color = '#A78BFA';
+            }
+        }
+
+        function setPresetTime(start, end) {
+            document.getElementById('start-time-val').value = start;
+            document.getElementById('end-time-val').value = end;
+        }
+
+        function pickCatColor(el, colorVar) {
+            document.querySelectorAll('.color-circle').forEach(c => c.classList.remove('selected'));
+            el.classList.add('selected');
+            selectedCategoryColor = colorVar;
+        }
+
+        function addNewEvent() {
+            const titleInput = document.getElementById('event-input-title');
+            const title = titleInput.value.trim();
+            if (!title) {
+                alert('Vui lòng nhập tên công việc hoặc môn học!');
+                return;
+            }
+            const sTime = document.getElementById('start-time-val').value;
+            const eTime = document.getElementById('end-time-val').value;
+
+            // Thêm vào danh sách slots
+            const slotCard = document.querySelector('.scheduled-slots-card');
+            const newSlot = document.createElement('div');
+            newSlot.className = 'slot-item';
+            newSlot.innerHTML = `
+                <div class="slot-color-bar" style="background: ${selectedCategoryColor};"></div>
+                <div class="slot-time-col">${sTime} - ${eTime}</div>
+                <div class="slot-detail-col">
+                    <div class="slot-title">${title}</div>
+                    <div class="slot-sub">Vừa thêm vào bảng lịch</div>
+                </div>
+                <span style="font-size: 13px; opacity: 0.5;">🔔</span>
+            `;
+            slotCard.appendChild(newSlot);
+
+            // Thêm mini block vào cột đang chọn
+            const selectedCol = document.querySelector('.matrix-col.selected .col-blocks-container');
+            if (selectedCol) {
+                const emptyPlus = selectedCol.querySelector('.empty-col-plus');
+                if (emptyPlus) emptyPlus.remove();
+
+                const mini = document.createElement('div');
+                mini.className = 'mini-event-block';
+                mini.style.background = selectedCategoryColor;
+                mini.innerHTML = `<span class="time">${sTime}</span><span class="title">${title}</span>`;
+                selectedCol.appendChild(mini);
+            }
+
+            titleInput.value = '';
+            alert('Đã xếp "' + title + '" vào bảng lịch thành công!');
         }
     </script>
 </body>
