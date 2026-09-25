@@ -1,9 +1,16 @@
 package com.hoangkim.widget.ui.studio
 
 import android.app.WallpaperManager
+import android.graphics.Bitmap
+import android.graphics.ImageDecoder
+import android.net.Uri
 import android.os.Build
+import android.provider.MediaStore
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -12,8 +19,11 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AddPhotoAlternate
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.ContentPaste
 import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.Save
 import androidx.compose.material.icons.filled.Wallpaper
@@ -24,6 +34,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -39,8 +52,9 @@ import java.time.format.DateTimeFormatter
 enum class StudioTab(val title: String, val iconEmoji: String) {
     BACKGROUND("Nền", "🎨"),
     LAYOUT("Kiểu Lịch", "📑"),
-    POSITION("Vị Trí", "↕️"),
-    COLOR("Màu Sắc", "🎨")
+    FONT("Chữ", "🔤"),
+    COLOR("Màu Sắc", "🌈"),
+    POSITION("Vị Trí", "↕️")
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -69,6 +83,28 @@ fun LockScreenStudioScreen(
 
     var config by remember { mutableStateOf(repository.loadWallpaperConfig()) }
     var selectedTab by remember { mutableStateOf(StudioTab.BACKGROUND) }
+    var customUserBitmap by remember { mutableStateOf<Bitmap?>(null) }
+    var customHexInput by remember { mutableStateOf(config.customHex ?: "") }
+
+    val photoPickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri: Uri? ->
+        uri?.let {
+            try {
+                val bmp = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                    ImageDecoder.decodeBitmap(ImageDecoder.createSource(context.contentResolver, it))
+                } else {
+                    @Suppress("DEPRECATION")
+                    MediaStore.Images.Media.getBitmap(context.contentResolver, it)
+                }
+                customUserBitmap = bmp
+                config = config.copy(preset = WallpaperPreset.CUSTOM)
+                Toast.makeText(context, "Đã chọn ảnh nền cá nhân!", Toast.LENGTH_SHORT).show()
+            } catch (e: Exception) {
+                Toast.makeText(context, "Lỗi đọc ảnh: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
 
     val (deviceWidth, deviceHeight) = remember { FindX9WallpaperRenderer.getDeviceScreenDimensions(context) }
 
@@ -124,17 +160,38 @@ fun LockScreenStudioScreen(
                     .clip(RoundedCornerShape(32.dp))
                     .background(config.preset.brush)
                     .border(2.dp, Color.White.copy(0.18f), RoundedCornerShape(32.dp))
-                    .padding(12.dp)
             ) {
+                if (config.preset == WallpaperPreset.CUSTOM && customUserBitmap != null) {
+                    Image(
+                        bitmap = customUserBitmap!!.asImageBitmap(),
+                        contentDescription = null,
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Crop
+                    )
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(Color.Black.copy(alpha = 0.45f))
+                    )
+                }
+
                 Column(
-                    modifier = Modifier.fillMaxSize(),
+                    modifier = Modifier.fillMaxSize().padding(12.dp),
                     verticalArrangement = Arrangement.SpaceBetween,
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    // Cụm Đồng hồ ColorOS
+                    // Cụm Nốt Ruồi Camera Selfie & Đồng hồ ColorOS
+                    Box(
+                        modifier = Modifier
+                            .size(10.dp)
+                            .clip(CircleShape)
+                            .background(Color.Black)
+                            .border(1.dp, Color.White.copy(alpha = 0.25f), CircleShape)
+                    )
+
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally,
-                        modifier = Modifier.padding(top = 8.dp)
+                        modifier = Modifier.padding(top = 4.dp)
                     ) {
                         Text(
                             text = "14:30",
@@ -153,45 +210,46 @@ fun LockScreenStudioScreen(
                     }
 
                     // Card Lịch Tuần Di Chuyển Theo Vị Trí
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .offset(y = config.fineTuneYOffsetDp.dp)
-                            .clip(RoundedCornerShape(18.dp))
-                            .background(
-                                if (config.layoutType == CalendarLayoutType.FROSTED)
-                                    Color(0xFF14171F).copy(alpha = 0.85f)
-                                else
-                                    Color(0xFF14171F).copy(alpha = 0.92f)
-                            )
-                            .border(
-                                1.dp,
-                                if (config.layoutType == CalendarLayoutType.FROSTED) accent.copy(alpha = 0.4f) else Color.White.copy(alpha = 0.12f),
-                                RoundedCornerShape(18.dp)
-                            )
-                            .padding(10.dp)
-                    ) {
-                        Column {
-                            // Header tiêu đề kiểu lịch
-                            Row(
-                                modifier = Modifier.fillMaxWidth().padding(bottom = 6.dp),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Text(
-                                    text = if (config.layoutType == CalendarLayoutType.ROWS) "WEEKLY SCHEDULE" else if (config.layoutType == CalendarLayoutType.FROSTED) "💎 KÍNH MỜ • TUẦN NÀY" else "📅 BẢNG 7 CỘT TUẦN",
-                                    fontSize = 10.sp,
-                                    fontWeight = FontWeight.ExtraBold,
-                                    color = accent,
-                                    letterSpacing = 0.5.sp
+                    CompositionLocalProvider(LocalTextStyle provides LocalTextStyle.current.copy(fontFamily = config.fontTheme.fontFamily)) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .offset(y = config.fineTuneYOffsetDp.dp)
+                                .clip(RoundedCornerShape(18.dp))
+                                .background(
+                                    if (config.layoutType == CalendarLayoutType.FROSTED)
+                                        Color(0xFF14171F).copy(alpha = 0.85f)
+                                    else
+                                        Color(0xFF14171F).copy(alpha = 0.92f)
                                 )
-                                Text(
-                                    text = "Hôm nay: ${shortDays[(today.dayOfWeek.value - 1)]} ${today.dayOfMonth}",
-                                    fontSize = 9.sp,
-                                    fontWeight = FontWeight.SemiBold,
-                                    color = Color.White.copy(0.6f)
+                                .border(
+                                    1.dp,
+                                    if (config.layoutType == CalendarLayoutType.FROSTED) accent.copy(alpha = 0.4f) else Color.White.copy(alpha = 0.12f),
+                                    RoundedCornerShape(18.dp)
                                 )
-                            }
+                                .padding(10.dp)
+                        ) {
+                            Column {
+                                // Header tiêu đề kiểu lịch
+                                Row(
+                                    modifier = Modifier.fillMaxWidth().padding(bottom = 6.dp),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Text(
+                                        text = if (config.layoutType == CalendarLayoutType.ROWS) "LỊCH TRÌNH TUẦN" else if (config.layoutType == CalendarLayoutType.FROSTED) "💎 KÍNH MỜ • TUẦN NÀY" else "📅 BẢNG 7 CỘT TUẦN",
+                                        fontSize = 10.sp,
+                                        fontWeight = FontWeight.ExtraBold,
+                                        color = accent,
+                                        letterSpacing = 0.5.sp
+                                    )
+                                    Text(
+                                        text = "Hôm nay: ${shortDays[(today.dayOfWeek.value - 1)]} ${today.dayOfMonth}",
+                                        fontSize = 9.sp,
+                                        fontWeight = FontWeight.SemiBold,
+                                        color = Color.White.copy(0.6f)
+                                    )
+                                }
 
                             // 3 Kiểu Bố Cục Thật Khớp iOS
                             when (config.layoutType) {
@@ -316,6 +374,7 @@ fun LockScreenStudioScreen(
                             }
                         }
                     }
+                    }
 
                     // Vân tay quang học Find X9
                     Column(
@@ -379,12 +438,40 @@ fun LockScreenStudioScreen(
                     Box(modifier = Modifier.fillMaxWidth().height(65.dp), contentAlignment = Alignment.Center) {
                         when (selectedTab) {
                             StudioTab.BACKGROUND -> {
-                                // 1. Sub-Tab Nền: Các Preset Hình Nền
+                                // 1. Sub-Tab Nền: Ảnh Cá Nhân & Các Preset Gradient
                                 Row(
                                     modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
                                     horizontalArrangement = Arrangement.spacedBy(12.dp),
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
+                                    // Nút Chọn Ảnh Cá Nhân
+                                    Column(
+                                        horizontalAlignment = Alignment.CenterHorizontally,
+                                        modifier = Modifier.clickable { photoPickerLauncher.launch("image/*") }
+                                    ) {
+                                        Box(
+                                            modifier = Modifier
+                                                .size(36.dp)
+                                                .clip(CircleShape)
+                                                .background(Color.White.copy(alpha = 0.12f))
+                                                .border(
+                                                    width = if (config.preset == WallpaperPreset.CUSTOM) 2.5.dp else 1.dp,
+                                                    color = if (config.preset == WallpaperPreset.CUSTOM) accent else Color.White.copy(alpha = 0.2f),
+                                                    shape = CircleShape
+                                                ),
+                                            contentAlignment = Alignment.Center
+                                        ) {
+                                            Icon(Icons.Default.AddPhotoAlternate, contentDescription = null, tint = Color.White, modifier = Modifier.size(18.dp))
+                                        }
+                                        Spacer(modifier = Modifier.height(2.dp))
+                                        Text(
+                                            text = "Ảnh Bạn",
+                                            fontSize = 9.5.sp,
+                                            fontWeight = FontWeight.Medium,
+                                            color = if (config.preset == WallpaperPreset.CUSTOM) accent else Color.White.copy(alpha = 0.7f)
+                                        )
+                                    }
+
                                     WallpaperPreset.entries.filter { it != WallpaperPreset.CUSTOM }.forEach { preset ->
                                         val isSelected = config.preset == preset
                                         Column(
@@ -444,8 +531,149 @@ fun LockScreenStudioScreen(
                                     }
                                 }
                             }
+                            StudioTab.FONT -> {
+                                // 3. Sub-Tab Chữ: 4 Phông Chữ Nghệ Thuật (Bo Tròn, Hiện Đại, Cổ Điển, Coder)
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                ) {
+                                    CalendarFontTheme.entries.forEach { font ->
+                                        val isSelected = config.fontTheme == font
+                                        Box(
+                                            modifier = Modifier
+                                                .weight(1f)
+                                                .height(55.dp)
+                                                .clip(RoundedCornerShape(12.dp))
+                                                .background(if (isSelected) accent else Color.White.copy(alpha = 0.08f))
+                                                .clickable { config = config.copy(fontTheme = font) }
+                                                .padding(6.dp),
+                                            contentAlignment = Alignment.Center
+                                        ) {
+                                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                                Text(font.iconEmoji, fontSize = 15.sp)
+                                                Text(
+                                                    text = font.title,
+                                                    fontSize = 10.sp,
+                                                    fontWeight = FontWeight.Bold,
+                                                    fontFamily = font.fontFamily,
+                                                    color = if (isSelected) Color.Black else Color.White
+                                                )
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                            StudioTab.COLOR -> {
+                                // 4. Sub-Tab Màu Sắc: Chuẩn iOS + Color Hunt + Ô Nhập HEX
+                                Row(
+                                    modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
+                                    horizontalArrangement = Arrangement.spacedBy(10.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    val clipboardManager = LocalClipboardManager.current
+
+                                    // Ô dán mã HEX
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        modifier = Modifier
+                                            .clip(RoundedCornerShape(8.dp))
+                                            .background(Color.White.copy(alpha = 0.08f))
+                                            .padding(horizontal = 6.dp, vertical = 4.dp)
+                                    ) {
+                                        Text("#", color = accent, fontWeight = FontWeight.Bold, fontSize = 11.sp)
+                                        BasicTextField(
+                                            value = customHexInput.removePrefix("#"),
+                                            onValueChange = {
+                                                customHexInput = "#$it"
+                                                if (it.length in 6..8) {
+                                                    config = config.copy(customHex = "#$it")
+                                                }
+                                            },
+                                            singleLine = true,
+                                            textStyle = androidx.compose.ui.text.TextStyle(color = Color.White, fontSize = 10.sp, fontWeight = FontWeight.SemiBold),
+                                            modifier = Modifier.width(55.dp)
+                                        )
+                                        IconButton(
+                                            onClick = {
+                                                val clip = clipboardManager.getText()?.text?.trim()
+                                                if (!clip.isNullOrEmpty()) {
+                                                    val hex = if (clip.startsWith("#")) clip else "#$clip"
+                                                    customHexInput = hex
+                                                    config = config.copy(customHex = hex)
+                                                }
+                                            },
+                                            modifier = Modifier.size(20.dp)
+                                        ) {
+                                            Icon(Icons.Default.ContentPaste, contentDescription = "Dán HEX", tint = accent, modifier = Modifier.size(12.dp))
+                                        }
+                                    }
+
+                                    AccentColorTheme.entries.forEach { theme ->
+                                        val isSelected = config.customHex == null && config.accentTheme == theme
+                                        Column(
+                                            horizontalAlignment = Alignment.CenterHorizontally,
+                                            modifier = Modifier.clickable { config = config.copy(accentTheme = theme, customHex = null) }
+                                        ) {
+                                            Box(
+                                                modifier = Modifier
+                                                    .size(30.dp)
+                                                    .clip(CircleShape)
+                                                    .background(theme.color)
+                                                    .border(
+                                                        width = if (isSelected) 2.5.dp else 0.dp,
+                                                        color = Color.White,
+                                                        shape = CircleShape
+                                                    ),
+                                                contentAlignment = Alignment.Center
+                                            ) {
+                                                if (isSelected) {
+                                                    Text("✓", color = if (theme == AccentColorTheme.WHITE) Color.Black else Color.White, fontSize = 12.sp, fontWeight = FontWeight.ExtraBold)
+                                                }
+                                            }
+                                            Spacer(modifier = Modifier.height(2.dp))
+                                            Text(
+                                                text = theme.title,
+                                                fontSize = 8.5.sp,
+                                                fontWeight = FontWeight.Medium,
+                                                color = if (isSelected) theme.color else Color.White.copy(alpha = 0.7f)
+                                            )
+                                        }
+                                    }
+
+                                    // Color Hunt Presets (Đã kết nối trực tiếp customHex)
+                                    ColorHuntPresets.list.forEach { ch ->
+                                        val isSelected = config.customHex?.equals(ch.hex, ignoreCase = true) == true
+                                        Column(
+                                            horizontalAlignment = Alignment.CenterHorizontally,
+                                            modifier = Modifier.clickable {
+                                                customHexInput = ch.hex
+                                                config = config.copy(customHex = ch.hex)
+                                            }
+                                        ) {
+                                            Box(
+                                                modifier = Modifier
+                                                    .size(30.dp)
+                                                    .clip(CircleShape)
+                                                    .background(ch.color)
+                                                    .border(
+                                                        width = if (isSelected) 2.5.dp else 0.dp,
+                                                        color = Color.White,
+                                                        shape = CircleShape
+                                                    ),
+                                                contentAlignment = Alignment.Center
+                                            ) {
+                                                if (isSelected) {
+                                                    Text("✓", color = Color.White, fontSize = 12.sp, fontWeight = FontWeight.ExtraBold)
+                                                }
+                                            }
+                                            Spacer(modifier = Modifier.height(2.dp))
+                                            Text(ch.title, fontSize = 8.5.sp, color = if (isSelected) ch.color else Color.White.copy(alpha = 0.6f))
+                                        }
+                                    }
+                                }
+                            }
                             StudioTab.POSITION -> {
-                                // 3. Sub-Tab Vị Trí: Mô Tả Chữ Chuẩn iOS
+                                // 5. Sub-Tab Vị Trí: Mô Tả Chữ Chuẩn iOS
                                 Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                                     Row(
                                         modifier = Modifier.fillMaxWidth(),
@@ -458,10 +686,10 @@ fun LockScreenStudioScreen(
                                                     .weight(1f)
                                                     .clip(RoundedCornerShape(8.dp))
                                                     .background(if (isSelected) accent else Color.White.copy(alpha = 0.08f))
-                                                .clickable {
-                                                    config = config.copy(position = pos, fineTuneYOffsetDp = 0f)
-                                                }
-                                                .padding(vertical = 6.dp),
+                                                    .clickable {
+                                                        config = config.copy(position = pos, fineTuneYOffsetDp = 0f)
+                                                    }
+                                                    .padding(vertical = 6.dp),
                                                 contentAlignment = Alignment.Center
                                             ) {
                                                 Text(
@@ -512,76 +740,6 @@ fun LockScreenStudioScreen(
                                     }
                                 }
                             }
-                            StudioTab.COLOR -> {
-                                // 4. Sub-Tab Màu Sắc: Chuẩn iOS + Color Hunt
-                                Row(
-                                    modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
-                                    horizontalArrangement = Arrangement.spacedBy(12.dp),
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    AccentColorTheme.entries.forEach { theme ->
-                                        val isSelected = config.customHex == null && config.accentTheme == theme
-                                        Column(
-                                            horizontalAlignment = Alignment.CenterHorizontally,
-                                            modifier = Modifier.clickable { config = config.copy(accentTheme = theme, customHex = null) }
-                                        ) {
-                                            Box(
-                                                modifier = Modifier
-                                                    .size(32.dp)
-                                                    .clip(CircleShape)
-                                                    .background(theme.color)
-                                                    .border(
-                                                        width = if (isSelected) 2.5.dp else 0.dp,
-                                                        color = Color.White,
-                                                        shape = CircleShape
-                                                    ),
-                                                contentAlignment = Alignment.Center
-                                            ) {
-                                                if (isSelected) {
-                                                    Text("✓", color = if (theme == AccentColorTheme.WHITE) Color.Black else Color.White, fontSize = 13.sp, fontWeight = FontWeight.ExtraBold)
-                                                }
-                                            }
-                                            Spacer(modifier = Modifier.height(2.dp))
-                                            Text(
-                                                text = theme.title,
-                                                fontSize = 9.sp,
-                                                fontWeight = FontWeight.Medium,
-                                                color = if (isSelected) theme.color else Color.White.copy(alpha = 0.7f)
-                                            )
-                                        }
-                                    }
-
-                                    // Color Hunt Presets (Đã kết nối trực tiếp customHex)
-                                    ColorHuntPresets.list.forEach { ch ->
-                                        val isSelected = config.customHex?.equals(ch.hex, ignoreCase = true) == true
-                                        Column(
-                                            horizontalAlignment = Alignment.CenterHorizontally,
-                                            modifier = Modifier.clickable {
-                                                config = config.copy(customHex = ch.hex)
-                                            }
-                                        ) {
-                                            Box(
-                                                modifier = Modifier
-                                                    .size(32.dp)
-                                                    .clip(CircleShape)
-                                                    .background(ch.color)
-                                                    .border(
-                                                        width = if (isSelected) 2.5.dp else 0.dp,
-                                                        color = Color.White,
-                                                        shape = CircleShape
-                                                    ),
-                                                contentAlignment = Alignment.Center
-                                            ) {
-                                                if (isSelected) {
-                                                    Text("✓", color = Color.White, fontSize = 13.sp, fontWeight = FontWeight.ExtraBold)
-                                                }
-                                            }
-                                            Spacer(modifier = Modifier.height(2.dp))
-                                            Text(ch.title, fontSize = 9.sp, color = if (isSelected) ch.color else Color.White.copy(alpha = 0.6f))
-                                        }
-                                    }
-                                }
-                            }
                         }
                     }
 
@@ -619,7 +777,7 @@ fun LockScreenStudioScreen(
                                     .clickable {
                                         try {
                                             val bmp = FindX9WallpaperRenderer.renderWallpaper(
-                                                baseImage = null,
+                                                baseImage = if (config.preset == WallpaperPreset.CUSTOM) customUserBitmap else null,
                                                 events = events,
                                                 config = config,
                                                 includeSystemMockUi = false,
@@ -659,7 +817,7 @@ fun LockScreenStudioScreen(
                                         val wm = WallpaperManager.getInstance(context)
                                         // includeSystemMockUi = false để ColorOS tự vẽ đồng hồ và vân tay thật
                                         val bmp = FindX9WallpaperRenderer.renderWallpaper(
-                                            baseImage = null,
+                                            baseImage = if (config.preset == WallpaperPreset.CUSTOM) customUserBitmap else null,
                                             events = events,
                                             config = config,
                                             includeSystemMockUi = false,

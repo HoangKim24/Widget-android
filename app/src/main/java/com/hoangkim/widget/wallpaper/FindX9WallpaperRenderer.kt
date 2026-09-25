@@ -15,6 +15,7 @@ import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
 import com.hoangkim.widget.model.CalendarEvent
+import com.hoangkim.widget.model.CalendarFontTheme
 import com.hoangkim.widget.model.CalendarLayoutType
 import com.hoangkim.widget.model.CalendarPosition
 import com.hoangkim.widget.model.WallpaperConfig
@@ -94,9 +95,21 @@ object FindX9WallpaperRenderer {
             canvas.drawRect(0f, 0f, targetWidth.toFloat(), targetHeight.toFloat(), bgPaint)
         }
 
-        // 2. VẼ ĐỒNG HỒ COLOROS (Chỉ vẽ khi bật includeSystemMockUi để tránh đè đồng hồ thật)
+        // 2. VẼ ĐỒNG HỒ & GIAO DIỆN MÀN HÌNH KHÓA (Mock UI)
         val today = LocalDate.now()
         if (includeSystemMockUi) {
+            // Nốt ruồi camera selfie (OPPO Find X9)
+            val camPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+                color = Color.BLACK
+            }
+            val camBorderPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+                color = Color.argb(60, 255, 255, 255)
+                style = Paint.Style.STROKE
+                strokeWidth = 2f * scaleFont
+            }
+            canvas.drawCircle(targetWidth / 2f, 54f * scaleY, 13f * scaleFont, camPaint)
+            canvas.drawCircle(targetWidth / 2f, 54f * scaleY, 13f * scaleFont, camBorderPaint)
+
             val timePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
                 color = Color.WHITE
                 textSize = 150f * scaleFont
@@ -112,7 +125,7 @@ object FindX9WallpaperRenderer {
             val datePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
                 color = Color.argb(220, 255, 255, 255)
                 textSize = 38f * scaleFont
-                typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
+                typeface = getAppTypeface(config, isBold = true)
                 textAlign = Paint.Align.CENTER
             }
             canvas.drawText(dateString, targetWidth / 2f, 450f * scaleY, datePaint)
@@ -177,9 +190,9 @@ object FindX9WallpaperRenderer {
             val headerPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
                 color = accentColor
                 textSize = 34f * scaleFont
-                typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
+                typeface = getAppTypeface(config, isBold = true)
             }
-            canvas.drawText("WEEKLY SCHEDULE", marginHorizontal + 36f * scaleX, currentY, headerPaint)
+            canvas.drawText("LỊCH TRÌNH TUẦN", marginHorizontal + 36f * scaleX, currentY, headerPaint)
             currentY += 40f * scaleY
 
             weekDays.forEachIndexed { idx, day ->
@@ -202,7 +215,7 @@ object FindX9WallpaperRenderer {
                 val dayTextPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
                     color = if (isToday) Color.BLACK else accentColor
                     textSize = 24f * scaleFont
-                    typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
+                    typeface = getAppTypeface(config, isBold = true)
                     textAlign = Paint.Align.CENTER
                 }
                 canvas.drawText("${shortDays[idx]} ${day.dayOfMonth}", capsuleRect.centerX(), capsuleRect.centerY() + 8f * scaleY, dayTextPaint)
@@ -223,7 +236,7 @@ object FindX9WallpaperRenderer {
                         val evTextPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
                             color = Color.WHITE
                             textSize = 21f * scaleFont
-                            typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
+                            typeface = getAppTypeface(config, isBold = true)
                         }
                         val titleSnippet = if (ev.title.length > 12) ev.title.take(11) + "…" else ev.title
                         canvas.drawText("$timeFmt $titleSnippet", chipX + 16f * scaleX, currentY + 34f * scaleY, evTextPaint)
@@ -233,6 +246,7 @@ object FindX9WallpaperRenderer {
                     val emptyPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
                         color = Color.argb(70, 255, 255, 255)
                         textSize = 22f * scaleFont
+                        typeface = getAppTypeface(config, isBold = false)
                     }
                     canvas.drawText("—", marginHorizontal + 210f * scaleX, currentY + 36f * scaleY, emptyPaint)
                 }
@@ -247,15 +261,16 @@ object FindX9WallpaperRenderer {
                 val todayTitlePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
                     color = accentColor
                     textSize = 28f * scaleFont
-                    typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
+                    typeface = getAppTypeface(config, isBold = true)
                 }
-                canvas.drawText("TODAY AGENDA", marginHorizontal + 36f * scaleX, currentY, todayTitlePaint)
+                canvas.drawText("LỊCH TRÌNH HÔM NAY", marginHorizontal + 36f * scaleX, currentY, todayTitlePaint)
                 currentY += 40f * scaleY
 
                 todayEvents.take(2).forEach { ev ->
                     val evPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
                         color = Color.WHITE
                         textSize = 24f * scaleFont
+                        typeface = getAppTypeface(config, isBold = false)
                     }
                     canvas.drawText("• ${ev.timeRangeFormatted}: ${ev.title}", marginHorizontal + 36f * scaleX, currentY, evPaint)
                     currentY += 34f * scaleY
@@ -272,9 +287,9 @@ object FindX9WallpaperRenderer {
             val headerPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
                 color = accentColor
                 textSize = 34f * scaleFont
-                typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
+                typeface = getAppTypeface(config, isBold = true)
             }
-            val titleStr = if (config.layoutType == CalendarLayoutType.FROSTED) "FROSTED GLASS CALENDAR" else "WEEKLY OVERVIEW"
+            val titleStr = if (config.layoutType == CalendarLayoutType.FROSTED) "LỊCH THẺ KÍNH MỜ" else "TỔNG QUAN TUẦN NÀY"
             canvas.drawText(titleStr, marginHorizontal + 36f * scaleX, headerY, headerPaint)
 
             val gridTop = headerY + 40f * scaleY
@@ -291,7 +306,7 @@ object FindX9WallpaperRenderer {
                 val dayNamePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
                     color = if (isToday) accentColor else Color.argb(200, 255, 255, 255)
                     textSize = 22f * scaleFont
-                    typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
+                    typeface = getAppTypeface(config, isBold = true)
                     textAlign = Paint.Align.CENTER
                 }
                 canvas.drawText(shortDays[idx], colRect.centerX(), gridTop + 36f * scaleY, dayNamePaint)
@@ -299,7 +314,7 @@ object FindX9WallpaperRenderer {
                 val dayNumPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
                     color = if (isToday) accentColor else Color.WHITE
                     textSize = 28f * scaleFont
-                    typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
+                    typeface = getAppTypeface(config, isBold = true)
                     textAlign = Paint.Align.CENTER
                 }
                 canvas.drawText(day.dayOfMonth.toString(), colRect.centerX(), gridTop + 72f * scaleY, dayNumPaint)
@@ -318,6 +333,7 @@ object FindX9WallpaperRenderer {
                     val evTimePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
                         color = Color.argb(220, 255, 255, 255)
                         textSize = 15f * scaleFont
+                        typeface = getAppTypeface(config, isBold = false)
                         textAlign = Paint.Align.CENTER
                     }
                     canvas.drawText(ev.startDate.format(DateTimeFormatter.ofPattern("HH:mm")), evRect.centerX(), evY + 26f * scaleY, evTimePaint)
@@ -325,7 +341,7 @@ object FindX9WallpaperRenderer {
                     val evTitlePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
                         color = Color.WHITE
                         textSize = 17f * scaleFont
-                        typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
+                        typeface = getAppTypeface(config, isBold = true)
                         textAlign = Paint.Align.CENTER
                     }
                     val shortTitle = if (ev.title.length > 6) ev.title.take(5) + "…" else ev.title
@@ -342,9 +358,9 @@ object FindX9WallpaperRenderer {
             val todayTitlePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
                 color = accentColor
                 textSize = 28f * scaleFont
-                typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
+                typeface = getAppTypeface(config, isBold = true)
             }
-            canvas.drawText("TODAY AGENDA", marginHorizontal + 36f * scaleX, todayY, todayTitlePaint)
+            canvas.drawText("LỊCH TRÌNH HÔM NAY", marginHorizontal + 36f * scaleX, todayY, todayTitlePaint)
 
             val todayEvents = events.filter { it.occurs(today) }
             var subY = todayY + 40f * scaleY
@@ -411,6 +427,26 @@ object FindX9WallpaperRenderer {
         } catch (e: Exception) {
             resolver.delete(uri, null, null)
             return null
+        }
+    }
+
+    private fun getAppTypeface(config: WallpaperConfig, isBold: Boolean): Typeface {
+        val style = if (isBold) Typeface.BOLD else Typeface.NORMAL
+        return when (config.fontTheme) {
+            CalendarFontTheme.ROUNDED -> {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                    try {
+                        Typeface.create("sans-serif-rounded", style)
+                    } catch (e: Exception) {
+                        Typeface.create(Typeface.DEFAULT, style)
+                    }
+                } else {
+                    Typeface.create(Typeface.DEFAULT, style)
+                }
+            }
+            CalendarFontTheme.MODERN -> Typeface.create(Typeface.SANS_SERIF, style)
+            CalendarFontTheme.SERIF -> Typeface.create(Typeface.SERIF, style)
+            CalendarFontTheme.MONOSPACED -> Typeface.create(Typeface.MONOSPACE, style)
         }
     }
 }

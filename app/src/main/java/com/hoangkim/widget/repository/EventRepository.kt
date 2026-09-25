@@ -198,6 +198,7 @@ class EventRepository(context: Context) {
         val obj = JSONObject().apply {
             put("preset", config.preset.id)
             put("layoutType", config.layoutType.id)
+            put("fontTheme", config.fontTheme.id)
             put("position", config.position.id)
             put("accentTheme", config.accentTheme.id)
             put("customHex", config.customHex ?: "")
@@ -212,6 +213,7 @@ class EventRepository(context: Context) {
             val obj = JSONObject(jsonStr)
             val presetId = obj.optString("preset", "sunset")
             val layoutId = obj.optString("layoutType", "rows")
+            val fontId = obj.optString("fontTheme", "rounded")
             val posId = obj.optString("position", "top")
             val themeId = obj.optString("accentTheme", "gold")
             val customHex = obj.optString("customHex", "").ifEmpty { null }
@@ -220,6 +222,7 @@ class EventRepository(context: Context) {
             com.hoangkim.widget.model.WallpaperConfig(
                 preset = com.hoangkim.widget.model.WallpaperPreset.entries.firstOrNull { it.id == presetId } ?: com.hoangkim.widget.model.WallpaperPreset.SUNSET,
                 layoutType = com.hoangkim.widget.model.CalendarLayoutType.entries.firstOrNull { it.id == layoutId } ?: com.hoangkim.widget.model.CalendarLayoutType.ROWS,
+                fontTheme = com.hoangkim.widget.model.CalendarFontTheme.entries.firstOrNull { it.id == fontId } ?: com.hoangkim.widget.model.CalendarFontTheme.ROUNDED,
                 position = com.hoangkim.widget.model.CalendarPosition.entries.firstOrNull { it.id == posId } ?: com.hoangkim.widget.model.CalendarPosition.TOP,
                 accentTheme = com.hoangkim.widget.model.AccentColorTheme.entries.firstOrNull { it.id == themeId } ?: com.hoangkim.widget.model.AccentColorTheme.GOLD,
                 customHex = customHex,

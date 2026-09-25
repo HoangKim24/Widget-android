@@ -31,8 +31,23 @@ enum class WallpaperPreset(
     ),
     CANDY(
         id = "candy",
-        title = "Kẹo Ngọt Pastel",
+        title = "Kẹo Ngọt",
         colors = listOf(Color(0xFFF2B3D9), Color(0xFFBFCCFA), Color(0xFFFAE0CC))
+    ),
+    OCEAN(
+        id = "ocean",
+        title = "Đại Dương",
+        colors = listOf(Color(0xFF0F2027), Color(0xFF203A43), Color(0xFF2C5364))
+    ),
+    CYBERPUNK(
+        id = "cyberpunk",
+        title = "Cyber Neon",
+        colors = listOf(Color(0xFF1A0B2E), Color(0xFF8A2387), Color(0xFFE94057))
+    ),
+    MIDNIGHT(
+        id = "midnight",
+        title = "Nửa Đêm",
+        colors = listOf(Color(0xFF05050A), Color(0xFF1B2735), Color(0xFF090A0F))
     ),
     CUSTOM(
         id = "custom",
@@ -55,7 +70,24 @@ enum class CalendarLayoutType(
     FROSTED("frosted", "Kính Mờ", "💎")
 }
 
-// 3. Vị trí trên màn hình khóa (khớp 100% mô tả chữ chuẩn iOS)
+// 3. Phông chữ nghệ thuật (khớp 100% 4 Font Theme của iPhone)
+enum class CalendarFontTheme(
+    val id: String,
+    val title: String,
+    val iconEmoji: String,
+    val fontFamily: androidx.compose.ui.text.font.FontFamily
+) {
+    ROUNDED("rounded", "Bo Tròn", "🟢", androidx.compose.ui.text.font.FontFamily.Default),
+    MODERN("modern", "Hiện Đại", "🔤", androidx.compose.ui.text.font.FontFamily.SansSerif),
+    SERIF("serif", "Cổ Điển", "📖", androidx.compose.ui.text.font.FontFamily.Serif),
+    MONOSPACED("monospaced", "Coder", "💻", androidx.compose.ui.text.font.FontFamily.Monospace);
+
+    companion object {
+        fun fromId(id: String): CalendarFontTheme = entries.firstOrNull { it.id == id } ?: ROUNDED
+    }
+}
+
+// 4. Vị trí trên màn hình khóa (khớp 100% mô tả chữ chuẩn iOS)
 enum class CalendarPosition(
     val id: String,
     val title: String,
@@ -66,7 +98,7 @@ enum class CalendarPosition(
     BOTTOM("bottom", "Dưới Đáy", 0.56f)
 }
 
-// 4. Màu sắc điểm nhấn & Color Hunt (khớp 100% bảng màu iOS)
+// 5. Màu sắc điểm nhấn & Color Hunt (khớp 100% bảng màu iOS)
 enum class AccentColorTheme(
     val id: String,
     val title: String,
@@ -96,10 +128,11 @@ object ColorHuntPresets {
     )
 }
 
-// 5. Cấu hình Studio Màn Hình Khóa
+// 6. Cấu hình Studio Màn Hình Khóa
 data class WallpaperConfig(
     var preset: WallpaperPreset = WallpaperPreset.SUNSET,
     var layoutType: CalendarLayoutType = CalendarLayoutType.ROWS,
+    var fontTheme: CalendarFontTheme = CalendarFontTheme.ROUNDED,
     var position: CalendarPosition = CalendarPosition.TOP,
     var accentTheme: AccentColorTheme = AccentColorTheme.GOLD,
     var customHex: String? = null,
