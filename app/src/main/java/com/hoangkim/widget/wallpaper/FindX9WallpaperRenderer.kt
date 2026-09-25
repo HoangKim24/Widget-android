@@ -232,7 +232,7 @@ object FindX9WallpaperRenderer {
                         }
                         canvas.drawRoundRect(chipRect, 14f * scaleFont, 14f * scaleFont, chipBgPaint)
 
-                        val timeFmt = ev.startDate.format(DateTimeFormatter.ofPattern("HH:mm"))
+                        val timeFmt = if (ev.isAllDay) "Cả ngày" else ev.startDate.format(DateTimeFormatter.ofPattern("HH:mm"))
                         val evTextPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
                             color = Color.WHITE
                             textSize = 21f * scaleFont
@@ -336,7 +336,8 @@ object FindX9WallpaperRenderer {
                         typeface = getAppTypeface(config, isBold = false)
                         textAlign = Paint.Align.CENTER
                     }
-                    canvas.drawText(ev.startDate.format(DateTimeFormatter.ofPattern("HH:mm")), evRect.centerX(), evY + 26f * scaleY, evTimePaint)
+                    val timeSnippet = if (ev.isAllDay) "Cả ngày" else ev.startDate.format(DateTimeFormatter.ofPattern("HH:mm"))
+                    canvas.drawText(timeSnippet, evRect.centerX(), evY + 26f * scaleY, evTimePaint)
 
                     val evTitlePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
                         color = Color.WHITE

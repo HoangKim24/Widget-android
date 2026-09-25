@@ -189,12 +189,13 @@ fun LockScreenStudioScreen(
                             .border(1.dp, Color.White.copy(alpha = 0.25f), CircleShape)
                     )
 
+                    val currentTimeStr = remember { java.time.LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm")) }
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally,
                         modifier = Modifier.padding(top = 4.dp)
                     ) {
                         Text(
-                            text = "14:30",
+                            text = currentTimeStr,
                             fontSize = 44.sp,
                             fontWeight = FontWeight.Thin,
                             color = Color.White

@@ -32,8 +32,8 @@ object ScheduleTextParser {
 
         fun toCalendarEvent(mondayDate: LocalDate, isRecurring: Boolean = false, hasReminder: Boolean = true): CalendarEvent {
             val eventDate = mondayDate.plusDays(dayOffset.toLong())
-            val startTime = if (isAllDay) LocalTime.of(8, 0) else LocalTime.of(startHour, startMinute)
-            val endTime = if (isAllDay) LocalTime.of(18, 0) else LocalTime.of(endHour, endMinute)
+            val startTime = if (isAllDay) LocalTime.of(0, 0) else LocalTime.of(startHour, startMinute)
+            val endTime = if (isAllDay) LocalTime.of(23, 59) else LocalTime.of(endHour, endMinute)
 
             return CalendarEvent(
                 id = id,
