@@ -84,6 +84,8 @@ fun WeeklyGridScheduleScreen(
     var editingEvent by remember { mutableStateOf<CalendarEvent?>(null) }
     var showSmartImportSheet by remember { mutableStateOf(false) }
     var showDeviceCalendarImportSheet by remember { mutableStateOf(false) }
+    var showMonthPickerSheet by remember { mutableStateOf(false) }
+    var showEventEditorSheet by remember { mutableStateOf(false) }
 
 
     // Launcher chọn file JSON để khôi phục dữ liệu
@@ -137,6 +139,13 @@ fun WeeklyGridScheduleScreen(
                     )
                 },
                 actions = {
+                    IconButton(onClick = { showMonthPickerSheet = true }) {
+                        Icon(
+                            imageVector = Icons.Default.CalendarMonth,
+                            contentDescription = "Chọn ngày tháng",
+                            tint = Color.White.copy(alpha = 0.85f)
+                        )
+                    }
                     var showMoreMenu by remember { mutableStateOf(false) }
                     IconButton(onClick = { showMoreMenu = true }) {
                         Icon(Icons.Default.MoreVert, contentDescription = "Tùy chọn", tint = Color.White.copy(alpha = 0.85f))
@@ -309,6 +318,19 @@ fun WeeklyGridScheduleScreen(
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = Color(0xFF14171F))
             )
+        },
+        floatingActionButton = {
+            FloatingActionButton(
+                onClick = {
+                    editingEvent = null
+                    showEventEditorSheet = true
+                },
+                containerColor = Color(0xFF2E94FF),
+                contentColor = Color.White,
+                shape = CircleShape
+            ) {
+                Icon(Icons.Default.Add, contentDescription = "Thêm lịch trình", modifier = Modifier.size(24.dp))
+            }
         }
     ) { padding ->
         LazyColumn(
@@ -329,7 +351,8 @@ fun WeeklyGridScheduleScreen(
                     events = events,
                     onPrevWeek = { weekOffset-- },
                     onNextWeek = { weekOffset++ },
-                    onSelectDate = { selectedDate = it }
+                    onSelectDate = { selectedDate = it },
+                    onOpenMonthPicker = { showMonthPickerSheet = true }
                 )
             }
 
@@ -530,21 +553,46 @@ fun WeeklyGridScheduleScreen(
             )
         }
 
-        // Dialog Chỉnh Sửa Sự Kiện
-        editingEvent?.let { ev ->
-            EditEventDialog(
-                event = ev,
-                onDismiss = { editingEvent = null },
-                onSave = { updated ->
-                    repository.updateEvent(updated)
+        // Modal Sheet Thêm / Sửa Sự Kiện
+        if (editingEvent != null || showEventEditorSheet) {
+            EventEditorBottomSheet(
+                event = editingEvent,
+                initialDate = selectedDate,
+                onDismiss = {
                     editingEvent = null
-                    Toast.makeText(context, "🎉 Đã cập nhật lịch trình thành công!", Toast.LENGTH_SHORT).show()
+                    showEventEditorSheet = false
                 },
-                onDelete = {
+                onSave = { savedEvent ->
+                    if (editingEvent != null) {
+                        repository.updateEvent(savedEvent)
+                        Toast.makeText(context, "🎉 Đã cập nhật lịch trình thành công!", Toast.LENGTH_SHORT).show()
+                    } else {
+                        repository.addEvent(savedEvent)
+                        Toast.makeText(context, "🎉 Đã thêm sự kiện mới thành công!", Toast.LENGTH_SHORT).show()
+                    }
+                    editingEvent = null
+                    showEventEditorSheet = false
+                },
+                onDelete = { ev ->
                     repository.removeEvent(ev.id)
                     editingEvent = null
+                    showEventEditorSheet = false
                     Toast.makeText(context, "Đã xóa lịch trình!", Toast.LENGTH_SHORT).show()
                 }
+            )
+        }
+
+        // Modal Sheet Chọn Nhanh Ngày / Tháng
+        if (showMonthPickerSheet) {
+            MonthDatePickerSheet(
+                currentSelectedDate = selectedDate,
+                events = events,
+                onSelectDate = { date ->
+                    selectedDate = date
+                    val clickedMonday = date.minusDays((date.dayOfWeek.value - 1).toLong())
+                    weekOffset = java.time.temporal.ChronoUnit.WEEKS.between(currentMonday, clickedMonday).toInt()
+                },
+                onDismiss = { showMonthPickerSheet = false }
             )
         }
 
@@ -580,7 +628,8 @@ fun WeeklyMatrixCard(
     events: List<CalendarEvent>,
     onPrevWeek: () -> Unit,
     onNextWeek: () -> Unit,
-    onSelectDate: (LocalDate) -> Unit
+    onSelectDate: (LocalDate) -> Unit,
+    onOpenMonthPicker: () -> Unit = {}
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -610,6 +659,7 @@ fun WeeklyMatrixCard(
                     modifier = Modifier
                         .clip(CircleShape)
                         .background(Color.White.copy(0.06f))
+                        .clickable { onOpenMonthPicker() }
                         .padding(horizontal = 10.dp, vertical = 5.dp),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(6.dp)
