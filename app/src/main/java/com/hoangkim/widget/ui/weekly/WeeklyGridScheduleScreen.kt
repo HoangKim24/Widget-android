@@ -810,9 +810,6 @@ fun SlotItemView(
     }
 }
 
-    }
-}
-
 // KHUNG XẾP LỊCH TRÌNH VÀO NGÀY ĐANG CHỌN (Component 3 - Đã thêm Địa Điểm & Chỉnh Giờ Tự Do)
 @Composable
 fun ScheduleInputCard(
