@@ -15,69 +15,164 @@ import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 import java.util.UUID
 
+import com.hoangkim.widget.alarm.AlarmScheduler
+import androidx.glance.appwidget.updateAll
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+
+import com.hoangkim.widget.data.CalendarDatabaseHelper
+
 class EventRepository(context: Context) {
-    private val prefs: SharedPreferences = context.getSharedPreferences("widget_events_prefs", Context.MODE_PRIVATE)
+    private val appContext = context.applicationContext
+    private val prefs: SharedPreferences = appContext.getSharedPreferences("widget_events_prefs", Context.MODE_PRIVATE)
+    private val dbHelper = CalendarDatabaseHelper(appContext)
     private val _events = MutableStateFlow<List<CalendarEvent>>(emptyList())
     val events: StateFlow<List<CalendarEvent>> = _events.asStateFlow()
+    private val alarmScheduler = AlarmScheduler(appContext)
 
     init {
         loadEvents()
-    }
-
-    fun loadEvents() {
-        val jsonString = prefs.getString("saved_events_json", null)
-        if (jsonString.isNullOrEmpty()) {
-            _events.value = generateDefaultSampleEvents()
-            saveEvents()
-        } else {
-            try {
-                val list = mutableListOf<CalendarEvent>()
-                val array = JSONArray(jsonString)
-                val isoFmt = DateTimeFormatter.ISO_LOCAL_DATE_TIME
-                val dateFmt = DateTimeFormatter.ISO_LOCAL_DATE
-
-                for (i in 0 until array.length()) {
-                    val obj = array.getJSONObject(i)
-                    list.add(
-                        CalendarEvent(
-                            id = obj.optString("id", UUID.randomUUID().toString()),
-                            title = obj.getString("title"),
-                            startDate = LocalDateTime.parse(obj.getString("startDate"), isoFmt),
-                            endDate = LocalDateTime.parse(obj.getString("endDate"), isoFmt),
-                            category = EventCategory.fromId(obj.optString("category", "other")),
-                            isAllDay = obj.optBoolean("isAllDay", false),
-                            isRecurringWeekly = obj.optBoolean("isRecurringWeekly", false),
-                            recurrenceEndDate = if (obj.has("recurrenceEndDate")) LocalDate.parse(obj.getString("recurrenceEndDate"), dateFmt) else null,
-                            hasReminder = obj.optBoolean("hasReminder", true),
-                            location = obj.optString("location", "")
-                        )
-                    )
-                }
-                _events.value = list
-            } catch (e: Exception) {
-                _events.value = generateDefaultSampleEvents()
-            }
+        try {
+            alarmScheduler.rescheduleAll(_events.value)
+        } catch (e: Exception) {
+            // Ignore during test/preview
         }
     }
 
+    fun loadEvents() {
+        val loaded = dbHelper.getAllEvents()
+        if (loaded.isEmpty()) {
+            val defaults = generateDefaultSampleEvents()
+            dbHelper.insertBatch(defaults)
+            _events.value = defaults
+        } else {
+            _events.value = loaded
+        }
+        syncBackupJson()
+    }
+
     fun addEvent(event: CalendarEvent) {
+        dbHelper.insert(event)
         val current = _events.value.toMutableList()
-        current.add(event)
+        val existingIndex = current.indexOfFirst { it.id == event.id }
+        if (existingIndex >= 0) {
+            current[existingIndex] = event
+        } else {
+            current.add(event)
+        }
         _events.value = current
-        saveEvents()
+        syncBackupJson()
+        alarmScheduler.scheduleEventAlarm(event)
+        notifyWidgetUpdate()
+    }
+
+    fun updateEvent(event: CalendarEvent) {
+        dbHelper.update(event)
+        val current = _events.value.toMutableList()
+        val index = current.indexOfFirst { it.id == event.id }
+        if (index != -1) {
+            current[index] = event
+            _events.value = current
+            syncBackupJson()
+            alarmScheduler.scheduleEventAlarm(event)
+            notifyWidgetUpdate()
+        }
     }
 
     fun removeEvent(id: String) {
+        dbHelper.delete(id)
         val current = _events.value.toMutableList()
         current.removeAll { it.id == id }
         _events.value = current
-        saveEvents()
+        syncBackupJson()
+        alarmScheduler.cancelAlarmById(id)
+        notifyWidgetUpdate()
     }
 
     fun clearAll() {
+        val oldEvents = _events.value
+        dbHelper.clearAll()
         _events.value = emptyList()
-        saveEvents()
+        syncBackupJson()
+        oldEvents.forEach { alarmScheduler.cancelAlarmById(it.id) }
+        notifyWidgetUpdate()
     }
+
+    private fun syncBackupJson() {
+        try {
+            val array = JSONArray()
+            val isoFmt = DateTimeFormatter.ISO_LOCAL_DATE_TIME
+            val dateFmt = DateTimeFormatter.ISO_LOCAL_DATE
+
+            for (e in _events.value) {
+                val obj = JSONObject().apply {
+                    put("id", e.id)
+                    put("title", e.title)
+                    put("startDate", e.startDate.format(isoFmt))
+                    put("endDate", e.endDate.format(isoFmt))
+                    put("category", e.category.id)
+                    put("isAllDay", e.isAllDay)
+                    put("isRecurringWeekly", e.isRecurringWeekly)
+                    e.recurrenceEndDate?.let { put("recurrenceEndDate", it.format(dateFmt)) }
+                    put("hasReminder", e.hasReminder)
+                    put("location", e.location)
+                }
+                array.put(obj)
+            }
+            prefs.edit().putString("saved_events_json", array.toString()).apply()
+        } catch (e: Exception) {
+            // Backup error ignored
+        }
+    }
+
+    private fun notifyWidgetUpdate() {
+        try {
+            CoroutineScope(Dispatchers.IO).launch {
+                com.hoangkim.widget.widget.WeeklyScheduleWidget().updateAll(appContext)
+            }
+        } catch (e: Exception) {
+            // Glance widget update error ignored
+        }
+    }
+
+
+    fun saveWallpaperConfig(config: com.hoangkim.widget.model.WallpaperConfig) {
+        val obj = JSONObject().apply {
+            put("preset", config.preset.id)
+            put("layoutType", config.layoutType.id)
+            put("position", config.position.id)
+            put("accentTheme", config.accentTheme.id)
+            put("customHex", config.customHex ?: "")
+            put("fineTuneYOffsetDp", config.fineTuneYOffsetDp.toDouble())
+        }
+        prefs.edit().putString("saved_wallpaper_config", obj.toString()).apply()
+    }
+
+    fun loadWallpaperConfig(): com.hoangkim.widget.model.WallpaperConfig {
+        val jsonStr = prefs.getString("saved_wallpaper_config", null) ?: return com.hoangkim.widget.model.WallpaperConfig()
+        return try {
+            val obj = JSONObject(jsonStr)
+            val presetId = obj.optString("preset", "sunset")
+            val layoutId = obj.optString("layoutType", "rows")
+            val posId = obj.optString("position", "top")
+            val themeId = obj.optString("accentTheme", "gold")
+            val customHex = obj.optString("customHex", "").ifEmpty { null }
+            val yOffset = obj.optDouble("fineTuneYOffsetDp", 0.0).toFloat()
+
+            com.hoangkim.widget.model.WallpaperConfig(
+                preset = com.hoangkim.widget.model.WallpaperPreset.entries.firstOrNull { it.id == presetId } ?: com.hoangkim.widget.model.WallpaperPreset.SUNSET,
+                layoutType = com.hoangkim.widget.model.CalendarLayoutType.entries.firstOrNull { it.id == layoutId } ?: com.hoangkim.widget.model.CalendarLayoutType.ROWS,
+                position = com.hoangkim.widget.model.CalendarPosition.entries.firstOrNull { it.id == posId } ?: com.hoangkim.widget.model.CalendarPosition.TOP,
+                accentTheme = com.hoangkim.widget.model.AccentColorTheme.entries.firstOrNull { it.id == themeId } ?: com.hoangkim.widget.model.AccentColorTheme.GOLD,
+                customHex = customHex,
+                fineTuneYOffsetDp = yOffset
+            )
+        } catch (e: Exception) {
+            com.hoangkim.widget.model.WallpaperConfig()
+        }
+    }
+
 
     fun copyWeekToNextWeek(currentMonday: LocalDate): Int {
         val nextMonday = currentMonday.plusWeeks(1)
@@ -95,19 +190,21 @@ class EventRepository(context: Context) {
 
             val exists = currentList.any { it.title == e.title && it.startDate == newStart }
             if (!exists) {
-                currentList.add(
-                    e.copy(
-                        id = UUID.randomUUID().toString(),
-                        startDate = newStart,
-                        endDate = newEnd,
-                        isRecurringWeekly = false
-                    )
+                val newEvent = e.copy(
+                    id = UUID.randomUUID().toString(),
+                    startDate = newStart,
+                    endDate = newEnd,
+                    isRecurringWeekly = false
                 )
+                currentList.add(newEvent)
+                dbHelper.insert(newEvent)
+                alarmScheduler.scheduleEventAlarm(newEvent)
                 copiedCount++
             }
         }
         _events.value = currentList
-        saveEvents()
+        syncBackupJson()
+        notifyWidgetUpdate()
         return copiedCount
     }
 
@@ -168,35 +265,16 @@ class EventRepository(context: Context) {
                     )
                 )
             }
+            dbHelper.clearAll()
+            dbHelper.insertBatch(list)
             _events.value = list
-            saveEvents()
+            syncBackupJson()
+            alarmScheduler.rescheduleAll(list)
+            notifyWidgetUpdate()
             true
         } catch (e: Exception) {
             false
         }
-    }
-
-    private fun saveEvents() {
-        val array = JSONArray()
-        val isoFmt = DateTimeFormatter.ISO_LOCAL_DATE_TIME
-        val dateFmt = DateTimeFormatter.ISO_LOCAL_DATE
-
-        for (e in _events.value) {
-            val obj = JSONObject().apply {
-                put("id", e.id)
-                put("title", e.title)
-                put("startDate", e.startDate.format(isoFmt))
-                put("endDate", e.endDate.format(isoFmt))
-                put("category", e.category.id)
-                put("isAllDay", e.isAllDay)
-                put("isRecurringWeekly", e.isRecurringWeekly)
-                e.recurrenceEndDate?.let { put("recurrenceEndDate", it.format(dateFmt)) }
-                put("hasReminder", e.hasReminder)
-                put("location", e.location)
-            }
-            array.put(obj)
-        }
-        prefs.edit().putString("saved_events_json", array.toString()).apply()
     }
 
     private fun generateDefaultSampleEvents(): List<CalendarEvent> {

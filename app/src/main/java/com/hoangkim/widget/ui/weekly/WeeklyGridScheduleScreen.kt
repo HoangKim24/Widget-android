@@ -1,5 +1,6 @@
 package com.hoangkim.widget.ui.weekly
 
+import android.app.TimePickerDialog
 import android.app.WallpaperManager
 import android.content.Intent
 import android.os.Build
@@ -21,7 +22,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -37,6 +37,18 @@ import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 import java.time.temporal.WeekFields
 import java.util.Locale
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun WeeklyGridScheduleScreen(
+    viewModel: com.hoangkim.widget.viewmodel.WeeklyScheduleViewModel,
+    onGoToStudio: () -> Unit = {}
+) {
+    WeeklyGridScheduleScreen(
+        repository = viewModel.repository,
+        onGoToStudio = onGoToStudio
+    )
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -65,6 +77,8 @@ fun WeeklyGridScheduleScreen(
     var showClearConfirmDialog by remember { mutableStateOf(false) }
     var showRestoreDialog by remember { mutableStateOf(false) }
     var restoreJsonInput by remember { mutableStateOf("") }
+    var editingEvent by remember { mutableStateOf<CalendarEvent?>(null) }
+
 
     // 7 ngày trong tuần theo weekOffset
     val today = LocalDate.now()
@@ -214,7 +228,13 @@ fun WeeklyGridScheduleScreen(
                                 showMoreMenu = false
                                 try {
                                     val wm = WallpaperManager.getInstance(context)
-                                    val bmp = FindX9WallpaperRenderer.renderWallpaper(null, events)
+                                    val (sw, sh) = FindX9WallpaperRenderer.getDeviceScreenDimensions(context)
+                                    val bmp = FindX9WallpaperRenderer.renderWallpaper(
+                                        baseImage = null,
+                                        events = events,
+                                        targetWidth = sw,
+                                        targetHeight = sh
+                                    )
                                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                                         wm.setBitmap(bmp, null, true, WallpaperManager.FLAG_LOCK)
                                         Toast.makeText(context, "🎉 Đã cập nhật màn hình khóa thành công!", Toast.LENGTH_SHORT).show()
@@ -272,7 +292,8 @@ fun WeeklyGridScheduleScreen(
                 ScheduledSlotsSection(
                     selectedDate = selectedDate,
                     events = eventsForSelectedDate,
-                    onDeleteEvent = { repository.removeEvent(it.id) }
+                    onDeleteEvent = { repository.removeEvent(it.id) },
+                    onEditEvent = { editingEvent = it }
                 )
             }
 
@@ -306,6 +327,11 @@ fun WeeklyGridScheduleScreen(
                             return@ScheduleInputCard
                         }
 
+                        if (endHour < startHour || (endHour == startHour && endMinute <= startMinute)) {
+                            Toast.makeText(context, "Giờ kết thúc phải diễn ra sau giờ bắt đầu!", Toast.LENGTH_SHORT).show()
+                            return@ScheduleInputCard
+                        }
+
                         val sDate = LocalDateTime.of(selectedDate, LocalTime.of(startHour, startMinute))
                         val eDate = LocalDateTime.of(selectedDate, LocalTime.of(endHour, endMinute))
 
@@ -326,6 +352,7 @@ fun WeeklyGridScheduleScreen(
                     }
                 )
             }
+
 
             // MARK: - NÚT GRADIENT: XEM & XUẤT HÌNH NỀN MÀN HÌNH KHÓA
             item {
@@ -425,8 +452,27 @@ fun WeeklyGridScheduleScreen(
                 }
             )
         }
+
+        // Dialog Chỉnh Sửa Sự Kiện
+        editingEvent?.let { ev ->
+            EditEventDialog(
+                event = ev,
+                onDismiss = { editingEvent = null },
+                onSave = { updated ->
+                    repository.updateEvent(updated)
+                    editingEvent = null
+                    Toast.makeText(context, "🎉 Đã cập nhật lịch trình thành công!", Toast.LENGTH_SHORT).show()
+                },
+                onDelete = {
+                    repository.removeEvent(ev.id)
+                    editingEvent = null
+                    Toast.makeText(context, "Đã xóa lịch trình!", Toast.LENGTH_SHORT).show()
+                }
+            )
+        }
     }
 }
+
 
 // BẢNG 7 CỘT TUẦN (Component 1)
 @Composable
@@ -621,7 +667,8 @@ fun WeeklyMatrixCard(
 fun ScheduledSlotsSection(
     selectedDate: LocalDate,
     events: List<CalendarEvent>,
-    onDeleteEvent: (CalendarEvent) -> Unit
+    onDeleteEvent: (CalendarEvent) -> Unit,
+    onEditEvent: (CalendarEvent) -> Unit
 ) {
     val dayFormatter = DateTimeFormatter.ofPattern("dd/MM")
     val weekdayVietnamese = when (selectedDate.dayOfWeek.value) {
@@ -667,7 +714,12 @@ fun ScheduledSlotsSection(
             } else {
                 events.forEach { ev ->
                     val isLive = ev.isHappeningNow()
-                    SlotItemView(event = ev, isLive = isLive, onDelete = { onDeleteEvent(ev) })
+                    SlotItemView(
+                        event = ev,
+                        isLive = isLive,
+                        onEdit = { onEditEvent(ev) },
+                        onDelete = { onDeleteEvent(ev) }
+                    )
                     Spacer(modifier = Modifier.height(8.dp))
                 }
             }
@@ -679,6 +731,7 @@ fun ScheduledSlotsSection(
 fun SlotItemView(
     event: CalendarEvent,
     isLive: Boolean,
+    onEdit: () -> Unit,
     onDelete: () -> Unit
 ) {
     Row(
@@ -691,6 +744,7 @@ fun SlotItemView(
                 color = if (isLive) Color(0xFFFF3B30) else Color.White.copy(0.08f),
                 shape = RoundedCornerShape(12.dp)
             )
+            .clickable { onEdit() }
             .padding(10.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(10.dp)
@@ -746,9 +800,16 @@ fun SlotItemView(
             Icon(Icons.Default.Notifications, contentDescription = null, tint = Color.Yellow.copy(0.8f), modifier = Modifier.size(16.dp))
         }
 
+        IconButton(onClick = onEdit, modifier = Modifier.size(24.dp)) {
+            Icon(Icons.Default.Edit, contentDescription = "Sửa", tint = Color(0xFF2E94FF), modifier = Modifier.size(16.dp))
+        }
+
         IconButton(onClick = onDelete, modifier = Modifier.size(24.dp)) {
             Icon(Icons.Default.Delete, contentDescription = "Xóa", tint = Color.White.copy(0.35f), modifier = Modifier.size(16.dp))
         }
+    }
+}
+
     }
 }
 
@@ -850,14 +911,61 @@ fun ScheduleInputCard(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text("KHUNG GIỜ CỤ THỂ", color = Color.White.copy(0.6f), fontSize = 10.5.sp, fontWeight = FontWeight.Bold)
-                    Text(
-                        text = String.format("%02d:%02d – %02d:%02d", startHour, startMinute, endHour, endMinute),
-                        color = Color(0xFF55B5FF),
-                        fontSize = 11.5.sp,
-                        fontFamily = FontFamily.Monospace,
-                        fontWeight = FontWeight.Bold
-                    )
+                    Text("Chạm để đổi giờ", color = Color(0xFF47C5E2), fontSize = 10.sp, fontWeight = FontWeight.SemiBold)
                 }
+                Spacer(modifier = Modifier.height(6.dp))
+
+                // Hai nút chọn giờ tự do (TimePickerDialog)
+                val cardContext = LocalContext.current
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    // Giờ bắt đầu
+                    Box(
+                        modifier = Modifier
+                            .weight(1f)
+                            .clip(RoundedCornerShape(8.dp))
+                            .background(Color.White.copy(0.06f))
+                            .border(1.dp, Color(0xFF2E94FF).copy(0.5f), RoundedCornerShape(8.dp))
+                            .clickable {
+                                TimePickerDialog(cardContext, { _, h, m ->
+                                    val newEndH = if (endHour < h || (endHour == h && endMinute <= m)) (h + 2) % 24 else endHour
+                                    val newEndM = if (endHour < h || (endHour == h && endMinute <= m)) m else endMinute
+                                    onTimeChange(h, m, newEndH, newEndM)
+                                }, startHour, startMinute, true).show()
+                            }
+                            .padding(vertical = 8.dp, horizontal = 10.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Text("BẮT ĐẦU", fontSize = 8.5.sp, color = Color.White.copy(0.6f), fontWeight = FontWeight.Bold)
+                            Text(String.format("%02d:%02d", startHour, startMinute), fontSize = 15.sp, fontWeight = FontWeight.ExtraBold, color = Color(0xFF55B5FF), fontFamily = FontFamily.Monospace)
+                        }
+                    }
+
+                    // Giờ kết thúc
+                    Box(
+                        modifier = Modifier
+                            .weight(1f)
+                            .clip(RoundedCornerShape(8.dp))
+                            .background(Color.White.copy(0.06f))
+                            .border(1.dp, Color(0xFF2E94FF).copy(0.5f), RoundedCornerShape(8.dp))
+                            .clickable {
+                                TimePickerDialog(cardContext, { _, h, m ->
+                                    onTimeChange(startHour, startMinute, h, m)
+                                }, endHour, endMinute, true).show()
+                            }
+                            .padding(vertical = 8.dp, horizontal = 10.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Text("KẾT THÚC", fontSize = 8.5.sp, color = Color.White.copy(0.6f), fontWeight = FontWeight.Bold)
+                            Text(String.format("%02d:%02d", endHour, endMinute), fontSize = 15.sp, fontWeight = FontWeight.ExtraBold, color = Color(0xFF55B5FF), fontFamily = FontFamily.Monospace)
+                        }
+                    }
+                }
+
                 Spacer(modifier = Modifier.height(6.dp))
 
                 // Các preset thông dụng
@@ -876,15 +984,15 @@ fun ScheduleInputCard(
                             modifier = Modifier
                                 .weight(1f)
                                 .clip(RoundedCornerShape(6.dp))
-                                .background(Color.White.copy(0.06f))
+                                .background(Color.White.copy(0.04f))
                                 .border(1.dp, Color.White.copy(0.08f), RoundedCornerShape(6.dp))
                                 .clickable {
                                     onTimeChange(times[0], times[1], times[2], times[3])
                                 }
-                                .padding(vertical = 6.dp),
+                                .padding(vertical = 5.dp),
                             contentAlignment = Alignment.Center
                         ) {
-                            Text(text, color = Color.White.copy(0.85f), fontSize = 9.sp, fontFamily = FontFamily.Monospace)
+                            Text(text, color = Color.White.copy(0.8f), fontSize = 8.5.sp, fontFamily = FontFamily.Monospace)
                         }
                     }
                 }
@@ -892,7 +1000,14 @@ fun ScheduleInputCard(
 
             // 4. Phân loại màu sắc (6 danh mục chuẩn)
             Column {
-                Text("MÀU SẮC Ô LỊCH", color = Color.White.copy(0.6f), fontSize = 10.5.sp, fontWeight = FontWeight.Bold)
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text("MÀU SẮC Ô LỊCH", color = Color.White.copy(0.6f), fontSize = 10.5.sp, fontWeight = FontWeight.Bold)
+                    Text(selectedCategory.displayName, color = selectedCategory.composeColor, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                }
                 Spacer(modifier = Modifier.height(6.dp))
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -915,6 +1030,7 @@ fun ScheduleInputCard(
                     }
                 }
             }
+
 
             // Toggles
             Row(
@@ -948,3 +1064,201 @@ fun ScheduleInputCard(
         }
     }
 }
+
+// HỘP THOẠI CHỈNH SỬA LỊCH TRÌNH
+@Composable
+fun EditEventDialog(
+    event: CalendarEvent,
+    onDismiss: () -> Unit,
+    onSave: (CalendarEvent) -> Unit,
+    onDelete: () -> Unit
+) {
+    val context = LocalContext.current
+    var editTitle by remember { mutableStateOf(event.title) }
+    var editLocation by remember { mutableStateOf(event.location) }
+    var editStartHour by remember { mutableIntStateOf(event.startDate.hour) }
+    var editStartMinute by remember { mutableIntStateOf(event.startDate.minute) }
+    var editEndHour by remember { mutableIntStateOf(event.endDate.hour) }
+    var editEndMinute by remember { mutableIntStateOf(event.endDate.minute) }
+    var editCategory by remember { mutableStateOf(event.category) }
+    var editRecurring by remember { mutableStateOf(event.isRecurringWeekly) }
+    var editReminder by remember { mutableStateOf(event.hasReminder) }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text("Chỉnh Sửa Lịch Trình", fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                IconButton(onClick = onDelete) {
+                    Icon(Icons.Default.Delete, contentDescription = "Xóa", tint = Color(0xFFFF453A))
+                }
+            }
+        },
+        text = {
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                // Tên việc / môn học
+                OutlinedTextField(
+                    value = editTitle,
+                    onValueChange = { editTitle = it },
+                    label = { Text("Tên môn học / công việc") },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true
+                )
+
+                // Địa điểm
+                OutlinedTextField(
+                    value = editLocation,
+                    onValueChange = { editLocation = it },
+                    label = { Text("Địa điểm / Phòng học (tùy chọn)") },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true
+                )
+
+                // Giờ bắt đầu & Giờ kết thúc
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .weight(1f)
+                            .clip(RoundedCornerShape(8.dp))
+                            .background(Color.White.copy(0.06f))
+                            .border(1.dp, Color(0xFF2E94FF).copy(0.5f), RoundedCornerShape(8.dp))
+                            .clickable {
+                                TimePickerDialog(context, { _, h, m ->
+                                    editStartHour = h
+                                    editStartMinute = m
+                                    if (editEndHour < h || (editEndHour == h && editEndMinute <= m)) {
+                                        editEndHour = (h + 2) % 24
+                                        editEndMinute = m
+                                    }
+                                }, editStartHour, editStartMinute, true).show()
+                            }
+                            .padding(vertical = 8.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Text("BẮT ĐẦU", fontSize = 8.sp, color = Color.White.copy(0.6f))
+                            Text(String.format("%02d:%02d", editStartHour, editStartMinute), fontSize = 14.sp, fontWeight = FontWeight.Bold, color = Color(0xFF55B5FF), fontFamily = FontFamily.Monospace)
+                        }
+                    }
+
+                    Box(
+                        modifier = Modifier
+                            .weight(1f)
+                            .clip(RoundedCornerShape(8.dp))
+                            .background(Color.White.copy(0.06f))
+                            .border(1.dp, Color(0xFF2E94FF).copy(0.5f), RoundedCornerShape(8.dp))
+                            .clickable {
+                                TimePickerDialog(context, { _, h, m ->
+                                    editEndHour = h
+                                    editEndMinute = m
+                                }, editEndHour, editEndMinute, true).show()
+                            }
+                            .padding(vertical = 8.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Text("KẾT THÚC", fontSize = 8.sp, color = Color.White.copy(0.6f))
+                            Text(String.format("%02d:%02d", editEndHour, editEndMinute), fontSize = 14.sp, fontWeight = FontWeight.Bold, color = Color(0xFF55B5FF), fontFamily = FontFamily.Monospace)
+                        }
+                    }
+                }
+
+                // Phân loại màu
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text("Phân loại:", fontSize = 11.sp, color = Color.White.copy(0.7f))
+                    Text(editCategory.displayName, fontSize = 11.sp, fontWeight = FontWeight.Bold, color = editCategory.composeColor)
+                }
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    EventCategory.entries.forEach { cat ->
+                        val isSelected = cat == editCategory
+                        Box(
+                            modifier = Modifier
+                                .size(28.dp)
+                                .clip(CircleShape)
+                                .background(cat.composeColor)
+                                .clickable { editCategory = cat },
+                            contentAlignment = Alignment.Center
+                        ) {
+                            if (isSelected) {
+                                Text("✓", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                            }
+                        }
+                    }
+                }
+
+                // Toggles
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text("Lặp lại hàng tuần", fontSize = 12.sp)
+                    Switch(checked = editRecurring, onCheckedChange = { editRecurring = it })
+                }
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text("Bật nhắc nhở & báo thức", fontSize = 12.sp)
+                    Switch(checked = editReminder, onCheckedChange = { editReminder = it })
+                }
+            }
+        },
+        confirmButton = {
+            Button(
+                onClick = {
+                    if (editTitle.trim().isEmpty()) {
+                        Toast.makeText(context, "Tên công việc không được để trống!", Toast.LENGTH_SHORT).show()
+                        return@Button
+                    }
+                    if (editEndHour < editStartHour || (editEndHour == editStartHour && editEndMinute <= editStartMinute)) {
+                        Toast.makeText(context, "Giờ kết thúc phải diễn ra sau giờ bắt đầu!", Toast.LENGTH_SHORT).show()
+                        return@Button
+                    }
+                    val eventDate = event.startDate.toLocalDate()
+                    val newStart = LocalDateTime.of(eventDate, LocalTime.of(editStartHour, editStartMinute))
+                    val newEnd = LocalDateTime.of(eventDate, LocalTime.of(editEndHour, editEndMinute))
+
+                    onSave(
+                        event.copy(
+                            title = editTitle.trim(),
+                            location = editLocation.trim(),
+                            startDate = newStart,
+                            endDate = newEnd,
+                            category = editCategory,
+                            isRecurringWeekly = editRecurring,
+                            hasReminder = editReminder
+                        )
+                    )
+                },
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2E94FF))
+            ) {
+                Text("Lưu Thay Đổi", fontWeight = FontWeight.Bold)
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Hủy")
+            }
+        }
+    )
+}
+

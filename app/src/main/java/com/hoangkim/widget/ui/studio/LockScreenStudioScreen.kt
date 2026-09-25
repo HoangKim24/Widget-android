@@ -3,7 +3,7 @@ package com.hoangkim.widget.ui.studio
 import android.app.WallpaperManager
 import android.os.Build
 import android.widget.Toast
-import androidx.compose.animation.animateColorAsState
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -14,7 +14,8 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.AutoAwesome
+import androidx.compose.material.icons.filled.Download
+import androidx.compose.material.icons.filled.Save
 import androidx.compose.material.icons.filled.Wallpaper
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -24,7 +25,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -34,7 +34,6 @@ import com.hoangkim.widget.model.*
 import com.hoangkim.widget.repository.EventRepository
 import com.hoangkim.widget.wallpaper.FindX9WallpaperRenderer
 import java.time.LocalDate
-import java.time.format.DateTimeFormatter
 
 enum class StudioTab(val title: String, val iconEmoji: String) {
     BACKGROUND("Nền", "🎨"),
@@ -46,14 +45,32 @@ enum class StudioTab(val title: String, val iconEmoji: String) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LockScreenStudioScreen(
+    viewModel: com.hoangkim.widget.viewmodel.StudioViewModel,
+    onBack: () -> Unit
+) {
+    LockScreenStudioScreen(
+        repository = viewModel.repository,
+        onBack = onBack
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun LockScreenStudioScreen(
     repository: EventRepository,
     onBack: () -> Unit
 ) {
     val context = LocalContext.current
     val events by repository.events.collectAsState()
 
-    var config by remember { mutableStateOf(WallpaperConfig()) }
+    // Chặn vuốt Back Android thoát app đột ngột
+    BackHandler(onBack = onBack)
+
+    var config by remember { mutableStateOf(repository.loadWallpaperConfig()) }
     var selectedTab by remember { mutableStateOf(StudioTab.BACKGROUND) }
+
+    val (deviceWidth, deviceHeight) = remember { FindX9WallpaperRenderer.getDeviceScreenDimensions(context) }
+
 
     val today = LocalDate.now()
     val daysFromMonday = (today.dayOfWeek.value - 1).toLong()
@@ -502,10 +519,10 @@ fun LockScreenStudioScreen(
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
                                     AccentColorTheme.entries.forEach { theme ->
-                                        val isSelected = config.accentTheme == theme
+                                        val isSelected = config.customHex == null && config.accentTheme == theme
                                         Column(
                                             horizontalAlignment = Alignment.CenterHorizontally,
-                                            modifier = Modifier.clickable { config = config.copy(accentTheme = theme) }
+                                            modifier = Modifier.clickable { config = config.copy(accentTheme = theme, customHex = null) }
                                         ) {
                                             Box(
                                                 modifier = Modifier
@@ -516,8 +533,13 @@ fun LockScreenStudioScreen(
                                                         width = if (isSelected) 2.5.dp else 0.dp,
                                                         color = Color.White,
                                                         shape = CircleShape
-                                                    )
-                                            )
+                                                    ),
+                                                contentAlignment = Alignment.Center
+                                            ) {
+                                                if (isSelected) {
+                                                    Text("✓", color = if (theme == AccentColorTheme.WHITE) Color.Black else Color.White, fontSize = 13.sp, fontWeight = FontWeight.ExtraBold)
+                                                }
+                                            }
                                             Spacer(modifier = Modifier.height(2.dp))
                                             Text(
                                                 text = theme.title,
@@ -528,14 +550,13 @@ fun LockScreenStudioScreen(
                                         }
                                     }
 
-                                    // Color Hunt Presets
+                                    // Color Hunt Presets (Đã kết nối trực tiếp customHex)
                                     ColorHuntPresets.list.forEach { ch ->
+                                        val isSelected = config.customHex?.equals(ch.hex, ignoreCase = true) == true
                                         Column(
                                             horizontalAlignment = Alignment.CenterHorizontally,
                                             modifier = Modifier.clickable {
-                                                // Tìm theme tương ứng hoặc đổi màu
-                                                val matched = AccentColorTheme.entries.firstOrNull { it.color == ch.color }
-                                                if (matched != null) config = config.copy(accentTheme = matched)
+                                                config = config.copy(customHex = ch.hex)
                                             }
                                         ) {
                                             Box(
@@ -543,9 +564,19 @@ fun LockScreenStudioScreen(
                                                     .size(32.dp)
                                                     .clip(CircleShape)
                                                     .background(ch.color)
-                                            )
+                                                    .border(
+                                                        width = if (isSelected) 2.5.dp else 0.dp,
+                                                        color = Color.White,
+                                                        shape = CircleShape
+                                                    ),
+                                                contentAlignment = Alignment.Center
+                                            ) {
+                                                if (isSelected) {
+                                                    Text("✓", color = Color.White, fontSize = 13.sp, fontWeight = FontWeight.ExtraBold)
+                                                }
+                                            }
                                             Spacer(modifier = Modifier.height(2.dp))
-                                            Text(ch.title, fontSize = 9.sp, color = Color.White.copy(alpha = 0.6f))
+                                            Text(ch.title, fontSize = 9.sp, color = if (isSelected) ch.color else Color.White.copy(alpha = 0.6f))
                                         }
                                     }
                                 }
@@ -553,32 +584,71 @@ fun LockScreenStudioScreen(
                         }
                     }
 
-                    // 2 NÚT HÀNH ĐỘNG DƯỚI CÙNG
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(10.dp)
-                    ) {
-                        // Nút Cập Nhật
-                        Box(
-                            modifier = Modifier
-                                .weight(1f)
-                                .clip(RoundedCornerShape(12.dp))
-                                .background(
-                                    Brush.linearGradient(listOf(Color(0xFF2E94FF), Color(0xFF6C5CE7)))
-                                )
-                                .clickable {
-                                    Toast.makeText(context, "Đã cập nhật cấu hình Studio!", Toast.LENGTH_SHORT).show()
-                                }
-                                .padding(vertical = 11.dp),
-                            contentAlignment = Alignment.Center
+                    // CÁC NÚT HÀNH ĐỘNG DƯỚI CÙNG
+                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
-                            Text("⚡ Cập Nhật", color = Color.White, fontSize = 13.sp, fontWeight = FontWeight.Bold)
+                            // 1. Nút Lưu Cấu Hình Studio
+                            Box(
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .clip(RoundedCornerShape(12.dp))
+                                    .background(Color.White.copy(alpha = 0.08f))
+                                    .clickable {
+                                        repository.saveWallpaperConfig(config)
+                                        Toast.makeText(context, "💾 Đã lưu cấu hình Studio thành công!", Toast.LENGTH_SHORT).show()
+                                    }
+                                    .padding(vertical = 10.dp),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                                    Icon(Icons.Default.Save, contentDescription = null, tint = Color.White, modifier = Modifier.size(16.dp))
+                                    Text("Lưu Cấu Hình", color = Color.White, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                                }
+                            }
+
+                            // 2. Nút Tải Ảnh Về Thư Viện (MediaStore)
+                            Box(
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .clip(RoundedCornerShape(12.dp))
+                                    .background(Color.White.copy(alpha = 0.08f))
+                                    .clickable {
+                                        try {
+                                            val bmp = FindX9WallpaperRenderer.renderWallpaper(
+                                                baseImage = null,
+                                                events = events,
+                                                config = config,
+                                                includeSystemMockUi = false,
+                                                targetWidth = deviceWidth,
+                                                targetHeight = deviceHeight
+                                            )
+                                            val uri = FindX9WallpaperRenderer.saveWallpaperToGallery(context, bmp)
+                                            if (uri != null) {
+                                                Toast.makeText(context, "🎉 Đã lưu hình nền vào thư viện ảnh (Pictures/LichTuan)!", Toast.LENGTH_LONG).show()
+                                            } else {
+                                                Toast.makeText(context, "Lỗi: Không thể lưu ảnh vào máy", Toast.LENGTH_SHORT).show()
+                                            }
+                                        } catch (e: Exception) {
+                                            Toast.makeText(context, "Lỗi xuất ảnh: ${e.message}", Toast.LENGTH_SHORT).show()
+                                        }
+                                    }
+                                    .padding(vertical = 10.dp),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                                    Icon(Icons.Default.Download, contentDescription = null, tint = Color(0xFF47C5E2), modifier = Modifier.size(16.dp))
+                                    Text("Lưu Ảnh Vào Máy", color = Color(0xFF47C5E2), fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                                }
+                            }
                         }
 
-                        // Nút Đặt Làm Hình Nền Khóa Ngay (1 Chạm)
+                        // 3. Nút Đặt Làm Hình Nền Khóa Ngay (1 Chạm - Không có đồng hồ đè)
                         Box(
                             modifier = Modifier
-                                .weight(1.5f)
+                                .fillMaxWidth()
                                 .clip(RoundedCornerShape(12.dp))
                                 .background(
                                     Brush.linearGradient(listOf(accent, accent.copy(alpha = 0.85f)))
@@ -586,10 +656,18 @@ fun LockScreenStudioScreen(
                                 .clickable {
                                     try {
                                         val wm = WallpaperManager.getInstance(context)
-                                        val bmp = FindX9WallpaperRenderer.renderWallpaper(null, events, config)
+                                        // includeSystemMockUi = false để ColorOS tự vẽ đồng hồ và vân tay thật
+                                        val bmp = FindX9WallpaperRenderer.renderWallpaper(
+                                            baseImage = null,
+                                            events = events,
+                                            config = config,
+                                            includeSystemMockUi = false,
+                                            targetWidth = deviceWidth,
+                                            targetHeight = deviceHeight
+                                        )
                                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                                             wm.setBitmap(bmp, null, true, WallpaperManager.FLAG_LOCK)
-                                            Toast.makeText(context, "🎉 Đã cài thẳng làm hình nền màn hình khóa!", Toast.LENGTH_LONG).show()
+                                            Toast.makeText(context, "🎉 Đã cài làm hình nền màn hình khóa thành công!", Toast.LENGTH_LONG).show()
                                         } else {
                                             wm.setBitmap(bmp)
                                             Toast.makeText(context, "Đã cài làm hình nền!", Toast.LENGTH_SHORT).show()
@@ -617,3 +695,4 @@ fun LockScreenStudioScreen(
         }
     }
 }
+

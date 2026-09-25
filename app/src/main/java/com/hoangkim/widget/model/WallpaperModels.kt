@@ -106,5 +106,16 @@ data class WallpaperConfig(
     var fineTuneYOffsetDp: Float = 0f
 ) {
     val effectiveColor: Color
-        get() = accentTheme.color
+        get() {
+            val hex = customHex
+            if (!hex.isNullOrEmpty()) {
+                return try {
+                    Color(android.graphics.Color.parseColor(hex))
+                } catch (e: Exception) {
+                    accentTheme.color
+                }
+            }
+            return accentTheme.color
+        }
 }
+
