@@ -630,11 +630,14 @@ fun WeeklyMatrixCard(
                                         .background(ev.category.composeColor)
                                         .padding(horizontal = 2.dp, vertical = 2.dp)
                                 ) {
-                                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                    Column(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalAlignment = Alignment.CenterHorizontally
+                                    ) {
                                         Text(
                                             text = ev.startDate.format(DateTimeFormatter.ofPattern("HH:mm")),
-                                            color = Color.White.copy(0.9f),
-                                            fontSize = 5.5.sp,
+                                            color = Color.White.copy(0.92f),
+                                            fontSize = 7.5.sp,
                                             fontFamily = FontFamily.Monospace,
                                             fontWeight = FontWeight.Bold,
                                             maxLines = 1
@@ -642,8 +645,8 @@ fun WeeklyMatrixCard(
                                         Text(
                                             text = ev.title,
                                             color = Color.White,
-                                            fontSize = 6.5.sp,
-                                            fontWeight = FontWeight.ExtraBold,
+                                            fontSize = 8.5.sp,
+                                            fontWeight = FontWeight.Bold,
                                             maxLines = 1,
                                             overflow = TextOverflow.Ellipsis,
                                             textAlign = TextAlign.Center

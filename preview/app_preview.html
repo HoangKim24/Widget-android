@@ -292,20 +292,24 @@
 
         .matrix-grid {
             display: grid;
-            grid-template-columns: repeat(7, 1fr);
-            gap: 4px;
+            grid-template-columns: repeat(7, minmax(0, 1fr));
+            gap: 3px;
+            width: 100%;
         }
         .matrix-col {
             background: rgba(255,255,255,0.04);
             border-radius: 10px;
-            padding: 6px 2px;
+            padding: 5px 2px;
             display: flex;
             flex-direction: column;
             align-items: center;
             min-height: 100px;
+            min-width: 0; /* Cho phép cột co giãn chuẩn xác, không bị đẩy tràn Thứ 7 và Chủ Nhật */
+            overflow: hidden;
             border: 1px solid transparent;
             cursor: pointer;
             transition: all 0.2s;
+            box-sizing: border-box;
         }
         .matrix-col.selected {
             background: rgba(46, 148, 255, 0.16);
@@ -313,15 +317,16 @@
         }
         .col-top {
             text-align: center;
-            margin-bottom: 6px;
+            margin-bottom: 4px;
+            width: 100%;
         }
         .col-w {
-            font-size: 9.5px;
+            font-size: 10px;
             font-weight: 700;
             color: var(--text-sub);
         }
         .col-d {
-            font-size: 12px;
+            font-size: 13px;
             font-weight: 800;
             color: #fff;
         }
@@ -329,27 +334,33 @@
             color: var(--studio-accent);
         }
         .mini-event {
-            width: 94%;
+            width: 100%;
             border-radius: 4px;
-            padding: 2px;
+            padding: 2.5px 3px;
             margin-bottom: 3px;
-            font-size: 7px;
-            line-height: 1.1;
             display: flex;
             flex-direction: column;
+            gap: 1px;
             color: #fff;
+            box-sizing: border-box;
+            overflow: hidden;
         }
         .mini-event .t {
             font-family: 'JetBrains Mono', monospace;
-            font-size: 6px;
-            opacity: 0.85;
-            font-weight: bold;
+            font-size: 7.5px;
+            line-height: 9px;
+            opacity: 0.9;
+            font-weight: 700;
+            letter-spacing: -0.2px;
         }
         .mini-event .n {
+            font-size: 8.5px;
+            line-height: 10.5px;
             font-weight: 700;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
+            display: block;
         }
 
         /* Danh sách việc trong ngày */
@@ -1532,18 +1543,18 @@
                                 <!-- BỐ CỤC 1: 7 DÒNG CHI TIẾT -->
                                 <div id="view-layout-rows" class="layout-rows-card">
                                     <div class="layout-rows-title">
-                                        <span>Weekly Schedule</span>
+                                        <span>LỊCH TRÌNH TUẦN</span>
                                     </div>
                                     <div class="rows-list" id="studio-dynamic-rows-list"></div>
 
                                     <div class="agenda-today-box" id="studio-rows-today-box">
-                                        <div class="agenda-header">Today</div>
+                                        <div class="agenda-header">LỊCH HÔM NAY</div>
                                         <div id="studio-rows-today-content"></div>
                                     </div>
 
                                     <div class="reminders-box" id="studio-rows-reminders-box">
                                         <div class="reminders-header">
-                                            <span>🔔</span> Reminders
+                                            <span>🔔</span> Nhắc Nhở
                                         </div>
                                         <div id="studio-rows-reminders-content"></div>
                                     </div>
@@ -1554,13 +1565,13 @@
                                     <div class="canvas-week-columns-grid" id="studio-columns-grid"></div>
 
                                     <div class="agenda-today-box">
-                                        <div class="agenda-header">Today</div>
+                                        <div class="agenda-header">LỊCH HÔM NAY</div>
                                         <div id="studio-columns-today-content"></div>
                                     </div>
 
                                     <div class="reminders-box" id="studio-columns-reminders-box">
                                         <div class="reminders-header">
-                                            <span>🔔</span> Reminders
+                                            <span>🔔</span> Nhắc Nhở
                                         </div>
                                         <div id="studio-columns-reminders-content"></div>
                                     </div>
@@ -1571,7 +1582,7 @@
                                     <div class="frosted-header">
                                         <div class="frosted-title">
                                             <span style="display: inline-block; width: 5px; height: 5px; background: var(--studio-accent); border-radius: 50%;"></span>
-                                            <span>AGENDA & WEEK</span>
+                                            <span>LỊCH TUẦN & HÔM NAY</span>
                                         </div>
                                         <div class="frosted-today-text" id="frosted-today-tag">Hôm nay: ...</div>
                                     </div>
@@ -1579,13 +1590,13 @@
                                     <div class="canvas-week-columns-grid" id="studio-frosted-grid"></div>
 
                                     <div class="agenda-today-box">
-                                        <div class="agenda-header">Today</div>
+                                        <div class="agenda-header">LỊCH HÔM NAY</div>
                                         <div id="studio-frosted-today-content"></div>
                                     </div>
 
                                     <div class="reminders-box" id="studio-frosted-reminders-box">
                                         <div class="reminders-header">
-                                            <span>🔔</span> Reminders
+                                            <span>🔔</span> Nhắc Nhở
                                         </div>
                                         <div id="studio-frosted-reminders-content"></div>
                                     </div>
@@ -1610,8 +1621,9 @@
                         <div class="studio-tabs-row">
                             <button class="sub-tab-btn" onclick="switchStudioSubTab('sub-bg', this)">🎨 Nền</button>
                             <button class="sub-tab-btn active" onclick="switchStudioSubTab('sub-layout', this)">📅 Kiểu Lịch</button>
-                            <button class="sub-tab-btn" onclick="switchStudioSubTab('sub-pos', this)">↕️ Vị Trí</button>
+                            <button class="sub-tab-btn" onclick="switchStudioSubTab('sub-font', this)">🔤 Chữ</button>
                             <button class="sub-tab-btn" onclick="switchStudioSubTab('sub-color', this)">🎨 Màu Sắc</button>
+                            <button class="sub-tab-btn" onclick="switchStudioSubTab('sub-pos', this)">↕️ Vị Trí</button>
                         </div>
 
                         <div id="sub-bg" class="sub-tab-panel">
@@ -1656,6 +1668,27 @@
                                 <div class="layout-btn" onclick="setLayoutType('frosted', this)">
                                     <span class="layout-icon">💎</span>
                                     <span>Kính Mờ</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="sub-font" class="sub-tab-panel">
+                            <div class="layout-options-row">
+                                <div class="layout-btn active" onclick="setFontTheme('rounded', this)">
+                                    <span class="layout-icon">🟢</span>
+                                    <span>Bo Tròn</span>
+                                </div>
+                                <div class="layout-btn" onclick="setFontTheme('modern', this)">
+                                    <span class="layout-icon">🔤</span>
+                                    <span>Hiện Đại</span>
+                                </div>
+                                <div class="layout-btn" onclick="setFontTheme('serif', this)">
+                                    <span class="layout-icon">📖</span>
+                                    <span>Cổ Điển</span>
+                                </div>
+                                <div class="layout-btn" onclick="setFontTheme('monospaced', this)">
+                                    <span class="layout-icon">💻</span>
+                                    <span>Coder</span>
                                 </div>
                             </div>
                         </div>
@@ -2505,6 +2538,24 @@
             if (type === 'rows') viewRows.style.display = 'block';
             else if (type === 'columns') viewColumns.style.display = 'block';
             else if (type === 'frosted') viewFrosted.style.display = 'block';
+        }
+
+        function setFontTheme(theme, btn) {
+            document.querySelectorAll('#sub-font .layout-btn').forEach(b => b.classList.remove('active'));
+            if (btn) btn.classList.add('active');
+
+            const container = document.getElementById('canvas-calendar-container');
+            if (!container) return;
+
+            if (theme === 'rounded') {
+                container.style.fontFamily = "'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif";
+            } else if (theme === 'modern') {
+                container.style.fontFamily = "system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif";
+            } else if (theme === 'serif') {
+                container.style.fontFamily = "Georgia, Cambria, 'Times New Roman', serif";
+            } else if (theme === 'monospaced') {
+                container.style.fontFamily = "'JetBrains Mono', 'Courier New', monospace";
+            }
         }
 
         let currentPos = 'top';
