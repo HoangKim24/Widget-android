@@ -99,6 +99,63 @@ class EventRepository(context: Context) {
         notifyWidgetUpdate()
     }
 
+    /**
+     * Sao chép toàn bộ lịch tuần nguồn sang 1, 2 hoặc 4 tuần (cả tháng) tiếp theo.
+     * Tương ứng với tính năng copyCurrentWeek trên bản iPhone.
+     */
+    fun copyWeekEvents(sourceWeekMonday: LocalDate, numberOfWeeks: Int): Int {
+        val weekEnd = sourceWeekMonday.plusDays(6)
+        val sourceEvents = _events.value.filter {
+            val d = it.startDate.toLocalDate()
+            !d.isBefore(sourceWeekMonday) && !d.isAfter(weekEnd)
+        }
+        if (sourceEvents.isEmpty()) return 0
+
+        val newEvents = mutableListOf<CalendarEvent>()
+        for (w in 1..numberOfWeeks) {
+            val daysToAdd = (w * 7).toLong()
+            for (ev in sourceEvents) {
+                val newStart = ev.startDate.plusDays(daysToAdd)
+                val newEnd = ev.endDate.plusDays(daysToAdd)
+                val newEv = ev.copy(
+                    id = java.util.UUID.randomUUID().toString(),
+                    startDate = newStart,
+                    endDate = newEnd
+                )
+                newEvents.add(newEv)
+            }
+        }
+
+        dbHelper.insertBatch(newEvents)
+        val updated = _events.value.toMutableList().apply { addAll(newEvents) }
+        _events.value = updated
+        syncBackupJson()
+        newEvents.forEach { if (it.hasReminder) alarmScheduler.scheduleEventAlarm(it) }
+        notifyWidgetUpdate()
+        return newEvents.size
+    }
+
+    /**
+     * Nạp danh sách sự kiện từ file sao lưu JSON hoặc bóc tách OCR/Zalo vào cơ sở dữ liệu.
+     */
+    fun importEvents(imported: List<CalendarEvent>) {
+        if (imported.isEmpty()) return
+        dbHelper.insertBatch(imported)
+        val current = _events.value.toMutableList()
+        imported.forEach { newEv ->
+            val idx = current.indexOfFirst { it.id == newEv.id }
+            if (idx >= 0) {
+                current[idx] = newEv
+            } else {
+                current.add(newEv)
+            }
+        }
+        _events.value = current
+        syncBackupJson()
+        imported.forEach { if (it.hasReminder) alarmScheduler.scheduleEventAlarm(it) }
+        notifyWidgetUpdate()
+    }
+
     private fun syncBackupJson() {
         try {
             val array = JSONArray()

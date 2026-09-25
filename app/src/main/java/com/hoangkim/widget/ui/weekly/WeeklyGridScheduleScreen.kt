@@ -21,6 +21,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import com.hoangkim.widget.data.CalendarExportManager
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -81,6 +84,28 @@ fun WeeklyGridScheduleScreen(
     var editingEvent by remember { mutableStateOf<CalendarEvent?>(null) }
 
 
+    // Launcher chọn file JSON để khôi phục dữ liệu
+    val jsonRestoreLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri ->
+        uri?.let {
+            try {
+                val content = context.contentResolver.openInputStream(it)?.bufferedReader()?.use { reader -> reader.readText() }
+                if (!content.isNullOrEmpty()) {
+                    val restored = CalendarExportManager.parseBackupJSON(content)
+                    if (restored.isNotEmpty()) {
+                        repository.importEvents(restored)
+                        Toast.makeText(context, "🔄 Đã khôi phục thành công ${restored.size} sự kiện!", Toast.LENGTH_SHORT).show()
+                    } else {
+                        Toast.makeText(context, "Không tìm thấy sự kiện hợp lệ trong file JSON!", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            } catch (e: Exception) {
+                Toast.makeText(context, "Lỗi đọc file: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
     // 7 ngày trong tuần theo weekOffset
     val today = LocalDate.now()
     val daysFromMonday = (today.dayOfWeek.value - 1).toLong()
@@ -132,7 +157,7 @@ fun WeeklyGridScheduleScreen(
                             leadingIcon = { Icon(Icons.Default.Sync, contentDescription = null, tint = Color(0xFF2E94FF)) },
                             onClick = {
                                 showMoreMenu = false
-                                Toast.makeText(context, "Đang đồng bộ từ Google Calendar / Lịch máy...", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(context, "Đang mở trình đồng bộ từ Lịch thiết bị...", Toast.LENGTH_SHORT).show()
                             }
                         )
                         DropdownMenuItem(
@@ -140,19 +165,45 @@ fun WeeklyGridScheduleScreen(
                             leadingIcon = { Icon(Icons.Default.DocumentScanner, contentDescription = null, tint = Color(0xFFB388FF)) },
                             onClick = {
                                 showMoreMenu = false
-                                Toast.makeText(context, "Mở trình quét ảnh OCR & dán lịch Zalo", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(context, "Mở trình dán văn bản Zalo & Quét ảnh OCR", Toast.LENGTH_SHORT).show()
                             }
                         )
                         DropdownMenuItem(
-                            text = { Text("Sao Chép Sang Tuần Sau", color = Color.White, fontSize = 13.sp) },
+                            text = { Text("Sao Chép Sang 1 Tuần Sau", color = Color.White, fontSize = 13.sp) },
                             leadingIcon = { Icon(Icons.Default.ContentCopy, contentDescription = null, tint = Color.White.copy(alpha = 0.8f)) },
                             onClick = {
                                 showMoreMenu = false
-                                val copied = repository.copyWeekToNextWeek(targetMonday)
+                                val copied = repository.copyWeekEvents(targetMonday, 1)
                                 if (copied > 0) {
-                                    Toast.makeText(context, "🎉 Đã sao chép thành công $copied lịch trình sang tuần sau!", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(context, "🎉 Đã sao chép $copied sự kiện sang tuần sau!", Toast.LENGTH_SHORT).show()
                                 } else {
-                                    Toast.makeText(context, "Tuần này chưa có lịch mới để sao chép!", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(context, "Tuần này chưa có lịch để sao chép!", Toast.LENGTH_SHORT).show()
+                                }
+                            }
+                        )
+                        DropdownMenuItem(
+                            text = { Text("Sao Chép Sang 2 Tuần Sau", color = Color.White, fontSize = 13.sp) },
+                            leadingIcon = { Icon(Icons.Default.CopyAll, contentDescription = null, tint = Color.White.copy(alpha = 0.8f)) },
+                            onClick = {
+                                showMoreMenu = false
+                                val copied = repository.copyWeekEvents(targetMonday, 2)
+                                if (copied > 0) {
+                                    Toast.makeText(context, "🎉 Đã sao chép $copied sự kiện sang 2 tuần tiếp theo!", Toast.LENGTH_SHORT).show()
+                                } else {
+                                    Toast.makeText(context, "Tuần này chưa có lịch để sao chép!", Toast.LENGTH_SHORT).show()
+                                }
+                            }
+                        )
+                        DropdownMenuItem(
+                            text = { Text("Sao Chép Cả Tháng (4 Tuần)", color = Color.White, fontSize = 13.sp) },
+                            leadingIcon = { Icon(Icons.Default.CalendarMonth, contentDescription = null, tint = Color.White.copy(alpha = 0.8f)) },
+                            onClick = {
+                                showMoreMenu = false
+                                val copied = repository.copyWeekEvents(targetMonday, 4)
+                                if (copied > 0) {
+                                    Toast.makeText(context, "🎉 Đã sao chép $copied sự kiện cho cả tháng (4 tuần)!", Toast.LENGTH_SHORT).show()
+                                } else {
+                                    Toast.makeText(context, "Tuần này chưa có lịch để sao chép!", Toast.LENGTH_SHORT).show()
                                 }
                             }
                         )
@@ -173,15 +224,9 @@ fun WeeklyGridScheduleScreen(
                             onClick = {
                                 showMoreMenu = false
                                 try {
-                                    val ics = repository.generateIcsString()
-                                    val shareIntent = Intent(Intent.ACTION_SEND).apply {
-                                        type = "text/calendar"
-                                        putExtra(Intent.EXTRA_SUBJECT, "LichTuan.ics")
-                                        putExtra(Intent.EXTRA_TEXT, ics)
-                                    }
-                                    context.startActivity(Intent.createChooser(shareIntent, "Xuất file lịch (.ics)"))
+                                    CalendarExportManager.exportCalendarICS(context, events)
                                 } catch (e: Exception) {
-                                    Toast.makeText(context, "Lỗi xuất file: ${e.message}", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(context, "Lỗi xuất file .ics: ${e.message}", Toast.LENGTH_SHORT).show()
                                 }
                             }
                         )
@@ -191,15 +236,9 @@ fun WeeklyGridScheduleScreen(
                             onClick = {
                                 showMoreMenu = false
                                 try {
-                                    val json = repository.getBackupJson()
-                                    val shareIntent = Intent(Intent.ACTION_SEND).apply {
-                                        type = "text/plain"
-                                        putExtra(Intent.EXTRA_SUBJECT, "LichTuan_Backup.json")
-                                        putExtra(Intent.EXTRA_TEXT, json)
-                                    }
-                                    context.startActivity(Intent.createChooser(shareIntent, "Sao lưu dữ liệu lịch (.json)"))
+                                    CalendarExportManager.exportBackupJSON(context, events)
                                 } catch (e: Exception) {
-                                    Toast.makeText(context, "Lỗi sao lưu: ${e.message}", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(context, "Lỗi sao lưu .json: ${e.message}", Toast.LENGTH_SHORT).show()
                                 }
                             }
                         )
@@ -208,7 +247,11 @@ fun WeeklyGridScheduleScreen(
                             leadingIcon = { Icon(Icons.Default.Restore, contentDescription = null, tint = Color.White.copy(alpha = 0.8f)) },
                             onClick = {
                                 showMoreMenu = false
-                                showRestoreDialog = true
+                                try {
+                                    jsonRestoreLauncher.launch("application/json")
+                                } catch (e: Exception) {
+                                    jsonRestoreLauncher.launch("*/*")
+                                }
                             }
                         )
 
