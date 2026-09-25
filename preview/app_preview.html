@@ -1477,6 +1477,18 @@
                         <div id="dynamic-day-slots-container"></div>
                     </div>
 
+                    <!-- PHÍM TẮT AI OCR & ĐỒNG BỘ LỊCH NHANH -->
+                    <div style="display: flex; gap: 8px;">
+                        <button style="flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px; padding: 10px; background: rgba(179,136,255,0.12); border: 1px solid rgba(179,136,255,0.4); border-radius: 12px; color: #B388FF; font-size: 12px; font-weight: 700; cursor: pointer;" onclick="openModal('ocr-modal')">
+                            <span>🪄</span>
+                            <span>Dán Lịch (OCR)</span>
+                        </button>
+                        <button style="flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px; padding: 10px; background: rgba(46,148,255,0.12); border: 1px solid rgba(46,148,255,0.4); border-radius: 12px; color: #2E94FF; font-size: 12px; font-weight: 700; cursor: pointer;" onclick="openModal('calendar-sync-modal')">
+                            <span>🔄</span>
+                            <span>Đồng Bộ Lịch</span>
+                        </button>
+                    </div>
+
                     <div class="input-card">
                         <div class="input-title-row">
                             <span style="color: var(--primary);">➕</span>
@@ -1851,6 +1863,14 @@
 
                     <div style="font-size: 11px; color: var(--text-sub);">
                         Nhận diện thông minh "Thứ 2, T3, 8h-10h..." từ Zalo hoặc ảnh chụp thời khóa biểu.
+                    </div>
+
+                    <!-- Gợi ý Prompt Chips thông minh -->
+                    <div style="display: flex; gap: 6px; overflow-x: auto; padding-bottom: 2px; scrollbar-width: none; -ms-overflow-style: none;">
+                        <button type="button" class="preset-pill" style="white-space: nowrap; flex-shrink: 0;" onclick="setOcrPrompt('Sáng 2-4-6 tập gym 6h đến 7h')">⚡ 2-4-6 6h-7h Gym</button>
+                        <button type="button" class="preset-pill" style="white-space: nowrap; flex-shrink: 0;" onclick="setOcrPrompt('Tối 3-5-7 học tiếng Anh 19h đến 21h')">⚡ 3-5-7 19h-21h Tiếng Anh</button>
+                        <button type="button" class="preset-pill" style="white-space: nowrap; flex-shrink: 0;" onclick="setOcrPrompt('Thứ 7 cả ngày đi dã ngoại')">⚡ T7 cả ngày Dã ngoại</button>
+                        <button type="button" class="preset-pill" style="white-space: nowrap; flex-shrink: 0;" onclick="setOcrPrompt('Từ thứ 2 đến thứ 6: 08:00 - 17:00 Đi làm')">⚡ T2-T6 8h-17h Đi làm</button>
                     </div>
 
                     <div style="background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.12); border-radius: 12px; padding: 10px;">
@@ -2455,6 +2475,10 @@
             }, 500);
         }
 
+        function setOcrPrompt(text) {
+            document.getElementById('ocr-textarea').value = text;
+        }
+
         function finishOCRImport() {
             const val = document.getElementById('ocr-textarea').value.trim();
             if (!val) {
@@ -2463,14 +2487,75 @@
             }
 
             const weekDays = getWeekDays();
-            events.push({ id: Date.now().toString() + 'ocr1', title: 'Đi Làm', category: 'work', date: weekDays[0].isoDate, startTime: '08:00', endTime: '10:00', hasReminder: false });
-            events.push({ id: Date.now().toString() + 'ocr2', title: 'Họp Dự Án', category: 'work', date: weekDays[0].isoDate, startTime: '14:00', endTime: '16:00', hasReminder: true });
-            events.push({ id: Date.now().toString() + 'ocr3', title: 'Tập Gym', category: 'health', date: weekDays[1].isoDate, startTime: '07:30', endTime: '09:00', hasReminder: false });
+            const lower = val.toLowerCase();
+            let addedCount = 0;
+
+            if (lower.includes('2-4-6') || lower.includes('2,4,6')) {
+                // Nhóm 2-4-6 (T2, T4, T6)
+                [0, 2, 4].forEach(dayIdx => {
+                    events.push({
+                        id: Date.now().toString() + 'ocr_gym_' + dayIdx,
+                        title: 'Tập Gym Sáng',
+                        category: 'health',
+                        date: weekDays[dayIdx].isoDate,
+                        startTime: '06:00',
+                        endTime: '07:00',
+                        hasReminder: true
+                    });
+                    addedCount++;
+                });
+            } else if (lower.includes('3-5-7') || lower.includes('3,5,7')) {
+                // Nhóm 3-5-7 (T3, T5, T7)
+                [1, 3, 5].forEach(dayIdx => {
+                    events.push({
+                        id: Date.now().toString() + 'ocr_en_' + dayIdx,
+                        title: 'Học Tiếng Anh',
+                        category: 'study',
+                        date: weekDays[dayIdx].isoDate,
+                        startTime: '19:00',
+                        endTime: '21:00',
+                        hasReminder: true
+                    });
+                    addedCount++;
+                });
+            } else if (lower.includes('t2-t6') || lower.includes('từ thứ 2 đến thứ 6')) {
+                // Thứ 2 đến Thứ 6
+                [0, 1, 2, 3, 4].forEach(dayIdx => {
+                    events.push({
+                        id: Date.now().toString() + 'ocr_work_' + dayIdx,
+                        title: 'Đi Làm',
+                        category: 'work',
+                        date: weekDays[dayIdx].isoDate,
+                        startTime: '08:00',
+                        endTime: '17:00',
+                        hasReminder: true
+                    });
+                    addedCount++;
+                });
+            } else if (lower.includes('thứ 7') || lower.includes('t7')) {
+                // Thứ 7
+                events.push({
+                    id: Date.now().toString() + 'ocr_sat',
+                    title: 'Dã Ngoại Cuối Tuần',
+                    category: 'personal',
+                    date: weekDays[5].isoDate,
+                    startTime: '08:00',
+                    endTime: '18:00',
+                    hasReminder: true
+                });
+                addedCount++;
+            } else {
+                // Mặc định bóc tách tổng quát
+                events.push({ id: Date.now().toString() + 'ocr1', title: 'Đi Làm', category: 'work', date: weekDays[0].isoDate, startTime: '08:00', endTime: '10:00', hasReminder: false });
+                events.push({ id: Date.now().toString() + 'ocr2', title: 'Họp Dự Án', category: 'work', date: weekDays[0].isoDate, startTime: '14:00', endTime: '16:00', hasReminder: true });
+                events.push({ id: Date.now().toString() + 'ocr3', title: 'Tập Gym', category: 'health', date: weekDays[1].isoDate, startTime: '07:30', endTime: '09:00', hasReminder: false });
+                addedCount = 3;
+            }
 
             saveEvents();
             closeModal('ocr-modal');
             renderAll();
-            alert('🎉 Nhận diện thành công và đã thêm các sự kiện vào lịch tuần!');
+            alert('🎉 Nhận diện thành công! Đã thêm ' + addedCount + ' sự kiện vào lịch tuần!');
         }
 
         function handleJumpToDate(val) {

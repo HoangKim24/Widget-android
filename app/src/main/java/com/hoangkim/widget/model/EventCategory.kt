@@ -18,5 +18,34 @@ enum class EventCategory(
 
     companion object {
         fun fromId(id: String): EventCategory = entries.firstOrNull { it.id == id } ?: OTHER
+
+        /**
+         * Tự động dự đoán danh mục thông minh dựa trên từ khóa trong tên sự kiện (tiếng Việt & tiếng Anh).
+         */
+        fun infer(text: String): EventCategory {
+            val lower = text.lowercase()
+
+            fun containsAny(keywords: List<String>): Boolean {
+                return keywords.any { lower.contains(it) }
+            }
+
+            if (containsAny(listOf("học", "study", "thi", "đọc sách", "lớp", "tiếng anh", "ôn", "bài tập", "lecture", "khóa học", "exam", "course"))) {
+                return STUDY
+            }
+            if (containsAny(listOf("gym", "chạy", "bơi", "yoga", "khám", "thuốc", "thể dục", "relax", "spa", "đi dạo", "bác sĩ", "workout", "fitness"))) {
+                return HEALTH
+            }
+            if (containsAny(listOf("gia đình", "mẹ", "bố", "con", "chợ", "siêu thị", "nấu", "family", "vợ", "chồng", "nhà", "dọn dẹp", "đón"))) {
+                return FAMILY
+            }
+            if (containsAny(listOf("họp", "meeting", "đi làm", "làm việc", "công việc", "work", "kpi", "báo cáo", "dự án", "deadline", "công ty", "task", "code", "khách", "call", "phỏng vấn"))) {
+                return WORK
+            }
+            if (containsAny(listOf("cafe", "cà phê", "bạn", "phim", "du lịch", "mua sắm", "shopee", "chill", "ăn trưa", "ăn tối", "quán", "nhậu", "party", "sinh nhật", "đi chơi"))) {
+                return PERSONAL
+            }
+
+            return OTHER
+        }
     }
 }

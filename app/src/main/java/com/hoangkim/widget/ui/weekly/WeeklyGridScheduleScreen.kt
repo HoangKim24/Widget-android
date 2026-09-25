@@ -82,6 +82,8 @@ fun WeeklyGridScheduleScreen(
     var showRestoreDialog by remember { mutableStateOf(false) }
     var restoreJsonInput by remember { mutableStateOf("") }
     var editingEvent by remember { mutableStateOf<CalendarEvent?>(null) }
+    var showSmartImportSheet by remember { mutableStateOf(false) }
+    var showDeviceCalendarImportSheet by remember { mutableStateOf(false) }
 
 
     // Launcher chọn file JSON để khôi phục dữ liệu
@@ -157,7 +159,7 @@ fun WeeklyGridScheduleScreen(
                             leadingIcon = { Icon(Icons.Default.Sync, contentDescription = null, tint = Color(0xFF2E94FF)) },
                             onClick = {
                                 showMoreMenu = false
-                                Toast.makeText(context, "Đang mở trình đồng bộ từ Lịch thiết bị...", Toast.LENGTH_SHORT).show()
+                                showDeviceCalendarImportSheet = true
                             }
                         )
                         DropdownMenuItem(
@@ -165,7 +167,7 @@ fun WeeklyGridScheduleScreen(
                             leadingIcon = { Icon(Icons.Default.DocumentScanner, contentDescription = null, tint = Color(0xFFB388FF)) },
                             onClick = {
                                 showMoreMenu = false
-                                Toast.makeText(context, "Mở trình dán văn bản Zalo & Quét ảnh OCR", Toast.LENGTH_SHORT).show()
+                                showSmartImportSheet = true
                             }
                         )
                         DropdownMenuItem(
@@ -341,6 +343,37 @@ fun WeeklyGridScheduleScreen(
                 )
             }
 
+            // MARK: - PHÍM TẮT AI OCR & ĐỒNG BỘ LỊCH NHANH
+            item {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    OutlinedButton(
+                        onClick = { showSmartImportSheet = true },
+                        modifier = Modifier.weight(1f),
+                        colors = ButtonDefaults.outlinedButtonColors(contentColor = Color(0xFFB388FF)),
+                        border = ButtonDefaults.outlinedButtonBorder.copy(brush = Brush.horizontalGradient(listOf(Color(0xFFB388FF), Color(0xFF2E94FF)))),
+                        shape = RoundedCornerShape(12.dp)
+                    ) {
+                        Icon(Icons.Default.DocumentScanner, contentDescription = null, modifier = Modifier.size(16.dp))
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text("Dán Lịch (OCR)", fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                    }
+                    OutlinedButton(
+                        onClick = { showDeviceCalendarImportSheet = true },
+                        modifier = Modifier.weight(1f),
+                        colors = ButtonDefaults.outlinedButtonColors(contentColor = Color(0xFF2E94FF)),
+                        border = ButtonDefaults.outlinedButtonBorder.copy(brush = Brush.horizontalGradient(listOf(Color(0xFF2E94FF), Color(0xFF55B5FF)))),
+                        shape = RoundedCornerShape(12.dp)
+                    ) {
+                        Icon(Icons.Default.Sync, contentDescription = null, modifier = Modifier.size(16.dp))
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text("Đồng Bộ Lịch", fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                    }
+                }
+            }
+
             // MARK: - PHẦN 3: KHUNG XẾP LỊCH TRÌNH VÀO NGÀY ĐANG CHỌN (ScheduleInputCard nâng cấp)
             item {
                 ScheduleInputCard(
@@ -512,6 +545,24 @@ fun WeeklyGridScheduleScreen(
                     editingEvent = null
                     Toast.makeText(context, "Đã xóa lịch trình!", Toast.LENGTH_SHORT).show()
                 }
+            )
+        }
+
+        // Modal Sheet Nhập Lịch Thông Minh (AI & OCR)
+        if (showSmartImportSheet) {
+            SmartScheduleImportSheet(
+                targetMonday = targetMonday,
+                repository = repository,
+                onDismiss = { showSmartImportSheet = false }
+            )
+        }
+
+        // Modal Sheet Đồng Bộ Từ Lịch Điện Thoại
+        if (showDeviceCalendarImportSheet) {
+            DeviceCalendarImportSheet(
+                targetMonday = targetMonday,
+                repository = repository,
+                onDismiss = { showDeviceCalendarImportSheet = false }
             )
         }
     }
